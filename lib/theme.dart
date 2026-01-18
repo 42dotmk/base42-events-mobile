@@ -245,7 +245,7 @@ ThemeData get lightTheme => ThemeData(
     inversePrimary: LightModeColors.lightInversePrimary,
   ),
   brightness: Brightness.light,
-  scaffoldBackgroundColor: LightModeColors.lightBackground,
+  scaffoldBackgroundColor: const Color(0xFF05474D),
   splashFactory: NoSplash.splashFactory,
   appBarTheme: const AppBarTheme(
     backgroundColor: Colors.transparent,
