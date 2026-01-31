@@ -24,6 +24,9 @@ class BottomNavigationBarWidget extends StatelessWidget {
     return Scaffold(
       body: child,
       bottomNavigationBar: BottomNavigationBar(
+        backgroundColor: Colors.transparent,
+        unselectedItemColor: Theme.of(context).colorScheme.primary,
+        selectedItemColor: Colors.white,
         currentIndex: _calculateCurrentIndex(context),
         onTap: (index) => _onItemTap(context, index),
         items: const [
