@@ -1,15 +1,13 @@
 import 'dart:convert';
+import 'package:base42_events_mobile/consts/api.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/foundation.dart';
 import 'package:base42_events_mobile/models/event.dart';
 
 class EventService {
-  static const String baseUrl = 'https://cms.42.mk';
-  static const String apiUrl = '$baseUrl/api/events?populate=*';
-
   Future<List<Event>> fetchEvents() async {
     try {
-      final response = await http.get(Uri.parse(apiUrl));
+      final response = await http.get(Uri.parse(eventsApiUrl));
 
       if (response.statusCode == 200) {
         final jsonData = json.decode(response.body) as Map<String, dynamic>;
