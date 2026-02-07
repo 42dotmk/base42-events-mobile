@@ -1,9 +1,10 @@
-import 'package:base42_events_mobile/models/user.dart';
 import 'package:base42_events_mobile/nav.dart';
-import 'package:base42_events_mobile/services/user_service.dart';
+import 'package:base42_events_mobile/providers/auth_provider.dart';
 import 'package:base42_events_mobile/theme.dart';
+import 'package:base42_events_mobile/widgets/loading_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 
 class Signup extends StatefulWidget {
   const Signup({super.key});
@@ -17,29 +18,32 @@ class _SignupState extends State<Signup> {
   String _email = '';
   String _password = '';
   String _error = '';
+  bool _isLoading = false;
 
   void _signup() async {
+    if (_username.isEmpty || _email.isEmpty || _password.isEmpty) {
+      setState(() {
+        _error = 'Please fill in all fields';
+      });
+      return;
+    }
+
+    setState(() {
+      _error = '';
+    });
+
     try {
-      User? createdUser = await UserService().addUser(
-        _email,
-        _username,
-        _password,
-      );
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      await authProvider.signup(_email, _username, _password);
 
       if (!mounted) return;
-
-      if (createdUser != null) {
-        context.go(AppRoutes.home);
-      } else {
-        setState(() {
-          _error = 'Signup failed. Please try again.';
-        });
-      }
+      context.go(AppRoutes.home);
     } on Exception catch (e) {
       if (!mounted) return;
 
       setState(() {
         _error = e.toString();
+        _isLoading = false;
       });
     }
   }
@@ -143,14 +147,18 @@ class _SignupState extends State<Signup> {
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: TextButton(
-                        onPressed: () => _signup(),
-                        child: Text(
-                          'Create Account',
-                          style: TextStyle(
-                            color: Theme.of(context).colorScheme.onPrimary,
-                            fontSize: 16,
-                          ),
-                        ),
+                        onPressed: _isLoading ? null : () => _signup(),
+                        child: _isLoading
+                            ? LoadingWidget()
+                            : Text(
+                                'Create Account',
+                                style: TextStyle(
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onPrimary,
+                                  fontSize: 16,
+                                ),
+                              ),
                       ),
                     ),
                     const SizedBox(height: 30),

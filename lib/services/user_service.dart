@@ -1,5 +1,7 @@
 import 'dart:convert';
+import 'dart:developer' as developer;
 import 'package:base42_events_mobile/consts/api.dart';
+import 'package:base42_events_mobile/types.dart';
 import 'package:http/http.dart' as http;
 import 'package:base42_events_mobile/models/user.dart';
 
@@ -21,7 +23,11 @@ class UserService {
     }
   }
 
-  Future<User?> addUser(String email, String username, String password) async {
+  Future<AuthResponse> addUser(
+    String email,
+    String username,
+    String password,
+  ) async {
     try {
       var url = Uri.parse(registerUserApiUrl);
 
@@ -38,7 +44,11 @@ class UserService {
       if (response.statusCode == 200 || response.statusCode == 201) {
         var data = jsonDecode(response.body);
         User model = User.fromJson(data['user']);
-        return model;
+        return AuthResponse(
+          user: model,
+          jwt: data['jwt'],
+          expiresIn: data['expiresIn'],
+        );
       } else {
         var errorData = jsonDecode(response.body);
         String error = errorData['error']?['message'] ?? 'Registration failed';
@@ -49,7 +59,7 @@ class UserService {
     }
   }
 
-  Future<User?> loginUser(String email, String password) async {
+  Future<AuthResponse> loginUser(String email, String password) async {
     try {
       var url = Uri.parse(loginUserApiUrl);
 
@@ -62,7 +72,11 @@ class UserService {
       if (response.statusCode == 200) {
         var data = jsonDecode(response.body);
         User model = User.fromJson(data['user']);
-        return model;
+        return AuthResponse(
+          user: model,
+          jwt: data['jwt'],
+          expiresIn: data['expiresIn'],
+        );
       } else {
         var errorData = jsonDecode(response.body);
         String error = errorData['error']?['message'] ?? 'Login failed';
@@ -71,5 +85,50 @@ class UserService {
     } catch (e) {
       throw Exception('Login failed: $e');
     }
+  }
+
+  Future<void> logout(String token) async {
+    try {
+      var url = Uri.parse(logoutUserApiUrl);
+
+      var response = await postWithAuth(url.toString(), token, {});
+
+      if (response.statusCode != 200 && response.statusCode != 403) {
+        var errorData = jsonDecode(response.body);
+        String error = errorData['error']?['message'] ?? 'Logout failed';
+        developer.log('Logout API warning: $error', name: 'UserService');
+      }
+    } catch (e) {
+      developer.log(
+        'Logout API call failed (non-critical): $e',
+        name: 'UserService',
+        error: e,
+      );
+    }
+  }
+
+  Future<http.Response> getWithAuth(String url, String token) async {
+    return await http.get(
+      Uri.parse(url),
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer $token",
+      },
+    );
+  }
+
+  Future<http.Response> postWithAuth(
+    String url,
+    String token,
+    Map<String, dynamic> body,
+  ) async {
+    return await http.post(
+      Uri.parse(url),
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer $token",
+      },
+      body: jsonEncode(body),
+    );
   }
 }

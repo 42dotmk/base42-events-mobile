@@ -1,4 +1,4 @@
-// import 'package:flutter/material.dart';
+import 'package:base42_events_mobile/providers/auth_provider.dart';
 import 'package:base42_events_mobile/screens/login_screen.dart';
 import 'package:base42_events_mobile/screens/signup_screen.dart';
 import 'package:go_router/go_router.dart';
@@ -7,8 +7,35 @@ import 'package:base42_events_mobile/screens/event_details_screen.dart';
 import 'package:base42_events_mobile/models/event.dart';
 
 class AppRouter {
-  static final GoRouter router = GoRouter(
+  final AuthProvider authProvider;
+
+  AppRouter(this.authProvider);
+
+  late final GoRouter router = GoRouter(
     initialLocation: AppRoutes.login,
+    refreshListenable: authProvider,
+    redirect: (context, state) {
+      final isAuthenticated = authProvider.isAuthenticated;
+      final isLoading = authProvider.isLoading;
+
+      if (isLoading) {
+        return null;
+      }
+
+      final isAuthRoute =
+          state.matchedLocation == AppRoutes.login ||
+          state.matchedLocation == AppRoutes.signup;
+
+      if (!isAuthenticated && !isAuthRoute) {
+        return AppRoutes.login;
+      }
+
+      if (isAuthenticated && isAuthRoute) {
+        return AppRoutes.home;
+      }
+
+      return null;
+    },
     routes: [
       GoRoute(
         path: AppRoutes.home,

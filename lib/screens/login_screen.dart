@@ -1,9 +1,10 @@
-import 'package:base42_events_mobile/models/user.dart';
 import 'package:base42_events_mobile/nav.dart';
-import 'package:base42_events_mobile/services/user_service.dart';
+import 'package:base42_events_mobile/providers/auth_provider.dart';
 import 'package:base42_events_mobile/theme.dart';
+import 'package:base42_events_mobile/widgets/loading_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 
 class Login extends StatefulWidget {
   const Login({super.key});
@@ -16,24 +17,33 @@ class _LoginState extends State<Login> {
   String _email = '';
   String _password = '';
   String _error = '';
+  bool _isLoading = false;
 
   void _login() async {
+    if (_email.isEmpty || _password.isEmpty) {
+      setState(() {
+        _error = 'Please fill in all fields';
+      });
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+      _error = '';
+    });
+
     try {
-      User? user = await UserService().loginUser(_email, _password);
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      await authProvider.login(_email, _password);
 
       if (!mounted) return;
-
-      if (user != null) {
-        context.go(AppRoutes.home);
-      } else {
-        setState(() {
-          _error = 'Login failed. Please try again.';
-        });
-      }
+      context.go(AppRoutes.home);
     } catch (e) {
+      if (!mounted) return;
       setState(() {
         _error =
             'Username or password is incorrect. Please check your credentials.';
+        _isLoading = false;
       });
     }
   }
@@ -105,14 +115,18 @@ class _LoginState extends State<Login> {
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: TextButton(
-                        onPressed: () => _login(),
-                        child: Text(
-                          'Login',
-                          style: TextStyle(
-                            color: Theme.of(context).colorScheme.onPrimary,
-                            fontSize: 16,
-                          ),
-                        ),
+                        onPressed: _isLoading ? null : () => _login(),
+                        child: _isLoading
+                            ? LoadingWidget()
+                            : Text(
+                                'Login',
+                                style: TextStyle(
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onPrimary,
+                                  fontSize: 16,
+                                ),
+                              ),
                       ),
                     ),
                     const SizedBox(height: 30),

@@ -1,6 +1,6 @@
+import 'package:base42_events_mobile/consts/api.dart';
 import 'package:flutter/material.dart';
 import 'package:base42_events_mobile/models/event.dart';
-import 'package:base42_events_mobile/services/event_service.dart';
 
 class EventMediaHero extends StatelessWidget {
   final Event event;
@@ -12,8 +12,8 @@ class EventMediaHero extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
     if (event.promo != null) {
       final url =
-          event.promo!.getMediumUrl(EventService.baseUrl) ??
-          event.promo!.getFullUrl(EventService.baseUrl);
+          event.promo!.getMediumUrl(baseUrl) ??
+          event.promo!.getFullUrl(baseUrl);
       return Image.network(
         url,
         fit: BoxFit.cover,

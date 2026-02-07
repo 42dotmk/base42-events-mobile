@@ -1,3 +1,4 @@
+import 'package:base42_events_mobile/providers/auth_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -7,6 +8,7 @@ import 'package:base42_events_mobile/theme.dart';
 import 'package:base42_events_mobile/widgets/event_card.dart';
 import 'package:base42_events_mobile/widgets/error_view.dart';
 import 'package:base42_events_mobile/widgets/empty_view.dart';
+import 'package:provider/provider.dart';
 
 class EventListScreen extends StatefulWidget {
   const EventListScreen({super.key});
@@ -45,6 +47,26 @@ class _EventListScreenState extends State<EventListScreen> {
         _errorMessage = e.toString();
         _isLoading = false;
       });
+    }
+  }
+
+  void _logout(BuildContext context) async {
+    try {
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      await authProvider.logout();
+
+      if (context.mounted) {
+        context.go('/login');
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Logout failed: ${e.toString()}'),
+            backgroundColor: Theme.of(context).colorScheme.error,
+          ),
+        );
+      }
     }
   }
 
@@ -107,6 +129,19 @@ class _EventListScreenState extends State<EventListScreen> {
                               ),
                             ],
                           ),
+                        ),
+                        ElevatedButton(
+                          onPressed: () => _logout(context),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor:
+                                brand?.neonCyan ?? colorScheme.primary,
+                            foregroundColor: colorScheme.onPrimary,
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 8,
+                            ),
+                          ),
+                          child: Text('Logout'),
                         ),
                       ],
                     ),
