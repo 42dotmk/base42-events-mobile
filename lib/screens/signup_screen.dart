@@ -54,6 +54,11 @@ class _SignupState extends State<Signup> {
 
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => context.pop(),
+          color: brand?.deepTeal,
+        ),
         title: Text(
           'Signup',
           style: TextStyle(color: Theme.of(context).colorScheme.onPrimary),
@@ -164,7 +169,7 @@ class _SignupState extends State<Signup> {
                     const SizedBox(height: 30),
                     TextButton(
                       onPressed: () {
-                        context.go(AppRoutes.login);
+                        context.push(AppRoutes.login);
                       },
                       child: Text(
                         'Already have an account? Login',

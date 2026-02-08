@@ -1,14 +1,12 @@
-import 'package:base42_events_mobile/providers/auth_provider.dart';
+import 'package:base42_events_mobile/widgets/header_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:base42_events_mobile/models/event.dart';
 import 'package:base42_events_mobile/services/event_service.dart';
 import 'package:base42_events_mobile/theme.dart';
 import 'package:base42_events_mobile/widgets/event_card.dart';
 import 'package:base42_events_mobile/widgets/error_view.dart';
 import 'package:base42_events_mobile/widgets/empty_view.dart';
-import 'package:provider/provider.dart';
 
 class EventListScreen extends StatefulWidget {
   const EventListScreen({super.key});
@@ -50,26 +48,6 @@ class _EventListScreenState extends State<EventListScreen> {
     }
   }
 
-  void _logout(BuildContext context) async {
-    try {
-      final authProvider = Provider.of<AuthProvider>(context, listen: false);
-      await authProvider.logout();
-
-      if (context.mounted) {
-        context.go('/login');
-      }
-    } catch (e) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Logout failed: ${e.toString()}'),
-            backgroundColor: Theme.of(context).colorScheme.error,
-          ),
-        );
-      }
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final brand = Theme.of(context).extension<BrandTheme>();
@@ -90,6 +68,7 @@ class _EventListScreenState extends State<EventListScreen> {
               .toList();
 
     return Scaffold(
+      appBar: const HeaderWidget(),
       body: Container(
         decoration: BoxDecoration(gradient: brand?.backdropGradient),
         child: SafeArea(
@@ -100,51 +79,6 @@ class _EventListScreenState extends State<EventListScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        RichText(
-                          text: TextSpan(
-                            //ova da se zameni so logo
-                            children: [
-                              TextSpan(
-                                text: 'BASE',
-                                style: GoogleFonts.inter(
-                                  fontSize: 28,
-                                  fontWeight: FontWeight.w700,
-                                  color: brand?.neonCyan ?? colorScheme.primary,
-                                  letterSpacing: 4,
-                                ),
-                              ),
-                              TextSpan(
-                                text: '42',
-                                style: GoogleFonts.inter(
-                                  fontSize: 28,
-                                  fontWeight: FontWeight.w700,
-                                  color:
-                                      brand?.neonYellow ??
-                                      colorScheme.secondary,
-                                  letterSpacing: 2,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        ElevatedButton(
-                          onPressed: () => _logout(context),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor:
-                                brand?.neonCyan ?? colorScheme.primary,
-                            foregroundColor: colorScheme.onPrimary,
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 8,
-                            ),
-                          ),
-                          child: Text('Logout'),
-                        ),
-                      ],
-                    ),
                     const SizedBox(height: 12),
                     TextField(
                       onChanged: (v) => setState(() => _query = v),

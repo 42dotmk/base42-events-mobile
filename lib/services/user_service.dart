@@ -107,6 +107,27 @@ class UserService {
     }
   }
 
+  Future<User> getCurrentAuthenticatedUser(String token) async {
+    try {
+      var url = Uri.parse(currentAuthenticatedUserApiUrl);
+
+      var response = await getWithAuth(url.toString(), token);
+
+      if (response.statusCode == 200) {
+        var data = jsonDecode(response.body);
+        return User.fromJson(data);
+      } else {
+        var errorData = jsonDecode(response.body);
+        String error =
+            errorData['error']?['message'] ??
+            'Failed to fetch current authenticated user';
+        throw Exception(error);
+      }
+    } catch (e) {
+      throw Exception('Failed to fetch current authenticated user: $e');
+    }
+  }
+
   Future<http.Response> getWithAuth(String url, String token) async {
     return await http.get(
       Uri.parse(url),

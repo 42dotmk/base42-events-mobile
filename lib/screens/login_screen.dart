@@ -53,6 +53,11 @@ class _LoginState extends State<Login> {
     final brand = Theme.of(context).extension<BrandTheme>();
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => context.pop(),
+          color: brand?.deepTeal,
+        ),
         title: Text(
           'Login',
           style: TextStyle(color: Theme.of(context).colorScheme.onPrimary),
@@ -132,7 +137,7 @@ class _LoginState extends State<Login> {
                     const SizedBox(height: 30),
                     TextButton(
                       onPressed: () {
-                        context.go(AppRoutes.signup);
+                        context.push(AppRoutes.signup);
                       },
                       child: Text(
                         'Don\'t have an account? Sign up',

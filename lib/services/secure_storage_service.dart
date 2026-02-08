@@ -5,6 +5,9 @@ class SecureStorageService {
       SecureStorageService._internal();
   static const FlutterSecureStorage _storage = FlutterSecureStorage();
 
+  static const String jwtTokenKey = 'jwt';
+  static const String jwtExpirationKey = 'jwt_token_expiration';
+
   factory SecureStorageService() => _instance;
   SecureStorageService._internal();
 
@@ -13,7 +16,7 @@ class SecureStorageService {
   }
 
   Future<String?> getToken(String key) async {
-    if (key == 'jwt_token_expiration') {
+    if (key == jwtExpirationKey) {
       final expiration = await getAuthTokenExpiration();
       return expiration?.millisecondsSinceEpoch.toString();
     }
@@ -29,9 +32,9 @@ class SecureStorageService {
   }
 
   Future<DateTime?> getAuthTokenExpiration() async {
-    final expirationStr = await _storage.read(key: 'jwt_token_expiration');
-    if (expirationStr != null) {
-      return DateTime.fromMillisecondsSinceEpoch(int.parse(expirationStr));
+    final expirationString = await _storage.read(key: jwtExpirationKey);
+    if (expirationString != null) {
+      return DateTime.fromMillisecondsSinceEpoch(int.parse(expirationString));
     }
     return null;
   }

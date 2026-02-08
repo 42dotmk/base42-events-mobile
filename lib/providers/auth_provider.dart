@@ -26,24 +26,26 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      _token = await _storageService.getToken();
+      _token = await _storageService.getToken(SecureStorageService.jwtTokenKey);
       final isExpired = await _storageService.isAuthTokenExpired();
 
       if (_token != null && isExpired) {
         developer.log('Token expired', name: 'AuthProvider');
         await logout();
-      } else if (_token != null && !isExpired) {
-        developer.log('Valid token found in storage', name: 'AuthProvider');
+        return;
       }
 
-      _isLoading = false;
-      notifyListeners();
+      if (_token != null && !isExpired) {
+        _currentUser = await _userService.getCurrentAuthenticatedUser(_token!);
+        developer.log(
+          'User data loaded: ${_currentUser?.username}',
+          name: 'AuthProvider',
+        );
+      }
     } catch (e) {
-      developer.log(
-        'Auth status check failed: $e',
-        name: 'AuthProvider',
-        error: e,
-      );
+      developer.log('Auth check failed: $e', name: 'AuthProvider', error: e);
+      await logout();
+    } finally {
       _isLoading = false;
       notifyListeners();
     }
@@ -61,12 +63,15 @@ class AuthProvider extends ChangeNotifier {
         throw Exception('Failed to retrieve auth token');
       }
 
-      await _storageService.saveToken('jwt', _token!);
+      await _storageService.saveToken(
+        SecureStorageService.jwtTokenKey,
+        _token!,
+      );
 
       final expiresIn = result.expiresIn ?? 900; // 15 minutes default
       final expiration = DateTime.now().add(Duration(seconds: expiresIn));
       await _storageService.saveToken(
-        'jwt_token_expiration',
+        SecureStorageService.jwtExpirationKey,
         expiration.millisecondsSinceEpoch.toString(),
       );
 
@@ -94,12 +99,15 @@ class AuthProvider extends ChangeNotifier {
         throw Exception('Failed to retrieve auth token');
       }
 
-      await _storageService.saveToken('jwt', _token!);
+      await _storageService.saveToken(
+        SecureStorageService.jwtTokenKey,
+        _token!,
+      );
 
       final expiresIn = result.expiresIn ?? 900; // 15 minutes default
       final expiration = DateTime.now().add(Duration(seconds: expiresIn));
       await _storageService.saveToken(
-        'jwt_token_expiration',
+        SecureStorageService.jwtExpirationKey,
         expiration.millisecondsSinceEpoch.toString(),
       );
 
@@ -126,8 +134,8 @@ class AuthProvider extends ChangeNotifier {
         error: e,
       );
     } finally {
-      await _storageService.deleteToken('jwt');
-      await _storageService.deleteToken('jwt_token_expiration');
+      await _storageService.deleteToken(SecureStorageService.jwtTokenKey);
+      await _storageService.deleteToken(SecureStorageService.jwtExpirationKey);
       _currentUser = null;
       _token = null;
 
@@ -147,6 +155,7 @@ class AuthProvider extends ChangeNotifier {
       return null;
     }
 
-    return _token ?? await _storageService.getToken('jwt');
+    return _token ??
+        await _storageService.getToken(SecureStorageService.jwtTokenKey);
   }
 }
