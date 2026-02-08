@@ -64,7 +64,7 @@ class _SignupState extends State<Signup> {
           style: TextStyle(color: Theme.of(context).colorScheme.onPrimary),
         ),
         backgroundColor: brand?.deepNavy,
-      ), // TO-DO: Change to reusable header widget
+      ),
       body: Container(
         width: double.infinity,
         height: double.infinity,
