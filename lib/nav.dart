@@ -1,6 +1,4 @@
 import 'package:base42_events_mobile/providers/auth_provider.dart';
-import 'package:base42_events_mobile/screens/login_screen.dart';
-import 'package:base42_events_mobile/screens/signup_screen.dart';
 import 'package:base42_events_mobile/screens/home_screen.dart';
 import 'package:base42_events_mobile/screens/profile_screen.dart';
 import 'package:base42_events_mobile/widgets/bottom_navbar.dart';
@@ -31,14 +29,11 @@ class AppRouter {
         return null;
       }
 
-      final isAuthRoute =
-          state.matchedLocation == AppRoutes.login ||
-          state.matchedLocation == AppRoutes.signup;
-      // if (!isAuthenticated && !isAuthRoute) {
+      // if (!isAuthenticated) {
       //   return AppRoutes.login;
       // }
 
-      //  if (isAuthenticated && isAuthRoute) {
+      //  if (isAuthenticated) {
       //     return AppRoutes.home;
       //   }
 
@@ -78,17 +73,6 @@ class AppRouter {
           ),
         ],
       ),
-      GoRoute(
-        path: AppRoutes.login,
-        name: 'login',
-        pageBuilder: (context, state) => const NoTransitionPage(child: Login()),
-      ),
-      GoRoute(
-        path: AppRoutes.signup,
-        name: 'signup',
-        pageBuilder: (context, state) =>
-            const NoTransitionPage(child: Signup()),
-      ),
     ],
   );
 }
@@ -98,6 +82,4 @@ class AppRoutes {
   static const String events = '/events';
   static const String profile = '/profile';
   static const String eventDetails = '/event/:id';
-  static const String signup = '/signup';
-  static const String login = '/login';
 }

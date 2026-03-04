@@ -23,67 +23,34 @@ class UserService {
     }
   }
 
-  Future<AuthResponse> addUser(
-    String email,
-    String username,
-    String password,
-  ) async {
-    try {
-      var url = Uri.parse(registerUserApiUrl);
+  Future<AuthResponse> loginWithKeycloak(String keycloakAccessToken) async {
+    final url = Uri.parse(
+      '$exchangeKeycloakTokenApiUrl?code=$keycloakAccessToken',
+    );
 
-      var response = await http.post(
-        url,
-        headers: {"Content-Type": "application/json"},
-        body: jsonEncode({
-          "username": username,
-          "email": email,
-          "password": password,
-        }),
+    final response = await http.get(
+      url,
+      headers: {'Content-Type': 'application/json'},
+    );
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      final user = User.fromJson(data['user']);
+      return AuthResponse(
+        user: user,
+        jwt: data['jwt'],
+        expiresIn: data['expiresIn'],
       );
-
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        var data = jsonDecode(response.body);
-        User model = User.fromJson(data['user']);
-        return AuthResponse(
-          user: model,
-          jwt: data['jwt'],
-          expiresIn: data['expiresIn'],
-        );
-      } else {
-        var errorData = jsonDecode(response.body);
-        String error = errorData['error']?['message'] ?? 'Registration failed';
-        throw Exception(error);
+    } else {
+      String error;
+      try {
+        final errorData = jsonDecode(response.body);
+        error = errorData['error']?['message'] ?? 'Keycloak login failed';
+      } catch (_) {
+        error =
+            'Keycloak login failed (HTTP ${response.statusCode}, ${response.reasonPhrase}, response body: ${response.body})';
       }
-    } catch (e) {
-      throw Exception(e);
-    }
-  }
-
-  Future<AuthResponse> loginUser(String email, String password) async {
-    try {
-      var url = Uri.parse(loginUserApiUrl);
-
-      var response = await http.post(
-        url,
-        headers: {"Content-Type": "application/json"},
-        body: jsonEncode({"identifier": email, "password": password}),
-      );
-
-      if (response.statusCode == 200) {
-        var data = jsonDecode(response.body);
-        User model = User.fromJson(data['user']);
-        return AuthResponse(
-          user: model,
-          jwt: data['jwt'],
-          expiresIn: data['expiresIn'],
-        );
-      } else {
-        var errorData = jsonDecode(response.body);
-        String error = errorData['error']?['message'] ?? 'Login failed';
-        throw Exception(error);
-      }
-    } catch (e) {
-      throw Exception('Login failed: $e');
+      throw Exception(error);
     }
   }
 

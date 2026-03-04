@@ -6,12 +6,71 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
-// TODO: Implement profile screen
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
+
+  @override
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
+  bool _isKeycloakLoading = false;
+
+  void _registerWithKeycloak(BuildContext context) async {
+    try {
+      setState(() {
+        _isKeycloakLoading = true;
+      });
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      await authProvider.register();
+
+      if (!context.mounted) return;
+      context.go(AppRoutes.profile);
+    } catch (e) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Keycloak registration failed. Please try again.'),
+          backgroundColor: Theme.of(context).colorScheme.error,
+        ),
+      );
+    } finally {
+      setState(() {
+        _isKeycloakLoading = false;
+      });
+    }
+  }
+
+  void _loginWithKeycloak(BuildContext context) async {
+    try {
+      setState(() {
+        _isKeycloakLoading = true;
+      });
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      await authProvider.login();
+
+      if (!context.mounted) return;
+      context.go(AppRoutes.profile);
+    } catch (e) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Keycloak login failed. Please try again.'),
+          backgroundColor: Theme.of(context).colorScheme.error,
+        ),
+      );
+    } finally {
+      setState(() {
+        _isKeycloakLoading = false;
+      });
+    }
+  }
 
   void _logout(BuildContext context) async {
     try {
+      setState(() {
+        _isKeycloakLoading = true;
+      });
       final authProvider = Provider.of<AuthProvider>(context, listen: false);
       await authProvider.logout();
 
@@ -27,7 +86,21 @@ class ProfileScreen extends StatelessWidget {
           ),
         );
       }
+    } finally {
+      setState(() {
+        _isKeycloakLoading = false;
+      });
     }
+  }
+
+  VoidCallback? _onAuthButtonPressed(
+    BuildContext context,
+    bool isAuthenticated,
+  ) {
+    if (_isKeycloakLoading) return null;
+    return isAuthenticated
+        ? () => _logout(context)
+        : () => _loginWithKeycloak(context);
   }
 
   @override
@@ -54,36 +127,69 @@ class ProfileScreen extends StatelessWidget {
                       colorScheme.primary,
                 ),
                 Padding(
-                  padding: const EdgeInsets.all(AppSpacing.md),
-                  child: Text(
-                    isAuthenticated
-                        ? 'Welcome, ${authProvider.currentUser?.username ?? 'User'}!'
-                        : 'You are not logged in.',
-                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Center(
+                    child: Text(
+                      isAuthenticated
+                          ? 'Welcome, ${authProvider.currentUser?.username ?? 'User'}!'
+                          : 'You are not logged in.',
+                      style: Theme.of(context).textTheme.headlineMedium
+                          ?.copyWith(
+                            color:
+                                brand?.neonCyan.withValues(alpha: 0.8) ??
+                                colorScheme.primary,
+                            fontSize:
+                                Theme.of(
+                                  context,
+                                ).textTheme.headlineSmall?.fontSize ??
+                                24 * 1.5,
+                          ),
+                    ),
+                  ),
+                ),
+                TextButton.icon(
+                  onPressed: _onAuthButtonPressed(context, isAuthenticated),
+                  icon: _isKeycloakLoading
+                      ? const SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Icon(Icons.lock_open_outlined),
+                  label: Text(
+                    isAuthenticated ? 'Logout' : 'Login',
+                    style: TextStyle(
                       color:
-                          brand?.neonCyan.withValues(alpha: 0.8) ??
-                          colorScheme.primary,
+                          brand?.neonCyan.withValues(alpha: 0.9) ??
+                          Theme.of(context).colorScheme.primary,
+                      fontSize: 15,
+                    ),
+                  ),
+                  style: TextButton.styleFrom(
+                    foregroundColor:
+                        brand?.neonCyan.withValues(alpha: 0.9) ??
+                        Theme.of(context).colorScheme.primary,
+                    side: BorderSide(
+                      color:
+                          brand?.neonCyan.withValues(alpha: 0.9) ??
+                          Theme.of(context).colorScheme.primary,
+                      width: 2,
                     ),
                   ),
                 ),
-                ElevatedButton(
-                  onPressed: isAuthenticated
-                      ? () => _logout(context)
-                      : () => context.push(AppRoutes.login),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor:
-                        brand?.deepNavy.withValues(alpha: 0.75) ??
-                        colorScheme.primary,
-                    foregroundColor: colorScheme.onPrimary,
-                    shadowColor: brand?.neonCyan ?? colorScheme.primary,
-                    elevation: 3,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 8,
+                if (!isAuthenticated)
+                  TextButton(
+                    onPressed: () => _registerWithKeycloak(context),
+                    child: Text(
+                      'Don\'t have an account? Sign up',
+                      style: TextStyle(
+                        fontSize: 16,
+                        color:
+                            brand?.neonCyan.withValues(alpha: 0.5) ??
+                            Theme.of(context).colorScheme.primary,
+                      ),
                     ),
                   ),
-                  child: Text(isAuthenticated ? 'Logout' : 'Login'),
-                ),
               ],
             ),
           ),
