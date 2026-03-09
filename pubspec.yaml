@@ -44,6 +44,8 @@
     provider: ^6.1.5+1
     flutter_secure_storage: ^10.0.0
     flutter_appauth: ^8.0.1
+    image_field: ^0.0.12
+    image_picker: ^1.2.1
 
   dev_dependencies:
     flutter_test:
