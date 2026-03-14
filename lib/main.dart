@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
-
-// import 'package:provider/provider.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'theme.dart';
 import 'nav.dart';
+import 'services/fcm_service.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await FCMService.instance.init();
+  FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
   runApp(const MyApp());
 }
 
@@ -13,7 +16,6 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Da se stavi Provider
     return MaterialApp.router(
       title: 'EventFlow',
       debugShowCheckedModeBanner: false,
