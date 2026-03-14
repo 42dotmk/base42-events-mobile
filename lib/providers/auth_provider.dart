@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:base42_events_mobile/consts/api.dart';
 import 'package:base42_events_mobile/models/user.dart';
 import 'package:base42_events_mobile/services/user_service.dart';
 import 'package:base42_events_mobile/services/secure_storage_service.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_appauth/flutter_appauth.dart';
 import 'dart:developer' as developer;
 
 class AuthProvider extends ChangeNotifier {
@@ -16,6 +19,7 @@ class AuthProvider extends ChangeNotifier {
 
   final UserService _userService = UserService();
   final SecureStorageService _storageService = SecureStorageService();
+  final FlutterAppAuth _appAuth = const FlutterAppAuth();
 
   AuthProvider() {
     _checkAuthStatus();
@@ -51,52 +55,77 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> login(String email, String password) async {
+  bool isUserCancelled(Object e) {
+    if (e is FlutterAppAuthUserCancelledException) return true;
+    if (e is PlatformException && e.code == 'user_canceled') return true;
+
+    return false;
+  }
+
+  Future<void> login() async {
     try {
-      developer.log('Login attempt for: $email', name: 'AuthProvider');
-
-      final result = await _userService.loginUser(email, password);
-      _currentUser = result.user;
-      _token = result.jwt;
-
-      if (_token == null) {
-        throw Exception('Failed to retrieve auth token');
-      }
-
-      await _storageService.saveToken(
-        SecureStorageService.jwtTokenKey,
-        _token!,
+      final authResponse = await _appAuth.authorizeAndExchangeCode(
+        AuthorizationTokenRequest(
+          keycloakClientId,
+          keycloakRedirectUri,
+          issuer: keycloakIssuerUrl,
+          scopes: ['openid', 'profile', 'email'],
+          promptValues: ['login'],
+        ),
       );
 
-      final expiresIn = result.expiresIn ?? 900; // 15 minutes default
-      final expiration = DateTime.now().add(Duration(seconds: expiresIn));
-      await _storageService.saveToken(
-        SecureStorageService.jwtExpirationKey,
-        expiration.millisecondsSinceEpoch.toString(),
-      );
-
-      developer.log(
-        'Login successful for user: ${_currentUser?.username}',
-        name: 'AuthProvider',
-      );
-      notifyListeners();
+      final accessToken = authResponse.accessToken;
+      await exchangeForStrapiToken(accessToken);
     } catch (e) {
-      developer.log('Login failed: $e', name: 'AuthProvider', error: e);
+      if (isUserCancelled(e)) {
+        return;
+      }
       rethrow;
     }
   }
 
-  Future<void> signup(String email, String username, String password) async {
+  Future<void> register() async {
     try {
-      developer.log('Signup attempt for: $email', name: 'AuthProvider');
+      final authResponse = await _appAuth.authorizeAndExchangeCode(
+        AuthorizationTokenRequest(
+          keycloakClientId,
+          keycloakRedirectUri,
+          serviceConfiguration: AuthorizationServiceConfiguration(
+            authorizationEndpoint: keycloakRegisterUrl,
+            tokenEndpoint: keycloakTokenEndpoint,
+          ),
+          scopes: ['openid', 'profile', 'email'],
+          promptValues: ['select_account'],
+        ),
+      );
 
-      final result = await _userService.addUser(email, username, password);
+      final accessToken = authResponse.accessToken;
+      await exchangeForStrapiToken(accessToken);
+    } catch (e) {
+      if (isUserCancelled(e)) {
+        return;
+      }
+      developer.log(
+        'Keycloak registration failed: $e',
+        name: 'AuthProvider',
+        error: e,
+      );
+      rethrow;
+    }
+  }
 
+  Future<void> exchangeForStrapiToken(String? keycloakToken) async {
+    try {
+      if (keycloakToken == null) {
+        throw Exception('No access token returned from Keycloak');
+      }
+
+      final result = await _userService.loginWithKeycloak(keycloakToken);
       _currentUser = result.user;
       _token = result.jwt;
 
       if (_token == null) {
-        throw Exception('Failed to retrieve auth token');
+        throw Exception('Failed to retrieve Strapi auth token');
       }
 
       await _storageService.saveToken(
@@ -104,30 +133,34 @@ class AuthProvider extends ChangeNotifier {
         _token!,
       );
 
-      final expiresIn = result.expiresIn ?? 900; // 15 minutes default
+      final expiresIn = result.expiresIn ?? 900;
       final expiration = DateTime.now().add(Duration(seconds: expiresIn));
+
       await _storageService.saveToken(
         SecureStorageService.jwtExpirationKey,
         expiration.millisecondsSinceEpoch.toString(),
       );
-
-      developer.log(
-        'Signup successful for user: ${_currentUser?.username}',
-        name: 'AuthProvider',
-      );
       notifyListeners();
     } catch (e) {
-      developer.log('Signup failed: $e', name: 'AuthProvider', error: e);
+      if (isUserCancelled(e)) {
+        return;
+      }
+      developer.log(
+        'Strapi token exchange failed: $e',
+        name: 'AuthProvider',
+        error: e,
+      );
       rethrow;
     }
   }
 
   Future<void> logout() async {
     try {
-      if (_token != null) {
-        await _userService.logout(_token!);
-      }
+      await _userService.logout(_token!);
     } catch (e) {
+      if (isUserCancelled(e)) {
+        return;
+      }
       developer.log(
         'Logout API call failed (non-critical): $e',
         name: 'AuthProvider',
