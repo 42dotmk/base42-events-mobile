@@ -1,4 +1,6 @@
-// import 'package:flutter/material.dart';
+import 'package:base42_events_mobile/providers/auth_provider.dart';
+import 'package:base42_events_mobile/screens/login_screen.dart';
+import 'package:base42_events_mobile/screens/signup_screen.dart';
 import 'package:base42_events_mobile/screens/home_screen.dart';
 import 'package:base42_events_mobile/screens/profile_screen.dart';
 import 'package:base42_events_mobile/widgets/bottom_navbar.dart';
@@ -9,16 +11,41 @@ import 'package:base42_events_mobile/screens/event_details_screen.dart';
 import 'package:base42_events_mobile/models/event.dart';
 
 final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>();
-final GlobalKey<NavigatorState> _shellNavigatorKey =
-    GlobalKey<NavigatorState>();
 
 class AppRouter {
-  static final GoRouter router = GoRouter(
+  final AuthProvider authProvider;
+
+  AppRouter(this.authProvider);
+
+  late final GoRouter router = GoRouter(
     initialLocation: AppRoutes.home,
     navigatorKey: _rootNavigatorKey,
+    refreshListenable: authProvider,
+    redirect: (context, state) {
+      // TODO: Handle redirection for non-authenticated users for auth routes
+      // (e.g., redirect to login if not accessing an auth route like attended events or profile)
+      final isAuthenticated = authProvider.isAuthenticated;
+      final isLoading = authProvider.isLoading;
+
+      if (isLoading) {
+        return null;
+      }
+
+      final isAuthRoute =
+          state.matchedLocation == AppRoutes.login ||
+          state.matchedLocation == AppRoutes.signup;
+      // if (!isAuthenticated && !isAuthRoute) {
+      //   return AppRoutes.login;
+      // }
+
+      //  if (isAuthenticated && isAuthRoute) {
+      //     return AppRoutes.home;
+      //   }
+
+      return null;
+    },
     routes: [
       ShellRoute(
-        navigatorKey: _shellNavigatorKey,
         builder: (context, state, child) {
           return BottomNavigationBarWidget(child: child);
         },
@@ -51,6 +78,17 @@ class AppRouter {
           ),
         ],
       ),
+      GoRoute(
+        path: AppRoutes.login,
+        name: 'login',
+        pageBuilder: (context, state) => const NoTransitionPage(child: Login()),
+      ),
+      GoRoute(
+        path: AppRoutes.signup,
+        name: 'signup',
+        pageBuilder: (context, state) =>
+            const NoTransitionPage(child: Signup()),
+      ),
     ],
   );
 }
@@ -60,4 +98,6 @@ class AppRoutes {
   static const String events = '/events';
   static const String profile = '/profile';
   static const String eventDetails = '/event/:id';
+  static const String signup = '/signup';
+  static const String login = '/login';
 }

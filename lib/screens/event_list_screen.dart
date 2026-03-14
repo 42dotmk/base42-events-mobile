@@ -1,7 +1,6 @@
 import 'package:base42_events_mobile/widgets/header_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:base42_events_mobile/models/event.dart';
 import 'package:base42_events_mobile/services/event_service.dart';
 import 'package:base42_events_mobile/theme.dart';
