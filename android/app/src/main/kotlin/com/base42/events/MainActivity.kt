@@ -1,4 +1,4 @@
-package com.base42.events
+package mk.base42.app
 
 import io.flutter.embedding.android.FlutterActivity
 
