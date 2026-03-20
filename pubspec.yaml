@@ -45,6 +45,8 @@
     firebase_core: ^4.5.0
     firebase_messaging: ^16.1.2
     flutter_local_notifications: ^21.0.0
+    flutter_secure_storage: ^10.0.0
+    flutter_appauth: ^8.0.1
 
   dev_dependencies:
     flutter_test:

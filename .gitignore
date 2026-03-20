@@ -36,6 +36,7 @@ migrate_working_dir/
 .buildlog/
 .packages
 .flutter-plugins
+devtools_options.yaml 
 
 # Symbolication related
 app.*.symbols

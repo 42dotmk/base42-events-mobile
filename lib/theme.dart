@@ -245,7 +245,7 @@ ThemeData get lightTheme => ThemeData(
     inversePrimary: LightModeColors.lightInversePrimary,
   ),
   brightness: Brightness.light,
-  scaffoldBackgroundColor: LightModeColors.lightBackground,
+  scaffoldBackgroundColor: const Color(0xFF05474D),
   splashFactory: NoSplash.splashFactory,
   appBarTheme: const AppBarTheme(
     backgroundColor: Colors.transparent,
@@ -258,7 +258,7 @@ ThemeData get lightTheme => ThemeData(
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(12),
       side: BorderSide(
-        color: LightModeColors.lightOutline.withOpacity(0.2),
+        color: LightModeColors.lightOutline.withValues(alpha: 0.2),
         width: 1,
       ),
     ),
@@ -277,13 +277,13 @@ ThemeData get lightTheme => ThemeData(
     border: OutlineInputBorder(
       borderRadius: BorderRadius.circular(AppRadius.lg),
       borderSide: BorderSide(
-        color: LightModeColors.lightOutline.withOpacity(0.3),
+        color: LightModeColors.lightOutline.withValues(alpha: 0.3),
       ),
     ),
     enabledBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(AppRadius.lg),
       borderSide: BorderSide(
-        color: LightModeColors.lightOutline.withOpacity(0.2),
+        color: LightModeColors.lightOutline.withValues(alpha: 0.2),
       ),
     ),
   ),
@@ -340,7 +340,7 @@ ThemeData get darkTheme => ThemeData(
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(12),
       side: BorderSide(
-        color: const Color(0xFF5A7A7D).withOpacity(0.2),
+        color: const Color(0xFF5A7A7D).withValues(alpha: 0.2),
         width: 1,
       ),
     ),
@@ -362,7 +362,9 @@ ThemeData get darkTheme => ThemeData(
     ),
     enabledBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(AppRadius.lg),
-      borderSide: BorderSide(color: const Color(0xFF5A7A7D).withOpacity(0.4)),
+      borderSide: BorderSide(
+        color: const Color(0xFF5A7A7D).withValues(alpha: 0.4),
+      ),
     ),
   ),
   textTheme: _buildTextTheme(Brightness.dark),
