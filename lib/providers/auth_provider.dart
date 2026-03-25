@@ -85,7 +85,18 @@ class AuthProvider extends ChangeNotifier {
   }
 
   Future<void> register() async {
+    developer.log('register() called', name: 'AuthProvider');
+
     try {
+      developer.log(
+        'Initiating Keycloak authorizeAndExchangeCode...\n'
+        '  clientId: $keycloakClientId\n'
+        '  redirectUri: $keycloakRedirectUri\n'
+        '  authorizationEndpoint: $keycloakRegisterUrl\n'
+        '  tokenEndpoint: $keycloakTokenEndpoint',
+        name: 'AuthProvider',
+      );
+
       final authResponse = await _appAuth.authorizeAndExchangeCode(
         AuthorizationTokenRequest(
           keycloakClientId,
@@ -99,16 +110,44 @@ class AuthProvider extends ChangeNotifier {
         ),
       );
 
+      developer.log(
+        'authorizeAndExchangeCode succeeded\n'
+        '  accessToken: ${authResponse.accessToken != null ? '[present, ${authResponse.accessToken!.length} chars]' : '[null]'}\n'
+        '  refreshToken: ${authResponse.refreshToken != null ? '[present]' : '[null]'}\n'
+        '  idToken: ${authResponse.idToken != null ? '[present]' : '[null]'}\n'
+        '  accessTokenExpiration: ${authResponse.accessTokenExpirationDateTime}',
+        name: 'AuthProvider',
+      );
+
       final accessToken = authResponse.accessToken;
-      await exchangeForStrapiToken(accessToken);
-    } catch (e) {
-      if (isUserCancelled(e)) {
+
+      if (accessToken == null) {
+        developer.log(
+          'accessToken is null after authorizeAndExchangeCode — aborting',
+          name: 'AuthProvider',
+        );
         return;
       }
+
+      developer.log(
+        'Exchanging Keycloak token for Strapi token...',
+        name: 'AuthProvider',
+      );
+
+      await exchangeForStrapiToken(accessToken);
+
+      developer.log('exchangeForStrapiToken succeeded', name: 'AuthProvider');
+    } catch (e, stackTrace) {
+      if (isUserCancelled(e)) {
+        developer.log('register() cancelled by user', name: 'AuthProvider');
+        return;
+      }
+
       developer.log(
         'Keycloak registration failed: $e',
         name: 'AuthProvider',
         error: e,
+        stackTrace: stackTrace,
       );
       rethrow;
     }
