@@ -303,10 +303,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           linkColor,
                         ),
                       ),
-                      Icon(
-                        Icons.chevron_right_rounded,
-                        color: linkColor,
-                      ),
+                      Icon(Icons.chevron_right_rounded, color: linkColor),
                     ],
                   ),
                   const SizedBox(height: 10),
@@ -326,10 +323,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           linkColor,
                         ),
                       ),
-                      Icon(
-                        Icons.chevron_right_rounded,
-                        color: linkColor,
-                      ),
+                      Icon(Icons.chevron_right_rounded, color: linkColor),
                     ],
                   ),
                   const SizedBox(height: 10),
@@ -359,10 +353,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               style: context.textStyles.titleMedium?.medium
                                   .withColor(linkColor),
                             ),
-                            Icon(
-                              Icons.chevron_right_rounded,
-                              color: linkColor,
-                            ),
+                            Icon(Icons.chevron_right_rounded, color: linkColor),
                           ],
                         ),
                       ),

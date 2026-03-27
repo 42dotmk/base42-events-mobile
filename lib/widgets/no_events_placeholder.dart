@@ -58,14 +58,10 @@ class NoUpcomingEventsPlacehoder extends StatelessWidget {
                       children: [
                         Text(
                           'Browse all events',
-                          style: context.textStyles.titleMedium?.medium.withColor(
-                            linkColor,
-                          ),
+                          style: context.textStyles.titleMedium?.medium
+                              .withColor(linkColor),
                         ),
-                        Icon(
-                          Icons.chevron_right_rounded,
-                          color: linkColor,
-                        ),
+                        Icon(Icons.chevron_right_rounded, color: linkColor),
                       ],
                     ),
                   ],
