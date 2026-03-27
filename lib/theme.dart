@@ -43,16 +43,18 @@ class AppRadius {
 /// Brand theme extension to carry non-ColorScheme brand tokens
 @immutable
 class BrandTheme extends ThemeExtension<BrandTheme> {
-  final Color deepNavy; // #082428
-  final Color deepTeal; // #05474D
-  final Color neonCyan; // #2BEDED
-  final Color neonYellow; // #FAE127
+  final Color deepNavy; // #070B12
+  final Color deepTeal; // #121E2C
+  final Color neonCyan; // #7EF3F4
+  final Color neonYellow; // #E9DF4A
+  final Color linkTextGray; // muted gray for text links
 
   const BrandTheme({
     required this.deepNavy,
     required this.deepTeal,
     required this.neonCyan,
     required this.neonYellow,
+    required this.linkTextGray,
   });
 
   LinearGradient get backdropGradient => LinearGradient(
@@ -70,11 +72,13 @@ class BrandTheme extends ThemeExtension<BrandTheme> {
     Color? deepTeal,
     Color? neonCyan,
     Color? neonYellow,
+    Color? linkTextGray,
   }) => BrandTheme(
     deepNavy: deepNavy ?? this.deepNavy,
     deepTeal: deepTeal ?? this.deepTeal,
     neonCyan: neonCyan ?? this.neonCyan,
     neonYellow: neonYellow ?? this.neonYellow,
+    linkTextGray: linkTextGray ?? this.linkTextGray,
   );
 
   @override
@@ -85,6 +89,7 @@ class BrandTheme extends ThemeExtension<BrandTheme> {
       deepTeal: Color.lerp(deepTeal, other.deepTeal, t)!,
       neonCyan: Color.lerp(neonCyan, other.neonCyan, t)!,
       neonYellow: Color.lerp(neonYellow, other.neonYellow, t)!,
+      linkTextGray: Color.lerp(linkTextGray, other.linkTextGray, t)!,
     );
   }
 }
@@ -130,18 +135,18 @@ extension TextStyleExtensions on TextStyle {
 /// Modern, neutral color palette for light mode
 /// Uses soft grays and blues instead of purple for a contemporary look
 class LightModeColors {
-  // Primary: Soft blue-gray for a modern, professional look
-  static const lightPrimary = Color(0xFF5B7C99);
+  // Primary/Secondary tuned to the new event UI accents.
+  static const lightPrimary = Color(0xFF4CCDD1);
   static const lightOnPrimary = Color(0xFFFFFFFF);
-  static const lightPrimaryContainer = Color(0xFFD8E6F3);
-  static const lightOnPrimaryContainer = Color(0xFF1A3A52);
+  static const lightPrimaryContainer = Color(0xFFDBF5F6);
+  static const lightOnPrimaryContainer = Color(0xFF11353A);
 
   // Secondary: Complementary gray-blue
-  static const lightSecondary = Color(0xFF5C6B7A);
-  static const lightOnSecondary = Color(0xFFFFFFFF);
+  static const lightSecondary = Color(0xFFE9DF4A);
+  static const lightOnSecondary = Color(0xFF1F2430);
 
   // Tertiary: Subtle accent color
-  static const lightTertiary = Color(0xFF6B7C8C);
+  static const lightTertiary = Color(0xFF5A6E89);
   static const lightOnTertiary = Color(0xFFFFFFFF);
 
   // Error colors
@@ -151,33 +156,33 @@ class LightModeColors {
   static const lightOnErrorContainer = Color(0xFF410002);
 
   // Surface and background: High contrast for readability
-  static const lightSurface = Color(0xFFFBFCFD);
-  static const lightOnSurface = Color(0xFF1A1C1E);
-  static const lightBackground = Color(0xFFF7F9FA);
-  static const lightSurfaceVariant = Color(0xFFE2E8F0);
-  static const lightOnSurfaceVariant = Color(0xFF44474E);
+  static const lightSurface = Color(0xFFF4F7FB);
+  static const lightOnSurface = Color(0xFF121721);
+  static const lightBackground = Color(0xFFEEF2F7);
+  static const lightSurfaceVariant = Color(0xFFE0E8F1);
+  static const lightOnSurfaceVariant = Color(0xFF4F5A69);
 
   // Outline and shadow
-  static const lightOutline = Color(0xFF74777F);
+  static const lightOutline = Color(0xFF7B8594);
   static const lightShadow = Color(0xFF000000);
-  static const lightInversePrimary = Color(0xFFACC7E3);
+  static const lightInversePrimary = Color(0xFF7EF3F4);
 }
 
 /// Dark mode colors with good contrast
 class DarkModeColors {
-  // Primary: Lighter blue for dark background
-  static const darkPrimary = Color(0xFFACC7E3);
-  static const darkOnPrimary = Color(0xFF1A3A52);
-  static const darkPrimaryContainer = Color(0xFF3D5A73);
-  static const darkOnPrimaryContainer = Color(0xFFD8E6F3);
+  // Primary accent: cyan used in headers and card top edge.
+  static const darkPrimary = Color(0xFF7EF3F4);
+  static const darkOnPrimary = Color(0xFF0D2A2E);
+  static const darkPrimaryContainer = Color(0xFF16303C);
+  static const darkOnPrimaryContainer = Color(0xFFC8FEFE);
 
   // Secondary
-  static const darkSecondary = Color(0xFFBCC7D6);
-  static const darkOnSecondary = Color(0xFF2E3842);
+  static const darkSecondary = Color(0xFFE9DF4A);
+  static const darkOnSecondary = Color(0xFF262817);
 
   // Tertiary
-  static const darkTertiary = Color(0xFFB8C8D8);
-  static const darkOnTertiary = Color(0xFF344451);
+  static const darkTertiary = Color(0xFF86A6CE);
+  static const darkOnTertiary = Color(0xFF1B2B40);
 
   // Error colors
   static const darkError = Color(0xFFFFB4AB);
@@ -186,15 +191,15 @@ class DarkModeColors {
   static const darkOnErrorContainer = Color(0xFFFFDAD6);
 
   // Surface and background: True dark mode
-  static const darkSurface = Color(0xFF1A1C1E);
-  static const darkOnSurface = Color(0xFFE2E8F0);
-  static const darkSurfaceVariant = Color(0xFF44474E);
-  static const darkOnSurfaceVariant = Color(0xFFC4C7CF);
+  static const darkSurface = Color(0xFF121A24);
+  static const darkOnSurface = Color(0xFFF3F6FA);
+  static const darkSurfaceVariant = Color(0xFF1A2431);
+  static const darkOnSurfaceVariant = Color(0xFF98A5B5);
 
   // Outline and shadow
-  static const darkOutline = Color(0xFF8E9099);
+  static const darkOutline = Color(0xFF2D3B4B);
   static const darkShadow = Color(0xFF000000);
-  static const darkInversePrimary = Color(0xFF5B7C99);
+  static const darkInversePrimary = Color(0xFF4CCDD1);
 }
 
 /// Font size constants
@@ -245,7 +250,7 @@ ThemeData get lightTheme => ThemeData(
     inversePrimary: LightModeColors.lightInversePrimary,
   ),
   brightness: Brightness.light,
-  scaffoldBackgroundColor: const Color(0xFF05474D),
+  scaffoldBackgroundColor: const Color(0xFFF4F7FB),
   splashFactory: NoSplash.splashFactory,
   appBarTheme: const AppBarTheme(
     backgroundColor: Colors.transparent,
@@ -290,10 +295,11 @@ ThemeData get lightTheme => ThemeData(
   textTheme: _buildTextTheme(Brightness.light),
   extensions: const [
     BrandTheme(
-      deepNavy: Color(0xFF082428),
-      deepTeal: Color(0xFF05474D),
-      neonCyan: Color(0xFF2BEDED),
-      neonYellow: Color(0xFFFAE127),
+      deepNavy: Color(0xFF070B12),
+      deepTeal: Color(0xFF121E2C),
+      neonCyan: Color(0xFF7EF3F4),
+      neonYellow: Color(0xFFE9DF4A),
+      linkTextGray: Color(0xFF9AA3B2),
     ),
   ],
 );
@@ -303,31 +309,29 @@ ThemeData get darkTheme => ThemeData(
   useMaterial3: true,
   colorScheme: const ColorScheme(
     brightness: Brightness.dark,
-    primary: Color(0xFF2BEDED),
-    // neon cyan accents
-    onPrimary: Color(0xFF042629),
-    secondary: Color(0xFFFAE127),
-    // neon yellow accents
-    onSecondary: Color(0xFF082428),
-    tertiary: Color(0xFF7CECEF),
-    onTertiary: Colors.black,
+    primary: DarkModeColors.darkPrimary,
+    onPrimary: DarkModeColors.darkOnPrimary,
+    secondary: DarkModeColors.darkSecondary,
+    onSecondary: DarkModeColors.darkOnSecondary,
+    tertiary: DarkModeColors.darkTertiary,
+    onTertiary: DarkModeColors.darkOnTertiary,
     error: Color(0xFFFFB4AB),
     onError: Color(0xFF690005),
-    surface: Color(0xFF0B2A2E),
-    onSurface: Colors.white,
-    surfaceContainerHighest: Color(0xFF124349),
-    onSurfaceVariant: Color(0xFFB2CDD0),
-    outline: Color(0xFF5A7A7D),
+    surface: DarkModeColors.darkSurface,
+    onSurface: DarkModeColors.darkOnSurface,
+    surfaceContainerHighest: DarkModeColors.darkSurfaceVariant,
+    onSurfaceVariant: DarkModeColors.darkOnSurfaceVariant,
+    outline: DarkModeColors.darkOutline,
     shadow: Colors.black,
-    primaryContainer: Color(0xFF0E373C),
-    onPrimaryContainer: Color(0xFFB8FEFF),
+    primaryContainer: DarkModeColors.darkPrimaryContainer,
+    onPrimaryContainer: DarkModeColors.darkOnPrimaryContainer,
     errorContainer: Color(0xFF93000A),
     onErrorContainer: Color(0xFFFFDAD6),
-    inversePrimary: Color(0xFF0FE1E6),
-    surfaceTint: Color(0xFF2BEDED),
+    inversePrimary: DarkModeColors.darkInversePrimary,
+    surfaceTint: DarkModeColors.darkPrimary,
   ),
   brightness: Brightness.dark,
-  scaffoldBackgroundColor: const Color(0xFF082428),
+  scaffoldBackgroundColor: const Color(0xFF070B12),
   splashFactory: NoSplash.splashFactory,
   appBarTheme: const AppBarTheme(
     backgroundColor: Colors.transparent,
@@ -340,7 +344,7 @@ ThemeData get darkTheme => ThemeData(
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(12),
       side: BorderSide(
-        color: const Color(0xFF5A7A7D).withValues(alpha: 0.2),
+        color: DarkModeColors.darkOutline.withValues(alpha: 0.45),
         width: 1,
       ),
     ),
@@ -355,25 +359,26 @@ ThemeData get darkTheme => ThemeData(
   ),
   inputDecorationTheme: InputDecorationTheme(
     filled: true,
-    fillColor: const Color(0xFF0E373C),
+    fillColor: const Color(0xFF1A2431),
     border: OutlineInputBorder(
       borderRadius: BorderRadius.circular(AppRadius.lg),
-      borderSide: const BorderSide(color: Color(0xFF5A7A7D)),
+      borderSide: const BorderSide(color: Color(0xFF2D3B4B)),
     ),
     enabledBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(AppRadius.lg),
       borderSide: BorderSide(
-        color: const Color(0xFF5A7A7D).withValues(alpha: 0.4),
+        color: const Color(0xFF2D3B4B).withValues(alpha: 0.7),
       ),
     ),
   ),
   textTheme: _buildTextTheme(Brightness.dark),
   extensions: const [
     BrandTheme(
-      deepNavy: Color(0xFF082428),
-      deepTeal: Color(0xFF05474D),
-      neonCyan: Color(0xFF2BEDED),
-      neonYellow: Color(0xFFFAE127),
+      deepNavy: Color(0xFF070B12),
+      deepTeal: Color(0xFF121E2C),
+      neonCyan: Color(0xFF7EF3F4),
+      neonYellow: Color(0xFFE9DF4A),
+      linkTextGray: Color(0xFF9AA3B2),
     ),
   ],
 );

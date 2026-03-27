@@ -1,4 +1,3 @@
-import 'package:base42_events_mobile/widgets/header_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:base42_events_mobile/models/event.dart';
@@ -6,7 +5,6 @@ import 'package:base42_events_mobile/services/event_service.dart';
 import 'package:base42_events_mobile/theme.dart';
 import 'package:base42_events_mobile/widgets/event_card.dart';
 import 'package:base42_events_mobile/widgets/error_view.dart';
-import 'package:base42_events_mobile/widgets/empty_view.dart';
 
 class EventListScreen extends StatefulWidget {
   const EventListScreen({super.key});
@@ -21,6 +19,12 @@ class _EventListScreenState extends State<EventListScreen> {
   bool _isLoading = true;
   String? _errorMessage;
   String _query = '';
+  String _activeTag = 'All';
+
+  String _capitalizeFirst(String value) {
+    if (value.isEmpty) return value;
+    return value[0].toUpperCase() + value.substring(1);
+  }
 
   @override
   void initState() {
@@ -52,47 +56,86 @@ class _EventListScreenState extends State<EventListScreen> {
   Widget build(BuildContext context) {
     final brand = Theme.of(context).extension<BrandTheme>();
     final colorScheme = Theme.of(context).colorScheme;
-    final filtered = _query.trim().isEmpty
-        ? _events
-        : _events
-              .where(
-                (e) =>
-                    e.title.toLowerCase().contains(_query.toLowerCase()) ||
-                    e.summary.toLowerCase().contains(_query.toLowerCase()) ||
-                    e.tags.any(
-                      (t) => t.tagName.toLowerCase().contains(
-                        _query.toLowerCase(),
-                      ),
-                    ),
-              )
-              .toList();
+    final allTags = <String>['All'];
+    final seenLowerTags = <String>{'all'};
+    for (final event in _events) {
+      for (final tag in event.tags) {
+        final normalized = tag.tagName.trim();
+        if (normalized.isEmpty) continue;
+        final lower = normalized.toLowerCase();
+        if (seenLowerTags.add(lower)) {
+          allTags.add(normalized);
+        }
+      }
+    }
+
+    if (!allTags.any((tag) => tag.toLowerCase() == _activeTag.toLowerCase())) {
+      _activeTag = 'All';
+    }
+
+    final filtered = _events.where((e) {
+      final query = _query.trim().toLowerCase();
+      final matchesSearch =
+          query.isEmpty ||
+          e.title.toLowerCase().contains(query) ||
+          e.summary.toLowerCase().contains(query) ||
+          e.tags.any((t) => t.tagName.toLowerCase().contains(query));
+
+      final matchesTag =
+          _activeTag == 'All' ||
+          e.tags.any(
+            (t) => t.tagName.toLowerCase() == _activeTag.toLowerCase(),
+          );
+
+      return matchesSearch && matchesTag;
+    }).toList();
 
     return Scaffold(
-      appBar: const HeaderWidget(),
       body: Container(
         decoration: BoxDecoration(gradient: brand?.backdropGradient),
         child: SafeArea(
           child: Column(
             children: [
               Padding(
-                padding: const EdgeInsets.fromLTRB(20, 20, 20, 12),
+                padding: const EdgeInsets.fromLTRB(20, 18, 20, 10),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 2),
+                    Text(
+                      'Events',
+                      style: context.textStyles.headlineSmall?.bold.withColor(
+                        Colors.white,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      'Where builders and curious minds gather',
+                      style: context.textStyles.bodySmall?.withColor(
+                        Colors.white.withValues(alpha: 0.6),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
                     TextField(
                       onChanged: (v) => setState(() => _query = v),
                       style: context.textStyles.bodyMedium?.withColor(
                         Colors.white,
                       ),
                       decoration: InputDecoration(
-                        hintText: 'Search…',
+                        hintText: 'Search events...',
                         hintStyle: context.textStyles.bodyMedium?.withColor(
-                          colorScheme.onSurfaceVariant,
+                          Colors.white.withValues(alpha: 0.35),
+                        ),
+                        filled: true,
+                        fillColor: colorScheme.surfaceContainerHighest
+                            .withValues(alpha: 0.35),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 12,
                         ),
                         prefixIcon: Icon(
                           Icons.search_rounded,
-                          color: colorScheme.onSurfaceVariant,
+                          color: Colors.white.withValues(alpha: 0.45),
                         ),
                         suffixIcon: _query.isEmpty
                             ? null
@@ -100,12 +143,69 @@ class _EventListScreenState extends State<EventListScreen> {
                                 onPressed: () => setState(() => _query = ''),
                                 icon: Icon(
                                   Icons.close_rounded,
-                                  color: colorScheme.onSurfaceVariant,
+                                  color: Colors.white.withValues(alpha: 0.45),
                                 ),
                               ),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(
+                            color: Colors.white.withValues(alpha: 0.12),
+                          ),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(
+                            color: Colors.white.withValues(alpha: 0.12),
+                          ),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(
+                            color: (brand?.neonCyan ?? colorScheme.primary)
+                                .withValues(alpha: 0.85),
+                          ),
+                        ),
                       ),
                     ),
                   ],
+                ),
+              ),
+              SizedBox(
+                height: 40,
+                child: ListView.separated(
+                  scrollDirection: Axis.horizontal,
+                  padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
+                  itemCount: allTags.length,
+                  separatorBuilder: (_, __) => const SizedBox(width: 8),
+                  itemBuilder: (context, index) {
+                    final tag = allTags[index];
+                    final isActive =
+                        tag.toLowerCase() == _activeTag.toLowerCase();
+                    return ChoiceChip(
+                      label: Text(_capitalizeFirst(tag)),
+                      selected: isActive,
+                      onSelected: (_) => setState(() => _activeTag = tag),
+                      showCheckmark: false,
+                      labelStyle: context.textStyles.labelMedium?.medium
+                          .withColor(
+                            isActive
+                                ? colorScheme.surface
+                                : Colors.white.withValues(alpha: 0.75),
+                          ),
+                      selectedColor: brand?.neonYellow ?? colorScheme.secondary,
+                      backgroundColor: colorScheme.surfaceContainerHighest
+                          .withValues(alpha: 0.32),
+                      side: BorderSide(
+                        color: isActive
+                            ? Colors.transparent
+                            : Colors.white.withValues(alpha: 0.14),
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(999),
+                      ),
+                      visualDensity: VisualDensity.compact,
+                    );
+                  },
                 ),
               ),
               Expanded(
@@ -118,15 +218,44 @@ class _EventListScreenState extends State<EventListScreen> {
                     : _errorMessage != null
                     ? ErrorView(message: _errorMessage!, onRetry: _loadEvents)
                     : filtered.isEmpty
-                    ? const EmptyView()
+                    ? Center(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 24),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.calendar_month_rounded,
+                                size: 42,
+                                color: Colors.white.withValues(alpha: 0.28),
+                              ),
+                              const SizedBox(height: 10),
+                              Text(
+                                'No events found',
+                                style: context.textStyles.titleMedium
+                                    ?.withColor(
+                                      Colors.white.withValues(alpha: 0.72),
+                                    ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                'Try adjusting your filters',
+                                style: context.textStyles.bodySmall?.withColor(
+                                  Colors.white.withValues(alpha: 0.45),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      )
                     : RefreshIndicator(
                         onRefresh: _loadEvents,
                         color: colorScheme.primary,
                         child: ListView.separated(
-                          padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
+                          padding: const EdgeInsets.fromLTRB(20, 6, 20, 24),
                           itemCount: filtered.length,
                           separatorBuilder: (_, __) =>
-                              const SizedBox(height: AppSpacing.lg),
+                              const SizedBox(height: 12),
                           itemBuilder: (context, index) => EventCard(
                             event: filtered[index],
                             onTap: () => context.push(
