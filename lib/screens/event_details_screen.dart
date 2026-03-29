@@ -4,18 +4,75 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:base42_events_mobile/models/event.dart';
+import 'package:base42_events_mobile/services/event_service.dart';
 import 'package:base42_events_mobile/theme.dart';
 import 'package:base42_events_mobile/widgets/event_info_row.dart';
 import 'package:base42_events_mobile/widgets/tag_chip.dart';
 import 'package:base42_events_mobile/widgets/event_media_hero.dart';
 
-class EventDetailsScreen extends StatelessWidget {
-  final Event event;
+class EventDetailsScreen extends StatefulWidget {
+  final Event? event;
+  final String? eventId;
 
-  const EventDetailsScreen({super.key, required this.event});
+  const EventDetailsScreen({super.key, this.event, this.eventId})
+    : assert(
+        event != null || eventId != null,
+        'Either event or eventId must be provided',
+      );
+
+  @override
+  State<EventDetailsScreen> createState() => _EventDetailsScreenState();
+}
+
+class _EventDetailsScreenState extends State<EventDetailsScreen> {
+  final EventService _eventService = EventService();
+  Event? _event;
+  bool _isLoading = false;
+  String? _error;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.event != null) {
+      _event = widget.event;
+    } else {
+      _fetchEvent();
+    }
+  }
+
+  Future<void> _fetchEvent() async {
+    setState(() {
+      _isLoading = true;
+      _error = null;
+    });
+    try {
+      final id = int.parse(widget.eventId!);
+      final event = await _eventService.fetchEventById(id);
+      setState(() {
+        _event = event;
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _error = e.toString();
+        _isLoading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+    if (_error != null || _event == null) {
+      return Scaffold(
+        appBar: AppBar(),
+        body: Center(child: Text(_error ?? 'Event not found')),
+      );
+    }
+
+    final event = _event!;
     final dateFormat = DateFormat('EEEE, MMMM dd, yyyy • hh:mm a');
     final colorScheme = Theme.of(context).colorScheme;
     final brand = Theme.of(context).extension<BrandTheme>();

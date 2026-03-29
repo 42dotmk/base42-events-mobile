@@ -50,9 +50,9 @@ ios/.symlinks/
 ios/Flutter/Flutter.framework
 ios/Flutter/Flutter.podspec
 ios/Flutter/*.xcconfig
-ios/Flutter/AppFrameworkInfo.plist
 ios/Flutter/Debug.xcconfig
 ios/Flutter/Release.xcconfig
+ios/Flutter/AppFrameworkInfo.plist
 ios/Flutter/flutter_export_environment.sh
 ios/Flutter/ephemeral/
 

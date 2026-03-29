@@ -1,8 +1,11 @@
+import 'dart:convert';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import '../firebase_options.dart';
+import '../services/secure_storage_service.dart';
+import '../services/user_service.dart';
 
 @pragma('vm:entry-point')
 Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -21,6 +24,14 @@ class FCMService {
   static final FCMService instance = FCMService._();
   late final FirebaseMessaging _firebaseMessaging;
   late final FlutterLocalNotificationsPlugin _localNotifications;
+  final UserService _userService = UserService();
+  final SecureStorageService _storageService = SecureStorageService();
+
+  void Function(String eventId)? onEventSelected;
+
+  void setOnEventSelected(void Function(String eventId) callback) {
+    onEventSelected = callback;
+  }
 
   Future<void> init() async {
     await Firebase.initializeApp(
@@ -62,7 +73,7 @@ class FCMService {
         ?.createNotificationChannel(androidChannel);
 
     // Request permissions for iOS
-    final settings = await _firebaseMessaging.requestPermission(
+    await _firebaseMessaging.requestPermission(
       alert: true,
       badge: true,
       sound: true,
@@ -72,15 +83,13 @@ class FCMService {
       criticalAlert: false,
     );
 
-    debugPrint(
-      "Notification permissions - Alert: ${settings.alert}, Badge: ${settings.badge}, Sound: ${settings.sound}",
-    );
-
     final apnsToken = await _firebaseMessaging.getAPNSToken();
     if (apnsToken != null) {
       debugPrint("APNs Token: $apnsToken");
     } else {
-      debugPrint("APNs Token is null (normal on iOS simulator)");
+      debugPrint(
+        "APNs Token is null, user may have declined permissions or device may not support APNs",
+      );
     }
 
     await _firebaseMessaging.setForegroundNotificationPresentationOptions(
@@ -89,8 +98,14 @@ class FCMService {
       sound: true,
     );
 
-    final token = await _firebaseMessaging.getToken();
-    debugPrint("FCM Token: $token");
+    try {
+      final token = await _firebaseMessaging.getToken();
+      if (token != null) {
+        await _updateFcmTokenOnBackend(token);
+      }
+    } catch (e) {
+      debugPrint("Unable to get FCM token: $e");
+    }
 
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
       debugPrint("Foreground message: ${message.messageId}");
@@ -103,8 +118,9 @@ class FCMService {
     });
 
     _firebaseMessaging.onTokenRefresh
-        .listen((token) {
+        .listen((token) async {
           debugPrint("FCM Token refreshed: $token");
+          await _updateFcmTokenOnBackend(token);
         })
         .onError((err) {
           debugPrint("Error refreshing FCM token: $err");
@@ -115,10 +131,6 @@ class FCMService {
       debugPrint("Launched via notification: ${initialMessage.data}");
       _handleNotificationTap(initialMessage);
     }
-
-    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-      _handleNotificationTap(message);
-    });
   }
 
   Future<void> _handleForegroundMessage(RemoteMessage message) async {
@@ -145,12 +157,33 @@ class FCMService {
             presentSound: true,
           ),
         ),
-        payload: message.data.toString(),
+        payload: jsonEncode(message.data),
       );
     }
   }
 
-  //------------------ TODO METHODS ---------------------------
+  Future<void> _updateFcmTokenOnBackend(String fcmToken) async {
+    try {
+      final jwtToken = await _storageService.getToken(
+        SecureStorageService.jwtTokenKey,
+      );
+
+      if (jwtToken != null && jwtToken.isNotEmpty) {
+        final isExpired = await _storageService.isAuthTokenExpired();
+        if (!isExpired) {
+          await _userService.updateFcmToken(jwtToken, fcmToken);
+          debugPrint("✓ FCM token successfully sent to backend");
+        } else {
+          debugPrint("JWT token expired, cannot update FCM token");
+        }
+      } else {
+        debugPrint("No JWT token found, user may not be logged in yet");
+      }
+    } catch (e) {
+      debugPrint("Error updating FCM token on backend: $e");
+    }
+  }
+
   void _onNotificationTap(NotificationResponse response) {
     debugPrint("Notification tapped: ${response.payload}");
     _handleNotificationPayload(response.payload);
@@ -158,11 +191,33 @@ class FCMService {
 
   void _handleNotificationTap(RemoteMessage message) {
     debugPrint("  Navigating to event: ${message.data}");
+    final eventId = message.data['eventId']?.toString();
+    if (eventId != null && eventId.isNotEmpty) {
+      debugPrint("Handling event navigation callback for ID: $eventId");
+      onEventSelected?.call(eventId);
+    } else {
+      debugPrint("FCM message data does not contain eventId");
+    }
   }
 
   void _handleNotificationPayload(String? payload) {
-    if (payload != null) {
-      debugPrint("Payload: $payload");
+    if (payload == null || payload.isEmpty) {
+      debugPrint("No payload to handle");
+      return;
+    }
+
+    try {
+      final eventData = jsonDecode(payload) as Map<String, dynamic>;
+      final eventId = eventData['eventId']?.toString();
+
+      if (eventId != null && eventId.isNotEmpty) {
+        debugPrint("Handling event navigation callback for ID: $eventId");
+        onEventSelected?.call(eventId);
+      } else {
+        debugPrint("FCM payload does not contain eventId");
+      }
+    } catch (e) {
+      debugPrint("Failed to parse notification payload as JSON: $e");
     }
   }
 
@@ -170,21 +225,13 @@ class FCMService {
     return await _firebaseMessaging.getToken();
   }
 
-  Future<void> subscribeToTopic(String topic) async {
-    try {
-      await _firebaseMessaging.subscribeToTopic(topic);
-      debugPrint("Subscribed to topic: $topic");
-    } catch (e) {
-      debugPrint("Error subscribing to topic '$topic': $e");
-    }
-  }
-
-  Future<void> unsubscribeFromTopic(String topic) async {
-    try {
-      await _firebaseMessaging.unsubscribeFromTopic(topic);
-      debugPrint("Unsubscribed from topic: $topic");
-    } catch (e) {
-      debugPrint("Error unsubscribing from topic '$topic': $e");
+  Future<void> updateTokenOnBackend() async {
+    debugPrint("Manually updating FCM token on backend...");
+    final token = await getToken();
+    if (token != null) {
+      await _updateFcmTokenOnBackend(token);
+    } else {
+      debugPrint("No FCM token available to send");
     }
   }
 }

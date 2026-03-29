@@ -3,6 +3,7 @@ import 'package:base42_events_mobile/consts/api.dart';
 import 'package:base42_events_mobile/models/user.dart';
 import 'package:base42_events_mobile/services/user_service.dart';
 import 'package:base42_events_mobile/services/secure_storage_service.dart';
+import 'package:base42_events_mobile/services/fcm_service.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_appauth/flutter_appauth.dart';
 import 'dart:developer' as developer;
@@ -140,6 +141,9 @@ class AuthProvider extends ChangeNotifier {
         SecureStorageService.jwtExpirationKey,
         expiration.millisecondsSinceEpoch.toString(),
       );
+
+      await FCMService.instance.updateTokenOnBackend();
+      
       notifyListeners();
     } catch (e) {
       if (isUserCancelled(e)) {

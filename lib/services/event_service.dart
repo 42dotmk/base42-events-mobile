@@ -31,4 +31,23 @@ class EventService {
       throw Exception('Error fetching events: $e');
     }
   }
+
+  Future<Event> fetchEventById(int id) async {
+    try {
+      final url = '$baseUrl/api/events/$id?populate=*';
+      final response = await http.get(Uri.parse(url));
+
+      if (response.statusCode == 200) {
+        final jsonData = json.decode(response.body) as Map<String, dynamic>;
+        final data = jsonData['data'] as Map<String, dynamic>;
+        return Event.fromJson(data);
+      } else {
+        debugPrint('Failed to fetch event $id: ${response.statusCode}');
+        throw Exception('Failed to load event: ${response.statusCode}');
+      }
+    } catch (e) {
+      debugPrint('Error fetching event by id: $e');
+      throw Exception('Error fetching event: $e');
+    }
+  }
 }

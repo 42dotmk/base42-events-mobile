@@ -7,13 +7,23 @@ import 'package:go_router/go_router.dart';
 import 'package:base42_events_mobile/screens/event_list_screen.dart';
 import 'package:base42_events_mobile/screens/event_details_screen.dart';
 import 'package:base42_events_mobile/models/event.dart';
+import 'package:base42_events_mobile/services/fcm_service.dart';
 
 final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>();
 
 class AppRouter {
   final AuthProvider authProvider;
 
-  AppRouter(this.authProvider);
+  AppRouter(this.authProvider) {
+    FCMService.instance.setOnEventSelected((eventId) {
+      final rootContext = _rootNavigatorKey.currentContext;
+      if (rootContext != null) {
+        rootContext.go('/event/$eventId');
+      } else {
+        debugPrint('FCM navigation failed: root context is null');
+      }
+    });
+  }
 
   late final GoRouter router = GoRouter(
     initialLocation: AppRoutes.home,
@@ -61,8 +71,11 @@ class AppRouter {
             path: AppRoutes.eventDetails,
             name: 'eventDetails',
             pageBuilder: (context, state) {
-              final event = state.extra as Event;
-              return NoTransitionPage(child: EventDetailsScreen(event: event));
+              final event = state.extra as Event?;
+              final eventId = state.pathParameters['id'];
+              return NoTransitionPage(
+                child: EventDetailsScreen(event: event, eventId: eventId),
+              );
             },
           ),
           GoRoute(
