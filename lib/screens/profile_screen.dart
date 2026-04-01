@@ -33,11 +33,13 @@ class _AccountMenuItem {
   final IconData icon;
   final String label;
   final String description;
+  final String? route;
 
   const _AccountMenuItem({
     required this.icon,
     required this.label,
     required this.description,
+    this.route,
   });
 }
 
@@ -102,6 +104,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       icon: Icons.settings_outlined,
       label: 'Settings',
       description: 'App preferences',
+      route: AppRoutes.settings,
     ),
     _AccountMenuItem(
       icon: Icons.help_outline_rounded,
@@ -731,6 +734,7 @@ class _AccountMenuTile extends StatelessWidget {
     return InkWell(
       onTap: () {
         HapticFeedback.selectionClick();
+        if (item.route != null) context.push(item.route!);
       },
       borderRadius: BorderRadius.circular(16),
       child: Padding(

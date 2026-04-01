@@ -1,4 +1,5 @@
 import 'package:base42_events_mobile/providers/auth_provider.dart';
+import 'package:base42_events_mobile/providers/settings_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'theme.dart';
@@ -6,8 +7,11 @@ import 'nav.dart';
 
 void main() {
   runApp(
-    ChangeNotifierProvider(
-      create: (context) => AuthProvider(),
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProvider(create: (_) => SettingsProvider()),
+      ],
       child: const MyApp(),
     ),
   );
@@ -31,12 +35,13 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
+    final themeMode = context.watch<SettingsProvider>().themeMode;
     return MaterialApp.router(
       title: 'EventFlow',
       debugShowCheckedModeBanner: false,
       theme: lightTheme,
       darkTheme: darkTheme,
-      themeMode: ThemeMode.system,
+      themeMode: themeMode,
       routerConfig: _appRouter.router,
     );
   }
