@@ -1,12 +1,13 @@
+import 'package:base42_events_mobile/models/event.dart';
 import 'package:base42_events_mobile/providers/auth_provider.dart';
+import 'package:base42_events_mobile/screens/event_details_screen.dart';
+import 'package:base42_events_mobile/screens/event_list_screen.dart';
 import 'package:base42_events_mobile/screens/home_screen.dart';
 import 'package:base42_events_mobile/screens/profile_screen.dart';
+import 'package:base42_events_mobile/screens/settings_screen.dart';
 import 'package:base42_events_mobile/widgets/bottom_navbar.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:base42_events_mobile/screens/event_list_screen.dart';
-import 'package:base42_events_mobile/screens/event_details_screen.dart';
-import 'package:base42_events_mobile/models/event.dart';
 
 final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>();
 
@@ -73,6 +74,12 @@ class AppRouter {
           ),
         ],
       ),
+      GoRoute(
+        path: AppRoutes.settings,
+        name: 'settings',
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) => const SettingsScreen(),
+      ),
     ],
   );
 }
@@ -82,4 +89,5 @@ class AppRoutes {
   static const String events = '/events';
   static const String profile = '/profile';
   static const String eventDetails = '/event/:id';
+  static const String settings = '/settings';
 }
