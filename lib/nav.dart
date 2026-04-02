@@ -1,8 +1,10 @@
 import 'package:base42_events_mobile/models/event.dart';
 import 'package:base42_events_mobile/providers/auth_provider.dart';
+import 'package:base42_events_mobile/screens/book_screen.dart';
 import 'package:base42_events_mobile/screens/event_details_screen.dart';
 import 'package:base42_events_mobile/screens/event_list_screen.dart';
 import 'package:base42_events_mobile/screens/home_screen.dart';
+import 'package:base42_events_mobile/screens/logged_out_screen.dart';
 import 'package:base42_events_mobile/screens/profile_screen.dart';
 import 'package:base42_events_mobile/screens/settings_screen.dart';
 import 'package:base42_events_mobile/widgets/bottom_navbar.dart';
@@ -17,30 +19,35 @@ class AppRouter {
   AppRouter(this.authProvider);
 
   late final GoRouter router = GoRouter(
-    initialLocation: AppRoutes.home,
+    initialLocation: AppRoutes.auth,
     navigatorKey: _rootNavigatorKey,
     refreshListenable: authProvider,
     redirect: (context, state) {
-      // TODO: Handle redirection for non-authenticated users for auth routes
-      // (e.g., redirect to login if not accessing an auth route like attended events or profile)
-      final isAuthenticated = authProvider.isAuthenticated;
       final isLoading = authProvider.isLoading;
+      final isAuthenticated = authProvider.isAuthenticated;
+      final isOnAuthGate = state.matchedLocation == AppRoutes.auth;
 
       if (isLoading) {
         return null;
       }
 
-      // if (!isAuthenticated) {
-      //   return AppRoutes.login;
-      // }
+      if (!isAuthenticated && !isOnAuthGate) {
+        return AppRoutes.auth;
+      }
 
-      //  if (isAuthenticated) {
-      //     return AppRoutes.home;
-      //   }
+      if (isAuthenticated && isOnAuthGate) {
+        return AppRoutes.home;
+      }
 
       return null;
     },
     routes: [
+      GoRoute(
+        path: AppRoutes.auth,
+        name: 'auth',
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) => const LoggedOutScreen(),
+      ),
       ShellRoute(
         builder: (context, state, child) {
           return BottomNavigationBarWidget(child: child);
@@ -57,6 +64,12 @@ class AppRouter {
             name: 'events',
             pageBuilder: (context, state) =>
                 const NoTransitionPage(child: EventListScreen()),
+          ),
+          GoRoute(
+            path: AppRoutes.book,
+            name: 'book',
+            pageBuilder: (context, state) =>
+                const NoTransitionPage(child: BookScreen()),
           ),
           GoRoute(
             path: AppRoutes.eventDetails,
@@ -85,8 +98,10 @@ class AppRouter {
 }
 
 class AppRoutes {
+  static const String auth = '/auth';
   static const String home = '/';
   static const String events = '/events';
+  static const String book = '/book';
   static const String profile = '/profile';
   static const String eventDetails = '/event/:id';
   static const String settings = '/settings';

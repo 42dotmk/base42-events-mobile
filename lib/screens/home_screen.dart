@@ -5,6 +5,8 @@ import 'package:base42_events_mobile/services/event_service.dart';
 import 'package:base42_events_mobile/widgets/no_events_placeholder.dart';
 import 'package:base42_events_mobile/widgets/booking_card.dart';
 import 'package:base42_events_mobile/widgets/location_card.dart';
+import 'package:base42_events_mobile/widgets/quick_action_tile.dart';
+import 'package:base42_events_mobile/widgets/section_header_row.dart';
 import 'package:base42_events_mobile/widgets/space_availability_cards.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -42,25 +44,6 @@ class _HomeScreenState extends State<HomeScreen> {
     _eventsFuture = _eventService.fetchEvents();
   }
 
-  static const List<_QuickAction> _quickActions = [
-    _QuickAction(
-      icon: Icons.monitor_outlined,
-      label: 'Book a Desk',
-      color: Color(0xFFE9DF4A),
-    ),
-    _QuickAction(
-      icon: Icons.calendar_month_outlined,
-      label: 'Events',
-      route: '/events',
-      color: Color(0xFF7EF3F4),
-    ),
-    _QuickAction(
-      icon: Icons.coffee_outlined,
-      label: 'Cafe Menu',
-      color: Color(0xFFE39A4B),
-    ),
-  ];
-
   String _firstNameFromUsername(String? username) {
     final value = username?.trim() ?? '';
     if (value.isEmpty) return 'there';
@@ -74,6 +57,24 @@ class _HomeScreenState extends State<HomeScreen> {
     final brand = Theme.of(context).extension<BrandTheme>();
     final colorScheme = Theme.of(context).colorScheme;
     final linkColor = brand?.linkTextGray ?? colorScheme.onSurfaceVariant;
+    final quickActions = [
+      _QuickAction(
+        icon: Icons.monitor_outlined,
+        label: 'Book a Desk',
+        color: brand?.quickActionDesk ?? colorScheme.secondary,
+      ),
+      _QuickAction(
+        icon: Icons.calendar_month_outlined,
+        label: 'Events',
+        route: '/events',
+        color: brand?.quickActionEvents ?? colorScheme.primary,
+      ),
+      _QuickAction(
+        icon: Icons.coffee_outlined,
+        label: 'Cafe Menu',
+        color: brand?.quickActionCafe ?? colorScheme.tertiary,
+      ),
+    ];
     final currentUser = context.watch<AuthProvider>().currentUser;
     final firstName = _firstNameFromUsername(currentUser?.username);
     final initials = firstName.isNotEmpty
@@ -90,6 +91,7 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  //TODO: Redirect to profile page & make component
                   Container(
                     decoration: BoxDecoration(
                       color: Colors.black.withValues(alpha: 0.08),
@@ -113,8 +115,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ),
                                 const SizedBox(height: 2),
                                 Text(
-                                  "User",
-                                  // firstName,
+                                  currentUser != null
+                                      ? currentUser.username
+                                      : "Guest User",
                                   style: context.textStyles.headlineLarge?.bold
                                       .withColor(Colors.white),
                                 ),
@@ -221,7 +224,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   GridView.builder(
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
-                    itemCount: _quickActions.length,
+                    itemCount: quickActions.length,
                     gridDelegate:
                         const SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: 3,
@@ -230,8 +233,11 @@ class _HomeScreenState extends State<HomeScreen> {
                           childAspectRatio: 1,
                         ),
                     itemBuilder: (context, index) {
-                      final action = _quickActions[index];
-                      return InkWell(
+                      final action = quickActions[index];
+                      return QuickActionTile(
+                        icon: action.icon,
+                        label: action.label,
+                        color: action.color,
                         onTap: () {
                           if (action.route != null) {
                             context.go(action.route!);
@@ -243,88 +249,22 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
                           );
                         },
-                        borderRadius: BorderRadius.circular(AppRadius.lg),
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: colorScheme.surfaceContainerHighest
-                                .withValues(alpha: 0.62),
-                            borderRadius: BorderRadius.circular(AppRadius.lg),
-                            border: Border.all(
-                              color: Colors.white.withValues(alpha: 0.08),
-                            ),
-                          ),
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 10,
-                          ),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Container(
-                                width: 54,
-                                height: 54,
-                                decoration: BoxDecoration(
-                                  color: action.color.withValues(alpha: 0.17),
-                                  borderRadius: BorderRadius.circular(16),
-                                ),
-                                child: Icon(
-                                  action.icon,
-                                  color: action.color,
-                                  size: 30,
-                                ),
-                              ),
-                              const SizedBox(height: 12),
-                              Text(
-                                action.label,
-                                textAlign: TextAlign.center,
-                                style: context.textStyles.titleSmall?.semiBold
-                                    .withColor(
-                                      Colors.white.withValues(alpha: 0.83),
-                                    ),
-                              ),
-                            ],
-                          ),
-                        ),
                       );
                     },
                   ),
                   const SizedBox(height: 24),
-                  Row(
-                    children: [
-                      Text(
-                        "TODAY'S BOOKING",
-                        style: context.textStyles.titleMedium?.semiBold
-                            .withColor(Colors.white.withValues(alpha: 0.78)),
-                      ),
-                      const Spacer(),
-                      Text(
-                        'All bookings',
-                        style: context.textStyles.titleMedium?.medium.withColor(
-                          linkColor,
-                        ),
-                      ),
-                      Icon(Icons.chevron_right_rounded, color: linkColor),
-                    ],
+                  SectionHeaderRow(
+                    title: "TODAY'S BOOKING",
+                    trailingLabel: 'All bookings',
+                    trailingColor: linkColor,
                   ),
                   const SizedBox(height: 10),
                   const BookingCard(),
                   const SizedBox(height: 26),
-                  Row(
-                    children: [
-                      Text(
-                        'SPACE AVAILABILITY',
-                        style: context.textStyles.titleMedium?.semiBold
-                            .withColor(Colors.white.withValues(alpha: 0.78)),
-                      ),
-                      const Spacer(),
-                      Text(
-                        'View floors',
-                        style: context.textStyles.titleMedium?.medium.withColor(
-                          linkColor,
-                        ),
-                      ),
-                      Icon(Icons.chevron_right_rounded, color: linkColor),
-                    ],
+                  SectionHeaderRow(
+                    title: 'SPACE AVAILABILITY',
+                    trailingLabel: 'View floors',
+                    trailingColor: linkColor,
                   ),
                   const SizedBox(height: 10),
                   Row(
@@ -335,29 +275,11 @@ class _HomeScreenState extends State<HomeScreen> {
                     ],
                   ),
                   const SizedBox(height: 26),
-                  Row(
-                    children: [
-                      Text(
-                        'UPCOMING EVENTS',
-                        style: context.textStyles.titleMedium?.semiBold
-                            .withColor(Colors.white.withValues(alpha: 0.78)),
-                      ),
-                      const Spacer(),
-                      InkWell(
-                        onTap: () => context.go('/events'),
-                        borderRadius: BorderRadius.circular(8),
-                        child: Row(
-                          children: [
-                            Text(
-                              'See all',
-                              style: context.textStyles.titleMedium?.medium
-                                  .withColor(linkColor),
-                            ),
-                            Icon(Icons.chevron_right_rounded, color: linkColor),
-                          ],
-                        ),
-                      ),
-                    ],
+                  SectionHeaderRow(
+                    title: 'UPCOMING EVENTS',
+                    trailingLabel: 'See all',
+                    trailingColor: linkColor,
+                    onTap: () => context.go('/events'),
                   ),
                   const SizedBox(height: 10),
                   SizedBox(
