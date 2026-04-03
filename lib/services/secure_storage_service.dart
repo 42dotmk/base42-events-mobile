@@ -7,6 +7,7 @@ class SecureStorageService {
 
   static const String jwtTokenKey = 'jwt';
   static const String jwtExpirationKey = 'jwt_token_expiration';
+  static const String onboardingCompleteKey = 'onboarding_complete';
 
   factory SecureStorageService() => _instance;
   SecureStorageService._internal();
@@ -37,6 +38,15 @@ class SecureStorageService {
       return DateTime.fromMillisecondsSinceEpoch(int.parse(expirationString));
     }
     return null;
+  }
+
+  Future<bool> isOnboardingComplete() async {
+    final value = await _storage.read(key: onboardingCompleteKey);
+    return value == 'true';
+  }
+
+  Future<void> markOnboardingComplete() async {
+    await _storage.write(key: onboardingCompleteKey, value: 'true');
   }
 
   Future<bool> isAuthTokenExpired() async {
