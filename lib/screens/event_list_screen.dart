@@ -15,11 +15,35 @@ class EventListScreen extends StatefulWidget {
 
 class _EventListScreenState extends State<EventListScreen> {
   final EventService _eventService = EventService();
+  final TextEditingController _searchController = TextEditingController();
   List<Event> _events = [];
   bool _isLoading = true;
   String? _errorMessage;
   String _query = '';
   String _activeTag = 'All';
+
+  List<String> _extractTags(List<Event> events) {
+    final allTags = <String>['All'];
+    final seenLowerTags = <String>{'all'};
+
+    for (final event in events) {
+      for (final tag in event.tags) {
+        final normalized = tag.tagName.trim();
+        if (normalized.isEmpty) continue;
+        final lower = normalized.toLowerCase();
+        if (seenLowerTags.add(lower)) {
+          allTags.add(normalized);
+        }
+      }
+    }
+
+    return allTags;
+  }
+
+  bool _hasTag(List<String> tags, String candidate) {
+    final normalizedCandidate = candidate.trim().toLowerCase();
+    return tags.any((tag) => tag.trim().toLowerCase() == normalizedCandidate);
+  }
 
   String _capitalizeFirst(String value) {
     if (value.isEmpty) return value;
@@ -32,6 +56,12 @@ class _EventListScreenState extends State<EventListScreen> {
     _loadEvents();
   }
 
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
   Future<void> _loadEvents() async {
     setState(() {
       _isLoading = true;
@@ -40,8 +70,12 @@ class _EventListScreenState extends State<EventListScreen> {
 
     try {
       final events = await _eventService.fetchEvents();
+      final allTags = _extractTags(events);
       setState(() {
         _events = events;
+        if (!_hasTag(allTags, _activeTag)) {
+          _activeTag = 'All';
+        }
         _isLoading = false;
       });
     } catch (e) {
@@ -56,22 +90,8 @@ class _EventListScreenState extends State<EventListScreen> {
   Widget build(BuildContext context) {
     final brand = Theme.of(context).extension<BrandTheme>();
     final colorScheme = Theme.of(context).colorScheme;
-    final allTags = <String>['All'];
-    final seenLowerTags = <String>{'all'};
-    for (final event in _events) {
-      for (final tag in event.tags) {
-        final normalized = tag.tagName.trim();
-        if (normalized.isEmpty) continue;
-        final lower = normalized.toLowerCase();
-        if (seenLowerTags.add(lower)) {
-          allTags.add(normalized);
-        }
-      }
-    }
-
-    if (!allTags.any((tag) => tag.toLowerCase() == _activeTag.toLowerCase())) {
-      _activeTag = 'All';
-    }
+    final allTags = _extractTags(_events);
+    final activeTag = _hasTag(allTags, _activeTag) ? _activeTag : 'All';
 
     final filtered = _events.where((e) {
       final query = _query.trim().toLowerCase();
@@ -82,9 +102,11 @@ class _EventListScreenState extends State<EventListScreen> {
           e.tags.any((t) => t.tagName.toLowerCase().contains(query));
 
       final matchesTag =
-          _activeTag == 'All' ||
+          activeTag.trim().toLowerCase() == 'all' ||
           e.tags.any(
-            (t) => t.tagName.toLowerCase() == _activeTag.toLowerCase(),
+            (t) =>
+                t.tagName.trim().toLowerCase() ==
+                activeTag.trim().toLowerCase(),
           );
 
       return matchesSearch && matchesTag;
@@ -117,6 +139,7 @@ class _EventListScreenState extends State<EventListScreen> {
                     ),
                     const SizedBox(height: 16),
                     TextField(
+                      controller: _searchController,
                       onChanged: (v) => setState(() => _query = v),
                       style: context.textStyles.bodyMedium?.withColor(
                         Colors.white,
@@ -140,7 +163,10 @@ class _EventListScreenState extends State<EventListScreen> {
                         suffixIcon: _query.isEmpty
                             ? null
                             : IconButton(
-                                onPressed: () => setState(() => _query = ''),
+                                onPressed: () {
+                                  _searchController.clear();
+                                  setState(() => _query = '');
+                                },
                                 icon: Icon(
                                   Icons.close_rounded,
                                   color: Colors.white.withValues(alpha: 0.45),
@@ -180,7 +206,8 @@ class _EventListScreenState extends State<EventListScreen> {
                   itemBuilder: (context, index) {
                     final tag = allTags[index];
                     final isActive =
-                        tag.toLowerCase() == _activeTag.toLowerCase();
+                        tag.trim().toLowerCase() ==
+                        activeTag.trim().toLowerCase();
                     return ChoiceChip(
                       label: Text(_capitalizeFirst(tag)),
                       selected: isActive,

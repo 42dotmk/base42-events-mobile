@@ -7,6 +7,8 @@ class BookingCard extends StatelessWidget {
   final String status;
   final String date;
   final String timeRange;
+  final Color? statusTextColor;
+  final Color? statusBackgroundColor;
 
   //MOCK DATA - FETAURE NOT IMPLEMENTED YET
   const BookingCard({
@@ -16,11 +18,18 @@ class BookingCard extends StatelessWidget {
     this.status = 'Confirmed',
     this.date = 'Feb 12, 2026',
     this.timeRange = '09:00 - 17:00',
+    this.statusTextColor,
+    this.statusBackgroundColor,
   });
 
   @override
   Widget build(BuildContext context) {
+    final brand = Theme.of(context).extension<BrandTheme>()!;
     final colorScheme = Theme.of(context).colorScheme;
+    final resolvedStatusTextColor =
+        statusTextColor ?? brand.bookingStatusConfirmedText;
+    final resolvedStatusBackgroundColor =
+        statusBackgroundColor ?? brand.bookingStatusConfirmedBackground;
 
     return Container(
       width: double.infinity,
@@ -29,20 +38,22 @@ class BookingCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
       ),
-      child: Stack(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(20),
-            child: Column(
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Padding(
-                  padding: const EdgeInsets.only(right: 96),
+                Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         spaceName,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                         style: context.textStyles.headlineSmall?.bold
                             .withSize(20)
                             .withColor(Colors.white),
@@ -50,6 +61,8 @@ class BookingCard extends StatelessWidget {
                       const SizedBox(height: 3),
                       Text(
                         floor,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                         style: context.textStyles.titleSmall?.medium.withColor(
                           Colors.white.withValues(alpha: 0.5),
                         ),
@@ -57,8 +70,39 @@ class BookingCard extends StatelessWidget {
                     ],
                   ),
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(width: 10),
+                ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 120),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 5,
+                    ),
+                    decoration: BoxDecoration(
+                      color: resolvedStatusBackgroundColor.withValues(
+                        alpha: 0.42,
+                      ),
+                      borderRadius: BorderRadius.circular(999),
+                    ),
+                    child: Text(
+                      status,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: context.textStyles.labelMedium?.semiBold.withColor(
+                        resolvedStatusTextColor,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+            Wrap(
+              spacing: 14,
+              runSpacing: 8,
+              children: [
                 Row(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     Icon(
                       Icons.calendar_today_outlined,
@@ -72,7 +116,11 @@ class BookingCard extends StatelessWidget {
                         Colors.white.withValues(alpha: 0.66),
                       ),
                     ),
-                    const SizedBox(width: 16),
+                  ],
+                ),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
                     Icon(
                       Icons.access_time_rounded,
                       size: 20,
@@ -89,25 +137,8 @@ class BookingCard extends StatelessWidget {
                 ),
               ],
             ),
-          ),
-          Positioned(
-            top: 16,
-            right: 16,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-              decoration: BoxDecoration(
-                color: const Color(0xFF2F7E46).withValues(alpha: 0.42),
-                borderRadius: BorderRadius.circular(999),
-              ),
-              child: Text(
-                status,
-                style: context.textStyles.labelMedium?.semiBold.withColor(
-                  const Color(0xFF6ADE77),
-                ),
-              ),
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

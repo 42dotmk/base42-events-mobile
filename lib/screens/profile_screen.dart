@@ -1,6 +1,7 @@
 import 'package:base42_events_mobile/nav.dart';
 import 'package:base42_events_mobile/providers/auth_provider.dart';
 import 'package:base42_events_mobile/theme.dart';
+import 'package:base42_events_mobile/widgets/booking_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
@@ -113,46 +114,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     ),
   ];
 
-  Future<void> _registerWithKeycloak(BuildContext context) async {
-    try {
-      setState(() => _isKeycloakLoading = true);
-      await Provider.of<AuthProvider>(context, listen: false).register();
-      if (!context.mounted) return;
-      context.go(AppRoutes.profile);
-    } catch (_) {
-      if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text(
-            'Keycloak registration failed. Please try again.',
-          ),
-          backgroundColor: Theme.of(context).colorScheme.error,
-        ),
-      );
-    } finally {
-      if (mounted) setState(() => _isKeycloakLoading = false);
-    }
-  }
-
-  Future<void> _loginWithKeycloak(BuildContext context) async {
-    try {
-      setState(() => _isKeycloakLoading = true);
-      await Provider.of<AuthProvider>(context, listen: false).login();
-      if (!context.mounted) return;
-      context.go(AppRoutes.profile);
-    } catch (_) {
-      if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text('Keycloak login failed. Please try again.'),
-          backgroundColor: Theme.of(context).colorScheme.error,
-        ),
-      );
-    } finally {
-      if (mounted) setState(() => _isKeycloakLoading = false);
-    }
-  }
-
   Future<void> _logout(BuildContext context) async {
     try {
       setState(() => _isKeycloakLoading = true);
@@ -213,12 +174,44 @@ class _ProfileScreenState extends State<ProfileScreen> {
         .toList();
   }
 
+  (Color, Color, String) _bookingStatusMeta(
+    _BookingStatus status,
+    BrandTheme brand,
+  ) {
+    switch (status) {
+      case _BookingStatus.confirmed:
+        return (
+          brand.bookingStatusConfirmedText,
+          brand.bookingStatusConfirmedBackground,
+          'Confirmed',
+        );
+      case _BookingStatus.pending:
+        return (
+          brand.bookingStatusPendingText,
+          brand.bookingStatusPendingBackground,
+          'Pending',
+        );
+      case _BookingStatus.completed:
+        return (
+          brand.bookingStatusCompletedText,
+          brand.bookingStatusCompletedBackground,
+          'Completed',
+        );
+      case _BookingStatus.cancelled:
+        return (
+          brand.bookingStatusCancelledText,
+          brand.bookingStatusCancelledBackground,
+          'Cancelled',
+        );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final brand = Theme.of(context).extension<BrandTheme>();
     final colorScheme = Theme.of(context).colorScheme;
     final authProvider = context.watch<AuthProvider>();
-    final isAuthenticated = authProvider.isAuthenticated;
+
     final displayName = _formatDisplayName(authProvider.currentUser?.username);
     final email = authProvider.currentUser?.email ?? 'Sign in to your account';
     final initials = _buildInitials(displayName);
@@ -229,6 +222,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ? upcomingBookings
         : pastBookings;
 
+    //FIXME: Replace static code with components
     return Scaffold(
       body: Container(
         decoration: BoxDecoration(gradient: brand?.backdropGradient),
@@ -267,8 +261,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            "User",
-                            // displayName- NAME FIELD NOT IMPLEMEENTED YET,
+                            displayName,
                             style: context.textStyles.headlineSmall?.semiBold
                                 .withColor(Colors.white),
                           ),
@@ -400,12 +393,32 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 if (visibleBookings.isEmpty)
                   _EmptyBookingsState(filter: _bookingFilter)
                 else
-                  ...visibleBookings.map(
-                    (booking) => Padding(
+                  ...visibleBookings.map((booking) {
+                    final (
+                      statusTextColor,
+                      statusBackgroundColor,
+                      statusLabel,
+                    ) = _bookingStatusMeta(
+                      booking.status,
+                      brand!,
+                    );
+                    final dateText = DateFormat(
+                      'MMM d, yyyy',
+                    ).format(booking.date);
+
+                    return Padding(
                       padding: const EdgeInsets.only(bottom: 10),
-                      child: _BookingCard(booking: booking),
-                    ),
-                  ),
+                      child: BookingCard(
+                        spaceName: booking.roomName,
+                        floor: booking.floorName,
+                        status: statusLabel,
+                        date: dateText,
+                        timeRange: '${booking.timeStart} - ${booking.timeEnd}',
+                        statusTextColor: statusTextColor,
+                        statusBackgroundColor: statusBackgroundColor,
+                      ),
+                    );
+                  }),
                 const SizedBox(height: 26),
                 Text(
                   'ACCOUNT',
@@ -417,11 +430,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ..._menuItems.map((item) => _AccountMenuTile(item: item)),
                 const SizedBox(height: 10),
                 InkWell(
-                  onTap: _isKeycloakLoading
-                      ? null
-                      : () => isAuthenticated
-                            ? _logout(context)
-                            : _loginWithKeycloak(context),
+                  onTap: _isKeycloakLoading ? null : () => _logout(context),
                   borderRadius: BorderRadius.circular(16),
                   child: Padding(
                     padding: const EdgeInsets.symmetric(
@@ -456,7 +465,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                         const SizedBox(width: 12),
                         Text(
-                          isAuthenticated ? 'Sign Out' : 'Sign In',
+                          'Sign Out',
                           style: context.textStyles.headlineSmall?.semiBold
                               .withSize(37 / 2)
                               .withColor(const Color(0xFFF16464)),
@@ -465,25 +474,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                   ),
                 ),
-                if (!isAuthenticated)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 6, left: 6),
-                    child: TextButton.icon(
-                      onPressed: _isKeycloakLoading
-                          ? null
-                          : () => _registerWithKeycloak(context),
-                      icon: Icon(
-                        Icons.person_add_alt_1_rounded,
-                        color: brand?.neonCyan ?? colorScheme.primary,
-                        size: 18,
-                      ),
-                      label: Text(
-                        'Create account',
-                        style: context.textStyles.titleMedium?.semiBold
-                            .withColor(brand?.neonCyan ?? colorScheme.primary),
-                      ),
-                    ),
-                  ),
                 const SizedBox(height: 34),
                 Center(
                   child: Column(
@@ -600,123 +590,6 @@ class _FilterChip extends StatelessWidget {
                 : Colors.white.withValues(alpha: 0.44),
           ),
         ),
-      ),
-    );
-  }
-}
-
-class _BookingCard extends StatelessWidget {
-  final _BookingItem booking;
-
-  const _BookingCard({required this.booking});
-
-  (IconData, Color, String) _statusMeta() {
-    switch (booking.status) {
-      case _BookingStatus.confirmed:
-        return (
-          Icons.check_circle_outline_rounded,
-          const Color(0xFF69D976),
-          'Confirmed',
-        );
-      case _BookingStatus.pending:
-        return (Icons.timelapse_rounded, const Color(0xFFEAB34B), 'Pending');
-      case _BookingStatus.completed:
-        return (
-          Icons.check_circle_outline_rounded,
-          const Color(0xFF9AA8BA),
-          'Completed',
-        );
-      case _BookingStatus.cancelled:
-        return (Icons.cancel_outlined, const Color(0xFFF16464), 'Cancelled');
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final dateText = DateFormat('MMM d, yyyy').format(booking.date);
-    final (statusIcon, statusColor, statusLabel) = _statusMeta();
-
-    return Container(
-      width: double.infinity,
-      decoration: BoxDecoration(
-        color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.62),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
-      ),
-      padding: const EdgeInsets.fromLTRB(18, 16, 18, 16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      booking.roomName,
-                      style: context.textStyles.headlineSmall?.semiBold
-                          .withSize(37 / 2)
-                          .withColor(Colors.white),
-                    ),
-                    const SizedBox(height: 3),
-                    Text(
-                      booking.floorName,
-                      style: context.textStyles.titleLarge?.withColor(
-                        Colors.white.withValues(alpha: 0.5),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(statusIcon, size: 20, color: statusColor),
-                  const SizedBox(width: 5),
-                  Text(
-                    statusLabel,
-                    style: context.textStyles.titleLarge?.semiBold.withColor(
-                      statusColor,
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              Icon(
-                Icons.calendar_today_outlined,
-                size: 18,
-                color: Colors.white.withValues(alpha: 0.46),
-              ),
-              const SizedBox(width: 8),
-              Text(
-                dateText,
-                style: context.textStyles.titleLarge?.withColor(
-                  Colors.white.withValues(alpha: 0.56),
-                ),
-              ),
-              const SizedBox(width: 14),
-              Icon(
-                Icons.access_time_rounded,
-                size: 18,
-                color: Colors.white.withValues(alpha: 0.46),
-              ),
-              const SizedBox(width: 8),
-              Text(
-                '${booking.timeStart} - ${booking.timeEnd}',
-                style: context.textStyles.titleLarge?.withColor(
-                  Colors.white.withValues(alpha: 0.56),
-                ),
-              ),
-            ],
-          ),
-        ],
       ),
     );
   }

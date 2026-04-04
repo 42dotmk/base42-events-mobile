@@ -80,14 +80,19 @@ class _AvailabilityCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
+          Flex(
+            direction: Axis.horizontal,
             children: [
               Icon(icon, color: iconColor, size: 20),
               const SizedBox(width: 8),
-              Text(
-                title,
-                style: context.textStyles.titleMedium?.semiBold.withColor(
-                  Colors.white.withValues(alpha: 0.67),
+              Expanded(
+                child: Text(
+                  title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: context.textStyles.titleMedium?.semiBold.withColor(
+                    Colors.white.withValues(alpha: 0.67),
+                  ),
                 ),
               ),
             ],
@@ -100,6 +105,8 @@ class _AvailabilityCard extends StatelessWidget {
           const SizedBox(height: 2),
           Text(
             subtitle,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
             style: context.textStyles.titleMedium?.withColor(
               Colors.white.withValues(alpha: 0.48),
             ),

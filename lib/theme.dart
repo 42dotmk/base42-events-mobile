@@ -50,6 +50,17 @@ class BrandTheme extends ThemeExtension<BrandTheme> {
   final Color linkTextGray; // muted gray for text links
   final Color successGreen; // success state color
   final Color errorRed; // error state color
+  final Color quickActionDesk;
+  final Color quickActionEvents;
+  final Color quickActionCafe;
+  final Color bookingStatusConfirmedText;
+  final Color bookingStatusConfirmedBackground;
+  final Color bookingStatusPendingText;
+  final Color bookingStatusPendingBackground;
+  final Color bookingStatusCompletedText;
+  final Color bookingStatusCompletedBackground;
+  final Color bookingStatusCancelledText;
+  final Color bookingStatusCancelledBackground;
 
   const BrandTheme({
     required this.deepNavy,
@@ -59,6 +70,17 @@ class BrandTheme extends ThemeExtension<BrandTheme> {
     required this.linkTextGray,
     required this.successGreen,
     required this.errorRed,
+    required this.quickActionDesk,
+    required this.quickActionEvents,
+    required this.quickActionCafe,
+    required this.bookingStatusConfirmedText,
+    required this.bookingStatusConfirmedBackground,
+    required this.bookingStatusPendingText,
+    required this.bookingStatusPendingBackground,
+    required this.bookingStatusCompletedText,
+    required this.bookingStatusCompletedBackground,
+    required this.bookingStatusCancelledText,
+    required this.bookingStatusCancelledBackground,
   });
 
   LinearGradient get backdropGradient => LinearGradient(
@@ -79,6 +101,17 @@ class BrandTheme extends ThemeExtension<BrandTheme> {
     Color? linkTextGray,
     Color? successGreen,
     Color? errorRed,
+    Color? quickActionDesk,
+    Color? quickActionEvents,
+    Color? quickActionCafe,
+    Color? bookingStatusConfirmedText,
+    Color? bookingStatusConfirmedBackground,
+    Color? bookingStatusPendingText,
+    Color? bookingStatusPendingBackground,
+    Color? bookingStatusCompletedText,
+    Color? bookingStatusCompletedBackground,
+    Color? bookingStatusCancelledText,
+    Color? bookingStatusCancelledBackground,
   }) => BrandTheme(
     deepNavy: deepNavy ?? this.deepNavy,
     deepTeal: deepTeal ?? this.deepTeal,
@@ -87,6 +120,28 @@ class BrandTheme extends ThemeExtension<BrandTheme> {
     linkTextGray: linkTextGray ?? this.linkTextGray,
     successGreen: successGreen ?? this.successGreen,
     errorRed: errorRed ?? this.errorRed,
+    quickActionDesk: quickActionDesk ?? this.quickActionDesk,
+    quickActionEvents: quickActionEvents ?? this.quickActionEvents,
+    quickActionCafe: quickActionCafe ?? this.quickActionCafe,
+    bookingStatusConfirmedText:
+        bookingStatusConfirmedText ?? this.bookingStatusConfirmedText,
+    bookingStatusConfirmedBackground:
+        bookingStatusConfirmedBackground ??
+        this.bookingStatusConfirmedBackground,
+    bookingStatusPendingText:
+        bookingStatusPendingText ?? this.bookingStatusPendingText,
+    bookingStatusPendingBackground:
+        bookingStatusPendingBackground ?? this.bookingStatusPendingBackground,
+    bookingStatusCompletedText:
+        bookingStatusCompletedText ?? this.bookingStatusCompletedText,
+    bookingStatusCompletedBackground:
+        bookingStatusCompletedBackground ??
+        this.bookingStatusCompletedBackground,
+    bookingStatusCancelledText:
+        bookingStatusCancelledText ?? this.bookingStatusCancelledText,
+    bookingStatusCancelledBackground:
+        bookingStatusCancelledBackground ??
+        this.bookingStatusCancelledBackground,
   );
 
   @override
@@ -100,6 +155,53 @@ class BrandTheme extends ThemeExtension<BrandTheme> {
       linkTextGray: Color.lerp(linkTextGray, other.linkTextGray, t)!,
       successGreen: Color.lerp(successGreen, other.successGreen, t)!,
       errorRed: Color.lerp(errorRed, other.errorRed, t)!,
+      quickActionDesk: Color.lerp(quickActionDesk, other.quickActionDesk, t)!,
+      quickActionEvents: Color.lerp(
+        quickActionEvents,
+        other.quickActionEvents,
+        t,
+      )!,
+      quickActionCafe: Color.lerp(quickActionCafe, other.quickActionCafe, t)!,
+      bookingStatusConfirmedText: Color.lerp(
+        bookingStatusConfirmedText,
+        other.bookingStatusConfirmedText,
+        t,
+      )!,
+      bookingStatusConfirmedBackground: Color.lerp(
+        bookingStatusConfirmedBackground,
+        other.bookingStatusConfirmedBackground,
+        t,
+      )!,
+      bookingStatusPendingText: Color.lerp(
+        bookingStatusPendingText,
+        other.bookingStatusPendingText,
+        t,
+      )!,
+      bookingStatusPendingBackground: Color.lerp(
+        bookingStatusPendingBackground,
+        other.bookingStatusPendingBackground,
+        t,
+      )!,
+      bookingStatusCompletedText: Color.lerp(
+        bookingStatusCompletedText,
+        other.bookingStatusCompletedText,
+        t,
+      )!,
+      bookingStatusCompletedBackground: Color.lerp(
+        bookingStatusCompletedBackground,
+        other.bookingStatusCompletedBackground,
+        t,
+      )!,
+      bookingStatusCancelledText: Color.lerp(
+        bookingStatusCancelledText,
+        other.bookingStatusCancelledText,
+        t,
+      )!,
+      bookingStatusCancelledBackground: Color.lerp(
+        bookingStatusCancelledBackground,
+        other.bookingStatusCancelledBackground,
+        t,
+      )!,
     );
   }
 }
@@ -312,6 +414,17 @@ ThemeData get lightTheme => ThemeData(
       linkTextGray: Color(0xFF9AA3B2),
       successGreen: Color(0xFF69D976),
       errorRed: Color(0xFFE27B7B),
+      quickActionDesk: Color(0xFFE9DF4A),
+      quickActionEvents: Color(0xFF7EF3F4),
+      quickActionCafe: Color(0xFFE39A4B),
+      bookingStatusConfirmedText: Color(0xFF6ADE77),
+      bookingStatusConfirmedBackground: Color(0xFF2F7E46),
+      bookingStatusPendingText: Color(0xFFEAB34B),
+      bookingStatusPendingBackground: Color(0xFF6E5419),
+      bookingStatusCompletedText: Color(0xFF9AA8BA),
+      bookingStatusCompletedBackground: Color(0xFF33404F),
+      bookingStatusCancelledText: Color(0xFFF16464),
+      bookingStatusCancelledBackground: Color(0xFF6A2A2A),
     ),
   ],
 );
@@ -393,6 +506,17 @@ ThemeData get darkTheme => ThemeData(
       linkTextGray: Color(0xFF9AA3B2),
       successGreen: Color(0xFF69D976),
       errorRed: Color(0xFFE27B7B),
+      quickActionDesk: Color(0xFFE9DF4A),
+      quickActionEvents: Color(0xFF7EF3F4),
+      quickActionCafe: Color(0xFFE39A4B),
+      bookingStatusConfirmedText: Color(0xFF6ADE77),
+      bookingStatusConfirmedBackground: Color(0xFF2F7E46),
+      bookingStatusPendingText: Color(0xFFEAB34B),
+      bookingStatusPendingBackground: Color(0xFF6E5419),
+      bookingStatusCompletedText: Color(0xFF9AA8BA),
+      bookingStatusCompletedBackground: Color(0xFF33404F),
+      bookingStatusCancelledText: Color(0xFFF16464),
+      bookingStatusCancelledBackground: Color(0xFF6A2A2A),
     ),
   ],
 );
