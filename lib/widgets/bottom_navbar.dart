@@ -15,7 +15,12 @@ class BottomNavigationBarWidget extends StatelessWidget {
       icon: Icons.calendar_month_outlined,
       label: 'Events',
     ),
-    _NavItem(icon: Icons.add_rounded, label: 'Book', isCenter: true),
+    _NavItem(
+      route: AppRoutes.book,
+      icon: Icons.add_rounded,
+      label: 'Book',
+      isCenter: true,
+    ),
     _NavItem(icon: Icons.coffee_outlined, label: 'Cafe'),
     _NavItem(
       route: AppRoutes.profile,
@@ -28,8 +33,10 @@ class BottomNavigationBarWidget extends StatelessWidget {
     final String location = GoRouterState.of(context).matchedLocation;
 
     if (location == AppRoutes.home) return 0;
-    if (location == AppRoutes.events || location.startsWith('/event/'))
+    if (location == AppRoutes.events || location.startsWith('/event/')) {
       return 1;
+    }
+    if (location == AppRoutes.book) return 2;
     if (location == AppRoutes.profile) return 4;
 
     return 0;

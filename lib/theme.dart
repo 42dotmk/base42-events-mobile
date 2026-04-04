@@ -48,6 +48,8 @@ class BrandTheme extends ThemeExtension<BrandTheme> {
   final Color neonCyan; // #7EF3F4
   final Color neonYellow; // #E9DF4A
   final Color linkTextGray; // muted gray for text links
+  final Color successGreen; // success state color
+  final Color errorRed; // error state color
 
   const BrandTheme({
     required this.deepNavy,
@@ -55,6 +57,8 @@ class BrandTheme extends ThemeExtension<BrandTheme> {
     required this.neonCyan,
     required this.neonYellow,
     required this.linkTextGray,
+    required this.successGreen,
+    required this.errorRed,
   });
 
   LinearGradient get backdropGradient => LinearGradient(
@@ -73,12 +77,16 @@ class BrandTheme extends ThemeExtension<BrandTheme> {
     Color? neonCyan,
     Color? neonYellow,
     Color? linkTextGray,
+    Color? successGreen,
+    Color? errorRed,
   }) => BrandTheme(
     deepNavy: deepNavy ?? this.deepNavy,
     deepTeal: deepTeal ?? this.deepTeal,
     neonCyan: neonCyan ?? this.neonCyan,
     neonYellow: neonYellow ?? this.neonYellow,
     linkTextGray: linkTextGray ?? this.linkTextGray,
+    successGreen: successGreen ?? this.successGreen,
+    errorRed: errorRed ?? this.errorRed,
   );
 
   @override
@@ -90,6 +98,8 @@ class BrandTheme extends ThemeExtension<BrandTheme> {
       neonCyan: Color.lerp(neonCyan, other.neonCyan, t)!,
       neonYellow: Color.lerp(neonYellow, other.neonYellow, t)!,
       linkTextGray: Color.lerp(linkTextGray, other.linkTextGray, t)!,
+      successGreen: Color.lerp(successGreen, other.successGreen, t)!,
+      errorRed: Color.lerp(errorRed, other.errorRed, t)!,
     );
   }
 }
@@ -300,6 +310,8 @@ ThemeData get lightTheme => ThemeData(
       neonCyan: Color(0xFF7EF3F4),
       neonYellow: Color(0xFFE9DF4A),
       linkTextGray: Color(0xFF9AA3B2),
+      successGreen: Color(0xFF69D976),
+      errorRed: Color(0xFFE27B7B),
     ),
   ],
 );
@@ -379,6 +391,8 @@ ThemeData get darkTheme => ThemeData(
       neonCyan: Color(0xFF7EF3F4),
       neonYellow: Color(0xFFE9DF4A),
       linkTextGray: Color(0xFF9AA3B2),
+      successGreen: Color(0xFF69D976),
+      errorRed: Color(0xFFE27B7B),
     ),
   ],
 );

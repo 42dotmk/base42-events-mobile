@@ -1,5 +1,6 @@
 import 'package:base42_events_mobile/models/event.dart';
 import 'package:base42_events_mobile/providers/auth_provider.dart';
+import 'package:base42_events_mobile/screens/book_screen.dart';
 import 'package:base42_events_mobile/screens/event_details_screen.dart';
 import 'package:base42_events_mobile/screens/event_list_screen.dart';
 import 'package:base42_events_mobile/screens/home_screen.dart';
@@ -23,7 +24,6 @@ class AppRouter {
     redirect: (context, state) {
       // TODO: Handle redirection for non-authenticated users for auth routes
       // (e.g., redirect to login if not accessing an auth route like attended events or profile)
-      final isAuthenticated = authProvider.isAuthenticated;
       final isLoading = authProvider.isLoading;
 
       if (isLoading) {
@@ -59,6 +59,12 @@ class AppRouter {
                 const NoTransitionPage(child: EventListScreen()),
           ),
           GoRoute(
+            path: AppRoutes.book,
+            name: 'book',
+            pageBuilder: (context, state) =>
+                const NoTransitionPage(child: BookScreen()),
+          ),
+          GoRoute(
             path: AppRoutes.eventDetails,
             name: 'eventDetails',
             pageBuilder: (context, state) {
@@ -87,6 +93,7 @@ class AppRouter {
 class AppRoutes {
   static const String home = '/';
   static const String events = '/events';
+  static const String book = '/book';
   static const String profile = '/profile';
   static const String eventDetails = '/event/:id';
   static const String settings = '/settings';

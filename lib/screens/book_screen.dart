@@ -1,4 +1,7 @@
 import 'package:base42_events_mobile/theme.dart';
+import 'package:base42_events_mobile/services/booking_service.dart';
+import 'package:base42_events_mobile/widgets/booking_form_fields.dart';
+import 'package:base42_events_mobile/widgets/booking_result_dialog.dart';
 import 'package:flutter/material.dart';
 
 enum _BookMode { coworking, hostEvent }
@@ -33,7 +36,7 @@ class BookScreen extends StatefulWidget {
 }
 
 class _BookScreenState extends State<BookScreen> {
-  _BookMode _mode = _BookMode.coworking;
+  _BookMode _mode = _BookMode.hostEvent;
   _FloorType _activeFloor = _FloorType.ground;
 
   static const List<_BookableSpace> _groundFloorSpaces = [
@@ -86,43 +89,52 @@ class _BookScreenState extends State<BookScreen> {
       body: Container(
         decoration: BoxDecoration(gradient: brand?.backdropGradient),
         child: SafeArea(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.fromLTRB(18, 14, 18, 28),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Book a Space',
-                  style: context.textStyles.headlineSmall?.bold.withColor(
-                    Colors.white,
-                  ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(18, 14, 18, 0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Book a Space',
+                      style: context.textStyles.headlineSmall?.bold.withColor(
+                        Colors.white,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'Reserve your spot at Base42',
+                      style: context.textStyles.bodySmall?.withColor(
+                        Colors.white.withValues(alpha: 0.56),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    _ModeSwitcher(
+                      mode: _mode,
+                      onChanged: (mode) => setState(() => _mode = mode),
+                    ),
+                    const SizedBox(height: 16),
+                  ],
                 ),
-                const SizedBox(height: 4),
-                Text(
-                  'Reserve your spot at Base42',
-                  style: context.textStyles.bodySmall?.withColor(
-                    Colors.white.withValues(alpha: 0.56),
-                  ),
+              ),
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.fromLTRB(18, 0, 18, 28),
+                  child: _mode == _BookMode.coworking
+                      ? _CoworkingSection(
+                          activeFloor: _activeFloor,
+                          onFloorChanged: (floor) =>
+                              setState(() => _activeFloor = floor),
+                          spaces: _activeFloor == _FloorType.ground
+                              ? _groundFloorSpaces
+                              : _firstFloorSpaces,
+                        )
+                      : const _HostEventSection(),
                 ),
-                const SizedBox(height: 16),
-                _ModeSwitcher(
-                  mode: _mode,
-                  onChanged: (mode) => setState(() => _mode = mode),
-                ),
-                const SizedBox(height: 16),
-                if (_mode == _BookMode.coworking)
-                  _CoworkingSection(
-                    activeFloor: _activeFloor,
-                    onFloorChanged: (floor) =>
-                        setState(() => _activeFloor = floor),
-                    spaces: _activeFloor == _FloorType.ground
-                        ? _groundFloorSpaces
-                        : _firstFloorSpaces,
-                  )
-                else
-                  const _HostEventSection(),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
@@ -191,13 +203,13 @@ class _ModeSwitcher extends StatelessWidget {
       ),
       child: Row(
         children: [
-          buildButton(_BookMode.coworking, 'Coworking', Icons.monitor_outlined),
-          const SizedBox(width: 4),
           buildButton(
             _BookMode.hostEvent,
-            'Host Event',
+            'Booking',
             Icons.event_note_outlined,
           ),
+          const SizedBox(width: 4),
+          buildButton(_BookMode.coworking, 'Coworking', Icons.monitor_outlined),
         ],
       ),
     );
@@ -410,8 +422,176 @@ class _BookableSpaceCard extends StatelessWidget {
   }
 }
 
-class _HostEventSection extends StatelessWidget {
+class _HostEventSection extends StatefulWidget {
   const _HostEventSection();
+
+  @override
+  State<_HostEventSection> createState() => _HostEventSectionState();
+}
+
+class _HostEventSectionState extends State<_HostEventSection> {
+  final _formKey = GlobalKey<FormState>();
+  final _service = BookingService();
+
+  final _organizerEntityController = TextEditingController();
+  final _initiatorNameController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _phoneController = TextEditingController();
+  final _companyNameController = TextEditingController();
+  final _eventNameController = TextEditingController();
+  final _eventThemeController = TextEditingController();
+  final _eventPurposeController = TextEditingController();
+  final _eventAgendaController = TextEditingController();
+  final _expectedGuestsController = TextEditingController();
+
+  String? _eventType;
+  DateTime? _eventDate;
+  TimeOfDay? _startTime;
+  TimeOfDay? _endTime;
+  String _physicalPresence = 'yes';
+  bool _isSubmitting = false;
+
+  @override
+  void dispose() {
+    _organizerEntityController.dispose();
+    _initiatorNameController.dispose();
+    _emailController.dispose();
+    _phoneController.dispose();
+    _companyNameController.dispose();
+    _eventNameController.dispose();
+    _eventThemeController.dispose();
+    _eventPurposeController.dispose();
+    _eventAgendaController.dispose();
+    _expectedGuestsController.dispose();
+    super.dispose();
+  }
+
+  String _formatDate(DateTime date) {
+    final mm = date.month.toString().padLeft(2, '0');
+    final dd = date.day.toString().padLeft(2, '0');
+    final yyyy = date.year.toString();
+    return '$mm/$dd/$yyyy';
+  }
+
+  String _formatDateForApi(DateTime date) {
+    final mm = date.month.toString().padLeft(2, '0');
+    final dd = date.day.toString().padLeft(2, '0');
+    final yyyy = date.year.toString();
+    return '$yyyy-$mm-$dd';
+  }
+
+  String _formatTime(TimeOfDay time) {
+    final hh = time.hour.toString().padLeft(2, '0');
+    final mm = time.minute.toString().padLeft(2, '0');
+    return '$hh:$mm';
+  }
+
+  Future<void> _pickDate() async {
+    final now = DateTime.now();
+    final picked = await showDatePicker(
+      context: context,
+      firstDate: now,
+      lastDate: DateTime(now.year + 5),
+      initialDate: _eventDate ?? now,
+    );
+    if (picked != null) {
+      setState(() => _eventDate = picked);
+    }
+  }
+
+  Future<void> _pickStartTime() async {
+    final picked = await showTimePicker(
+      context: context,
+      initialTime: _startTime ?? TimeOfDay.now(),
+    );
+    if (picked != null) {
+      setState(() => _startTime = picked);
+    }
+  }
+
+  Future<void> _pickEndTime() async {
+    final picked = await showTimePicker(
+      context: context,
+      initialTime: _endTime ?? TimeOfDay.now(),
+    );
+    if (picked != null) {
+      setState(() => _endTime = picked);
+    }
+  }
+
+  Future<void> _submit() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    if (_eventDate == null || _startTime == null || _endTime == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please fill date and time fields.')),
+      );
+      return;
+    }
+
+    setState(() => _isSubmitting = true);
+    try {
+      final response = await _service.submitBookingRequest(
+        BookingRequestPayload(
+          organizerEntity: _organizerEntityController.text.trim(),
+          initiatorName: _initiatorNameController.text.trim(),
+          email: _emailController.text.trim(),
+          phone: _phoneController.text.trim(),
+          companyName: _companyNameController.text.trim(),
+          eventType: _eventType ?? '',
+          eventName: _eventNameController.text.trim(),
+          eventTheme: _eventThemeController.text.trim(),
+          eventPurpose: _eventPurposeController.text.trim(),
+          eventAgenda: _eventAgendaController.text.trim(),
+          eventDate: _formatDateForApi(_eventDate!),
+          eventStartTime: _formatTime(_startTime!),
+          eventEndTime: _formatTime(_endTime!),
+          physicalPresence: _physicalPresence,
+          expectedGuests: _expectedGuestsController.text.trim(),
+        ),
+      );
+
+      if (!mounted) return;
+
+      if (response != null &&
+          (response.statusCode == 200 || response.statusCode == 201)) {
+        showBookingResultDialog(
+          context: context,
+          type: BookingResultType.success,
+        );
+        _formKey.currentState!.reset();
+        setState(() {
+          _eventType = null;
+          _eventDate = null;
+          _startTime = null;
+          _endTime = null;
+          _physicalPresence = 'yes';
+        });
+        _organizerEntityController.clear();
+        _initiatorNameController.clear();
+        _emailController.clear();
+        _phoneController.clear();
+        _companyNameController.clear();
+        _eventNameController.clear();
+        _eventThemeController.clear();
+        _eventPurposeController.clear();
+        _eventAgendaController.clear();
+        _expectedGuestsController.clear();
+      } else {
+        showBookingResultDialog(
+          context: context,
+          type: BookingResultType.error,
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isSubmitting = false);
+    }
+  }
+
+  String? _required(String? value) {
+    if (value == null || value.trim().isEmpty) return 'Required field';
+    return null;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -426,38 +606,213 @@ class _HostEventSection extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(
-                Icons.auto_awesome_outlined,
-                color: brand?.neonYellow ?? colorScheme.secondary,
+      child: Form(
+        key: _formKey,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(
+                  Icons.auto_awesome_outlined,
+                  color: brand?.neonYellow ?? colorScheme.secondary,
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    'Host your event at Base42',
+                    style: context.textStyles.titleMedium?.semiBold.withColor(
+                      Colors.white,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Please fill in the event information and submit your request.',
+              style: context.textStyles.bodySmall?.withColor(
+                Colors.white.withValues(alpha: 0.62),
               ),
-              const SizedBox(width: 8),
-              Text(
-                'Host your event at Base42',
-                style: context.textStyles.titleMedium?.semiBold.withColor(
-                  Colors.white,
+            ),
+            const SizedBox(height: 14),
+            BookingHostTextField(
+              controller: _organizerEntityController,
+              label: 'Entity that\'s organizing the event *',
+              validator: _required,
+            ),
+            BookingHostTextField(
+              controller: _initiatorNameController,
+              label: 'Full name of the initiator *',
+              validator: _required,
+            ),
+            BookingHostTextField(
+              controller: _emailController,
+              label: 'E-mail',
+              textCapitalization: TextCapitalization.none,
+            ),
+            BookingHostTextField(
+              controller: _phoneController,
+              label: 'Phone number',
+              textCapitalization: TextCapitalization.none,
+            ),
+            BookingHostTextField(
+              controller: _companyNameController,
+              label: 'Organization name *',
+              validator: _required,
+            ),
+            const SizedBox(height: 8),
+            DropdownButtonFormField<String>(
+              initialValue: _eventType,
+              decoration: bookingInputDecoration(context, 'Type of event *'),
+              dropdownColor: colorScheme.surfaceContainerHighest,
+              items: const [
+                DropdownMenuItem(value: 'Meetup', child: Text('Meetup')),
+                DropdownMenuItem(value: 'Workshop', child: Text('Workshop')),
+                DropdownMenuItem(
+                  value: 'Conference',
+                  child: Text('Conference'),
+                ),
+                DropdownMenuItem(value: 'Other', child: Text('Other')),
+              ],
+              onChanged: (value) => setState(() => _eventType = value),
+              validator: (value) =>
+                  value == null || value.isEmpty ? 'Required field' : null,
+            ),
+            const SizedBox(height: 10),
+            BookingHostTextField(
+              controller: _eventNameController,
+              label: 'Name of the event *',
+              validator: _required,
+            ),
+            BookingHostTextField(
+              controller: _eventThemeController,
+              label: 'Theme of the event *',
+              validator: _required,
+            ),
+            BookingHostTextField(
+              controller: _eventPurposeController,
+              label: 'Purpose of the event *',
+              validator: _required,
+            ),
+            BookingDateTimeButtonField(
+              label: 'Date of the event *',
+              value: _eventDate == null
+                  ? 'mm/dd/yyyy'
+                  : _formatDate(_eventDate!),
+              onTap: _pickDate,
+            ),
+            Row(
+              children: [
+                Expanded(
+                  child: BookingDateTimeButtonField(
+                    label: 'Start time *',
+                    value: _startTime == null
+                        ? '--:--'
+                        : _formatTime(_startTime!),
+                    onTap: _pickStartTime,
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: BookingDateTimeButtonField(
+                    label: 'End time *',
+                    value: _endTime == null ? '--:--' : _formatTime(_endTime!),
+                    onTap: _pickEndTime,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+            Text(
+              'Physical presence event *',
+              style: context.textStyles.labelLarge?.withColor(
+                Colors.white.withValues(alpha: 0.72),
+              ),
+            ),
+            const SizedBox(height: 8),
+            SegmentedButton<String>(
+              segments: [
+                ButtonSegment(
+                  value: 'yes',
+                  label: Text(
+                    'Yes',
+                    style: context.textStyles.bodyMedium?.semiBold,
+                  ),
+                ),
+                ButtonSegment(
+                  value: 'no',
+                  label: Text(
+                    'No',
+                    style: context.textStyles.bodyMedium?.semiBold,
+                  ),
+                ),
+              ],
+              selected: {_physicalPresence},
+              onSelectionChanged: (selection) {
+                setState(() => _physicalPresence = selection.first);
+              },
+              style: ButtonStyle(
+                foregroundColor: WidgetStateProperty.resolveWith((states) {
+                  if (states.contains(WidgetState.selected)) {
+                    return brand?.neonYellow ?? colorScheme.secondary;
+                  }
+                  return Colors.white.withValues(alpha: 0.7);
+                }),
+                backgroundColor: WidgetStateProperty.resolveWith((states) {
+                  if (states.contains(WidgetState.selected)) {
+                    return (brand?.neonYellow ?? colorScheme.secondary)
+                        .withValues(alpha: 0.16);
+                  }
+                  return colorScheme.surfaceContainerHighest.withValues(
+                    alpha: 0.35,
+                  );
+                }),
+                side: WidgetStateProperty.all(
+                  BorderSide(color: Colors.white.withValues(alpha: 0.1)),
                 ),
               ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'Static preview only for now. This page will be connected to real booking requests once the backend booking endpoints are ready.',
-            style: context.textStyles.bodySmall?.withColor(
-              Colors.white.withValues(alpha: 0.62),
             ),
-          ),
-          const SizedBox(height: 14),
-          FilledButton.icon(
-            onPressed: null,
-            icon: const Icon(Icons.send_outlined),
-            label: const Text('Submit Booking Request (Coming soon)'),
-          ),
-        ],
+            const SizedBox(height: 10),
+            BookingHostTextField(
+              controller: _eventAgendaController,
+              label: 'Event agenda *',
+              validator: _required,
+              maxLines: 4,
+            ),
+            BookingHostTextField(
+              controller: _expectedGuestsController,
+              label: 'Expected number of guests',
+              keyboardType: TextInputType.number,
+              textCapitalization: TextCapitalization.none,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Please check your spam folder if you do not see the confirmation email in your inbox.',
+              style: context.textStyles.bodySmall?.withColor(
+                Colors.white.withValues(alpha: 0.56),
+              ),
+            ),
+            const SizedBox(height: 14),
+            SizedBox(
+              width: double.infinity,
+              child: FilledButton.icon(
+                onPressed: _isSubmitting ? null : _submit,
+                icon: _isSubmitting
+                    ? SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: colorScheme.onPrimary,
+                        ),
+                      )
+                    : const Icon(Icons.send_outlined),
+                label: Text(_isSubmitting ? 'Submitting...' : 'Submit'),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
