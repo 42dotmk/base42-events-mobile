@@ -49,10 +49,6 @@ ios/Pods/
 ios/.symlinks/
 ios/Flutter/Flutter.framework
 ios/Flutter/Flutter.podspec
-ios/Flutter/*.xcconfig
-ios/Flutter/Debug.xcconfig
-ios/Flutter/Release.xcconfig
-ios/Flutter/AppFrameworkInfo.plist
 ios/Flutter/flutter_export_environment.sh
 ios/Flutter/ephemeral/
 
@@ -67,11 +63,6 @@ android/app/build/
 /android/app/debug
 /android/app/profile
 /android/app/release
-
-# Firebase config
-lib/firebase_options.dart
-google-services.json
-GoogleService-Info.plist
 
 .env
 *.log

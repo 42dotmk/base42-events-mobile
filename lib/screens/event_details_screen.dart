@@ -1,3 +1,4 @@
+import 'package:base42_events_mobile/nav.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:go_router/go_router.dart';
@@ -28,7 +29,6 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
   final EventService _eventService = EventService();
   Event? _event;
   bool _isLoading = false;
-  String? _error;
 
   @override
   void initState() {
@@ -40,36 +40,55 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
     }
   }
 
+  @override
+  void didUpdateWidget(covariant EventDetailsScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.eventId != null && widget.eventId != oldWidget.eventId) {
+      _fetchEvent();
+    }
+  }
+
   Future<void> _fetchEvent() async {
     setState(() {
       _isLoading = true;
-      _error = null;
     });
     try {
-      final id = int.parse(widget.eventId!);
-      final event = await _eventService.fetchEventById(id);
-      setState(() {
-        _event = event;
-        _isLoading = false;
-      });
+      final identifier = widget.eventId!;
+      final event = await _eventService.fetchEventByIdentifier(identifier);
+      if (mounted) {
+        setState(() {
+          _event = event;
+          _isLoading = false;
+        });
+      }
     } catch (e) {
-      setState(() {
-        _error = e.toString();
-        _isLoading = false;
-      });
+      if (mounted) {
+        final isNotFound = e.toString().contains('not found');
+        if (isNotFound) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Event not found'),
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Error loading event: ${e.toString()}'),
+              behavior: SnackBarBehavior.floating,
+              action: SnackBarAction(label: 'Retry', onPressed: _fetchEvent),
+            ),
+          );
+        }
+        context.go(AppRoutes.events);
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    if (_isLoading) {
+    if (_isLoading || _event == null) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
-    }
-    if (_error != null || _event == null) {
-      return Scaffold(
-        appBar: AppBar(),
-        body: Center(child: Text(_error ?? 'Event not found')),
-      );
     }
 
     final event = _event!;
@@ -97,7 +116,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                     color: Colors.white,
                   ),
                 ),
-                onPressed: () => context.pop(),
+                onPressed: () => context.go(AppRoutes.events),
               ),
               flexibleSpace: FlexibleSpaceBar(
                 background: Stack(

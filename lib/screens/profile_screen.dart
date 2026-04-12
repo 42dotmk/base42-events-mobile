@@ -35,9 +35,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ),
       );
     } finally {
-      setState(() {
-        _isKeycloakLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _isKeycloakLoading = false;
+        });
+      }
     }
   }
 
@@ -47,7 +49,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         _isKeycloakLoading = true;
       });
       final authProvider = Provider.of<AuthProvider>(context, listen: false);
-      await authProvider.login();
+      await authProvider.loginWithCredentials();
 
       if (!context.mounted) return;
       context.go(AppRoutes.profile);
@@ -60,9 +62,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ),
       );
     } finally {
-      setState(() {
-        _isKeycloakLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _isKeycloakLoading = false;
+        });
+      }
     }
   }
 
@@ -87,9 +91,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
         );
       }
     } finally {
-      setState(() {
-        _isKeycloakLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _isKeycloakLoading = false;
+        });
+      }
     }
   }
 

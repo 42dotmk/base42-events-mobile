@@ -56,7 +56,7 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  bool isUserCancelled(Object e) {
+  bool hasUserCancelled(Object e) {
     if (e is FlutterAppAuthUserCancelledException) return true;
     if (e is PlatformException && e.code == 'user_canceled') return true;
 
@@ -78,7 +78,7 @@ class AuthProvider extends ChangeNotifier {
       final accessToken = authResponse.accessToken;
       await exchangeForStrapiToken(accessToken);
     } catch (e) {
-      if (isUserCancelled(e)) {
+      if (hasUserCancelled(e)) {
         return;
       }
       rethrow;
@@ -103,7 +103,7 @@ class AuthProvider extends ChangeNotifier {
       final accessToken = authResponse.accessToken;
       await exchangeForStrapiToken(accessToken);
     } catch (e) {
-      if (isUserCancelled(e)) {
+      if (hasUserCancelled(e)) {
         return;
       }
       developer.log(
@@ -143,10 +143,10 @@ class AuthProvider extends ChangeNotifier {
       );
 
       await FCMService.instance.updateTokenOnBackend();
-      
+
       notifyListeners();
     } catch (e) {
-      if (isUserCancelled(e)) {
+      if (hasUserCancelled(e)) {
         return;
       }
       developer.log(
@@ -162,7 +162,7 @@ class AuthProvider extends ChangeNotifier {
     try {
       await _userService.logout(_token!);
     } catch (e) {
-      if (isUserCancelled(e)) {
+      if (hasUserCancelled(e)) {
         return;
       }
       developer.log(

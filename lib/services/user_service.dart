@@ -124,11 +124,9 @@ class UserService {
     try {
       var url = Uri.parse(addFcmTokenApiUrl);
 
-      var response = await postWithAuth(
-        url.toString(),
-        token,
-        {'fcmToken': fcmToken},
-      );
+      var response = await postWithAuth(url.toString(), token, {
+        'fcmToken': fcmToken,
+      });
 
       if (response.statusCode == 200) {
         developer.log('FCM token updated successfully', name: 'UserService');
@@ -136,7 +134,8 @@ class UserService {
         String error;
         try {
           var errorData = jsonDecode(response.body);
-          error = errorData['error']?['message'] ?? 'Failed to update FCM token';
+          error =
+              errorData['error']?['message'] ?? 'Failed to update FCM token';
         } catch (_) {
           error = 'Failed to update FCM token (HTTP ${response.statusCode})';
         }

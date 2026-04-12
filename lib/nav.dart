@@ -11,17 +11,25 @@ import 'package:base42_events_mobile/services/fcm_service.dart';
 
 final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>();
 
+class AppRouterHelper {
+  static GlobalKey<NavigatorState> get rootNavigatorKey => _rootNavigatorKey;
+
+  static void goToEventDetails(String eventId) {
+    final context = _rootNavigatorKey.currentContext;
+    if (context != null) {
+      context.go('/event/$eventId');
+    } else {
+      debugPrint('Navigation failed: root context is null');
+    }
+  }
+}
+
 class AppRouter {
   final AuthProvider authProvider;
 
   AppRouter(this.authProvider) {
     FCMService.instance.setOnEventSelected((eventId) {
-      final rootContext = _rootNavigatorKey.currentContext;
-      if (rootContext != null) {
-        rootContext.go('/event/$eventId');
-      } else {
-        debugPrint('FCM navigation failed: root context is null');
-      }
+      AppRouterHelper.goToEventDetails(eventId);
     });
   }
 

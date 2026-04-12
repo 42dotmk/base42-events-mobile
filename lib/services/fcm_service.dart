@@ -84,9 +84,8 @@ class FCMService {
     );
 
     final apnsToken = await _firebaseMessaging.getAPNSToken();
-    if (apnsToken != null) {
-      debugPrint("APNs Token: $apnsToken");
-    } else {
+
+    if (apnsToken == null) {
       debugPrint(
         "APNs Token is null, user may have declined permissions or device may not support APNs",
       );
@@ -185,12 +184,10 @@ class FCMService {
   }
 
   void _onNotificationTap(NotificationResponse response) {
-    debugPrint("Notification tapped: ${response.payload}");
     _handleNotificationPayload(response.payload);
   }
 
   void _handleNotificationTap(RemoteMessage message) {
-    debugPrint("  Navigating to event: ${message.data}");
     final eventId = message.data['eventId']?.toString();
     if (eventId != null && eventId.isNotEmpty) {
       debugPrint("Handling event navigation callback for ID: $eventId");
@@ -226,7 +223,6 @@ class FCMService {
   }
 
   Future<void> updateTokenOnBackend() async {
-    debugPrint("Manually updating FCM token on backend...");
     final token = await getToken();
     if (token != null) {
       await _updateFcmTokenOnBackend(token);
