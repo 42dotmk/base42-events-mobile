@@ -49,7 +49,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         _isKeycloakLoading = true;
       });
       final authProvider = Provider.of<AuthProvider>(context, listen: false);
-      await authProvider.loginWithCredentials();
+      await authProvider.login();
 
       if (!context.mounted) return;
       context.go(AppRoutes.profile);
