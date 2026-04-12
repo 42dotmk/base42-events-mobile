@@ -33,6 +33,7 @@ class BookingHostTextField extends StatelessWidget {
   final TextEditingController controller;
   final String label;
   final String? Function(String?)? validator;
+  final ValueChanged<String>? onChanged;
   final int maxLines;
   final TextInputType? keyboardType;
   final TextCapitalization textCapitalization;
@@ -42,6 +43,7 @@ class BookingHostTextField extends StatelessWidget {
     required this.controller,
     required this.label,
     this.validator,
+    this.onChanged,
     this.maxLines = 1,
     this.keyboardType,
     this.textCapitalization = TextCapitalization.words,
@@ -54,6 +56,7 @@ class BookingHostTextField extends StatelessWidget {
       child: TextFormField(
         controller: controller,
         validator: validator,
+        onChanged: onChanged,
         maxLines: maxLines,
         keyboardType: keyboardType,
         textCapitalization: textCapitalization,

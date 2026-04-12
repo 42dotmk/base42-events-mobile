@@ -1,4 +1,5 @@
 import 'package:base42_events_mobile/providers/auth_provider.dart';
+import 'package:base42_events_mobile/providers/booking_draft_provider.dart';
 import 'package:base42_events_mobile/providers/settings_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -11,6 +12,7 @@ void main() {
       providers: [
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => SettingsProvider()),
+        ChangeNotifierProvider(create: (_) => BookingDraftProvider()),
       ],
       child: const MyApp(),
     ),
