@@ -101,15 +101,27 @@ class AuthProvider extends ChangeNotifier {
       );
 
       final accessToken = authResponse.accessToken;
+
+      if (accessToken == null) {
+        developer.log(
+          'accessToken is null after authorizeAndExchangeCode — aborting',
+          name: 'AuthProvider',
+        );
+        return;
+      }
+
       await exchangeForStrapiToken(accessToken);
-    } catch (e) {
+      developer.log('exchangeForStrapiToken succeeded', name: 'AuthProvider');
+    } catch (e, stackTrace) {
       if (hasUserCancelled(e)) {
         return;
       }
+
       developer.log(
         'Keycloak registration failed: $e',
         name: 'AuthProvider',
         error: e,
+        stackTrace: stackTrace,
       );
       rethrow;
     }
