@@ -1,3 +1,4 @@
+import 'package:base42_events_mobile/consts/api.dart';
 import 'package:base42_events_mobile/theme.dart';
 import 'package:base42_events_mobile/providers/auth_provider.dart';
 import 'package:base42_events_mobile/models/event.dart';
@@ -80,6 +81,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final initials = firstName.isNotEmpty
         ? firstName.characters.first.toUpperCase()
         : 'U';
+    final profilePicture = currentUser?.profilePicture;
 
     return Scaffold(
       body: Container(
@@ -116,7 +118,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                 const SizedBox(height: 2),
                                 Text(
                                   currentUser != null
-                                      ? currentUser.username
+                                      ? currentUser.firstName ??
+                                            currentUser.username
                                       : "Guest User",
                                   style: context.textStyles.headlineLarge?.bold
                                       .withColor(Colors.white),
@@ -208,13 +211,40 @@ class _HomeScreenState extends State<HomeScreen> {
                               shape: BoxShape.circle,
                             ),
                             alignment: Alignment.center,
-                            child: Text(
-                              initials,
-                              style: context.textStyles.titleLarge?.bold
-                                  .withColor(
-                                    brand?.neonYellow ?? colorScheme.secondary,
+                            child: profilePicture != null
+                                ? ClipRRect(
+                                    borderRadius: BorderRadius.circular(18),
+                                    child: Image.network(
+                                      profilePicture.getMediumUrl(baseUrl) ??
+                                          '',
+                                      width: 86,
+                                      height: 86,
+                                      fit: BoxFit.cover,
+                                      errorBuilder:
+                                          (context, error, stackTrace) => Text(
+                                            initials,
+                                            style: context
+                                                .textStyles
+                                                .headlineMedium
+                                                ?.bold
+                                                .withColor(
+                                                  brand?.neonYellow ??
+                                                      colorScheme.secondary,
+                                                ),
+                                          ),
+                                    ),
+                                  )
+                                : Text(
+                                    initials,
+                                    style: context
+                                        .textStyles
+                                        .headlineMedium
+                                        ?.bold
+                                        .withColor(
+                                          brand?.neonYellow ??
+                                              colorScheme.secondary,
+                                        ),
                                   ),
-                            ),
                           ),
                         ],
                       ),

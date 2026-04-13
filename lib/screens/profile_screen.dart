@@ -1,3 +1,4 @@
+import 'package:base42_events_mobile/consts/api.dart';
 import 'package:base42_events_mobile/nav.dart';
 import 'package:base42_events_mobile/providers/auth_provider.dart';
 import 'package:base42_events_mobile/theme.dart';
@@ -133,8 +134,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
-  String _formatDisplayName(String? username) {
-    final raw = (username ?? '').trim();
+  String _formatDisplayName(String? name) {
+    final raw = (name ?? '').trim();
     if (raw.isEmpty) return 'Guest User';
 
     final segments = raw
@@ -212,9 +213,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final colorScheme = Theme.of(context).colorScheme;
     final authProvider = context.watch<AuthProvider>();
 
-    final displayName = _formatDisplayName(authProvider.currentUser?.username);
+    final displayName = _formatDisplayName(
+      authProvider.currentUser?.firstName ?? authProvider.currentUser?.username,
+    );
     final email = authProvider.currentUser?.email ?? 'Sign in to your account';
     final initials = _buildInitials(displayName);
+    final profilePicture = authProvider.currentUser?.profilePicture;
 
     final upcomingBookings = _getUpcomingBookings();
     final pastBookings = _getPastBookings();
@@ -247,13 +251,35 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                       ),
                       alignment: Alignment.center,
-                      child: Text(
-                        initials,
-                        style: context.textStyles.headlineMedium?.bold
-                            .withColor(
-                              brand?.neonYellow ?? colorScheme.secondary,
+                      child: profilePicture != null
+                          ? ClipRRect(
+                              borderRadius: BorderRadius.circular(18),
+                              child: Image.network(
+                                profilePicture.getMediumUrl(baseUrl) ?? '',
+                                width: 86,
+                                height: 86,
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) =>
+                                    Text(
+                                      initials,
+                                      style: context
+                                          .textStyles
+                                          .headlineMedium
+                                          ?.bold
+                                          .withColor(
+                                            brand?.neonYellow ??
+                                                colorScheme.secondary,
+                                          ),
+                                    ),
+                              ),
+                            )
+                          : Text(
+                              initials,
+                              style: context.textStyles.headlineMedium?.bold
+                                  .withColor(
+                                    brand?.neonYellow ?? colorScheme.secondary,
+                                  ),
                             ),
-                      ),
                     ),
                     const SizedBox(width: 14),
                     Expanded(
@@ -274,6 +300,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           ),
                         ],
                       ),
+                    ),
+                    IconButton(
+                      icon: Icon(
+                        Icons.edit_outlined,
+                        color: brand?.neonCyan ?? colorScheme.primary,
+                      ),
+                      onPressed: () => context.push(AppRoutes.editProfile),
                     ),
                   ],
                 ),

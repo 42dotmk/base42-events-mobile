@@ -1,6 +1,7 @@
 import 'package:base42_events_mobile/models/event.dart';
 import 'package:base42_events_mobile/providers/auth_provider.dart';
 import 'package:base42_events_mobile/screens/book_placeholder_screen.dart';
+import 'package:base42_events_mobile/screens/edit_profile_screen.dart';
 import 'package:base42_events_mobile/screens/event_details_screen.dart';
 import 'package:base42_events_mobile/screens/event_list_screen.dart';
 import 'package:base42_events_mobile/screens/home_screen.dart';
@@ -93,12 +94,19 @@ class AppRouter {
         parentNavigatorKey: _rootNavigatorKey,
         builder: (context, state) => const SettingsScreen(),
       ),
+      GoRoute(
+        path: AppRoutes.editProfile,
+        name: 'editProfile',
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) => const EditProfileScreen(),
+      ),
     ],
   );
 }
 
 class AppRoutes {
   static const String auth = '/auth';
+  static const String editProfile = '/edit-profile';
   static const String home = '/';
   static const String events = '/events';
   static const String book = '/book';
