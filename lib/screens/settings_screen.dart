@@ -8,14 +8,13 @@ class SettingsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final brand = Theme.of(context).extension<BrandTheme>();
     final colorScheme = Theme.of(context).colorScheme;
     final settings = context.watch<SettingsProvider>();
-    final dividerColor = Colors.white.withValues(alpha: 0.07);
+    final dividerColor = colorScheme.outline.withValues(alpha: 0.2);
 
     return Scaffold(
       body: Container(
-        decoration: BoxDecoration(gradient: brand?.backdropGradient),
+        color: Theme.of(context).scaffoldBackgroundColor,
         child: SafeArea(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -25,16 +24,17 @@ class SettingsScreen extends StatelessWidget {
                 child: Row(
                   children: [
                     IconButton(
-                      icon: const Icon(
+                      icon: Icon(
                         Icons.arrow_back_ios_new_rounded,
-                        color: Colors.white,
+                        color: colorScheme.onSurface,
                       ),
                       onPressed: () => Navigator.of(context).pop(),
                     ),
                     Text(
                       'Settings',
-                      style: context.textStyles.headlineMedium?.bold
-                          .withColor(Colors.white),
+                      style: context.textStyles.headlineMedium?.bold.withColor(
+                        colorScheme.onSurface,
+                      ),
                     ),
                   ],
                 ),
@@ -49,23 +49,31 @@ class SettingsScreen extends StatelessWidget {
                         'PREFERENCES',
                         style: context.textStyles.headlineSmall?.semiBold
                             .withSize(38 / 2)
-                            .withColor(Colors.white.withValues(alpha: 0.8)),
+                            .withColor(
+                              colorScheme.onSurface.withValues(alpha: 0.8),
+                            ),
                       ),
                       const SizedBox(height: 10),
                       Container(
                         width: double.infinity,
                         decoration: BoxDecoration(
-                          color: colorScheme.surfaceContainerHighest
-                              .withValues(alpha: 0.62),
+                          color: colorScheme.surfaceContainerHighest.withValues(
+                            alpha: 0.62,
+                          ),
                           borderRadius: BorderRadius.circular(20),
                           border: Border.all(
-                            color: Colors.white.withValues(alpha: 0.08),
+                            color: colorScheme.outline.withValues(alpha: 0.2),
                           ),
                         ),
                         child: Column(
                           children: [
                             Padding(
-                              padding: const EdgeInsets.fromLTRB(18, 14, 12, 14),
+                              padding: const EdgeInsets.fromLTRB(
+                                18,
+                                14,
+                                12,
+                                14,
+                              ),
                               child: Row(
                                 children: [
                                   _SettingIcon(
@@ -81,18 +89,19 @@ class SettingsScreen extends StatelessWidget {
                                         Text(
                                           'Notifications',
                                           style: context
-                                              .textStyles.headlineSmall?.semiBold
+                                              .textStyles
+                                              .headlineSmall
+                                              ?.semiBold
                                               .withSize(37 / 2)
-                                              .withColor(Colors.white),
+                                              .withColor(colorScheme.onSurface),
                                         ),
                                         const SizedBox(height: 2),
                                         Text(
                                           'Event reminders & booking updates',
                                           style: context.textStyles.titleLarge
                                               ?.withColor(
-                                                Colors.white.withValues(
-                                                  alpha: 0.46,
-                                                ),
+                                                colorScheme.onSurface
+                                                    .withValues(alpha: 0.46),
                                               ),
                                         ),
                                       ],
@@ -101,14 +110,12 @@ class SettingsScreen extends StatelessWidget {
                                   Switch(
                                     value: settings.notificationsEnabled,
                                     onChanged: settings.setNotificationsEnabled,
-                                    activeThumbColor:
-                                        brand?.neonCyan ?? colorScheme.primary,
-                                    activeTrackColor: (brand?.neonCyan ??
-                                            colorScheme.primary)
+                                    activeThumbColor: colorScheme.primary,
+                                    activeTrackColor: colorScheme.primary
                                         .withValues(alpha: 0.28),
-                                    inactiveThumbColor: Colors.white
+                                    inactiveThumbColor: colorScheme.onSurface
                                         .withValues(alpha: 0.38),
-                                    inactiveTrackColor: Colors.white
+                                    inactiveTrackColor: colorScheme.onSurface
                                         .withValues(alpha: 0.1),
                                     trackOutlineColor: WidgetStateProperty.all(
                                       Colors.transparent,
@@ -124,7 +131,12 @@ class SettingsScreen extends StatelessWidget {
                               endIndent: 18,
                             ),
                             Padding(
-                              padding: const EdgeInsets.fromLTRB(18, 14, 18, 14),
+                              padding: const EdgeInsets.fromLTRB(
+                                18,
+                                14,
+                                18,
+                                14,
+                              ),
                               child: Row(
                                 children: [
                                   _SettingIcon(
@@ -136,9 +148,11 @@ class SettingsScreen extends StatelessWidget {
                                     child: Text(
                                       'Theme',
                                       style: context
-                                          .textStyles.headlineSmall?.semiBold
+                                          .textStyles
+                                          .headlineSmall
+                                          ?.semiBold
                                           .withSize(37 / 2)
-                                          .withColor(Colors.white),
+                                          .withColor(colorScheme.onSurface),
                                     ),
                                   ),
                                   _ThemeSegmentedButton(settings: settings),
@@ -152,7 +166,12 @@ class SettingsScreen extends StatelessWidget {
                               endIndent: 18,
                             ),
                             Padding(
-                              padding: const EdgeInsets.fromLTRB(18, 14, 18, 14),
+                              padding: const EdgeInsets.fromLTRB(
+                                18,
+                                14,
+                                18,
+                                14,
+                              ),
                               child: Row(
                                 children: [
                                   _SettingIcon(
@@ -164,9 +183,11 @@ class SettingsScreen extends StatelessWidget {
                                     child: Text(
                                       'Language',
                                       style: context
-                                          .textStyles.headlineSmall?.semiBold
+                                          .textStyles
+                                          .headlineSmall
+                                          ?.semiBold
                                           .withSize(37 / 2)
-                                          .withColor(Colors.white),
+                                          .withColor(colorScheme.onSurface),
                                     ),
                                   ),
                                   _LanguageSegmentedButton(settings: settings),
@@ -206,7 +227,7 @@ class _SettingIcon extends StatelessWidget {
       child: Icon(
         icon,
         size: 20,
-        color: Colors.white.withValues(alpha: 0.48),
+        color: colorScheme.onSurface.withValues(alpha: 0.48),
       ),
     );
   }
@@ -219,8 +240,8 @@ class _ThemeSegmentedButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final brand = Theme.of(context).extension<BrandTheme>();
-    final activeColor = brand?.neonCyan ?? Theme.of(context).colorScheme.primary;
+    final colorScheme = Theme.of(context).colorScheme;
+    final activeColor = colorScheme.primary;
 
     return SegmentedButton<ThemeMode>(
       segments: const [
@@ -247,18 +268,18 @@ class _ThemeSegmentedButton extends StatelessWidget {
           if (states.contains(WidgetState.selected)) {
             return activeColor.withValues(alpha: 0.18);
           }
-          return Colors.white.withValues(alpha: 0.05);
+          return colorScheme.surfaceContainerHighest.withValues(alpha: 0.35);
         }),
         foregroundColor: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.selected)) return activeColor;
-          return Colors.white.withValues(alpha: 0.4);
+          return colorScheme.onSurface.withValues(alpha: 0.55);
         }),
         iconColor: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.selected)) return activeColor;
-          return Colors.white.withValues(alpha: 0.4);
+          return colorScheme.onSurface.withValues(alpha: 0.55);
         }),
         side: WidgetStateProperty.all(
-          BorderSide(color: Colors.white.withValues(alpha: 0.1)),
+          BorderSide(color: colorScheme.outline.withValues(alpha: 0.25)),
         ),
         visualDensity: VisualDensity.compact,
       ),
@@ -274,8 +295,8 @@ class _LanguageSegmentedButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final brand = Theme.of(context).extension<BrandTheme>();
-    final activeColor = brand?.neonCyan ?? Theme.of(context).colorScheme.primary;
+    final colorScheme = Theme.of(context).colorScheme;
+    final activeColor = colorScheme.primary;
 
     return SegmentedButton<String>(
       segments: [
@@ -295,14 +316,14 @@ class _LanguageSegmentedButton extends StatelessWidget {
           if (states.contains(WidgetState.selected)) {
             return activeColor.withValues(alpha: 0.18);
           }
-          return Colors.white.withValues(alpha: 0.05);
+          return colorScheme.surfaceContainerHighest.withValues(alpha: 0.35);
         }),
         foregroundColor: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.selected)) return activeColor;
-          return Colors.white.withValues(alpha: 0.4);
+          return colorScheme.onSurface.withValues(alpha: 0.55);
         }),
         side: WidgetStateProperty.all(
-          BorderSide(color: Colors.white.withValues(alpha: 0.1)),
+          BorderSide(color: colorScheme.outline.withValues(alpha: 0.25)),
         ),
         visualDensity: VisualDensity.compact,
       ),

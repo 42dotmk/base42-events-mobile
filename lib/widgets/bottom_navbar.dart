@@ -79,8 +79,14 @@ class BottomNavigationBarWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final brand = Theme.of(context).extension<BrandTheme>();
-    final activeColor = brand?.neonYellow ?? colorScheme.secondary;
-    final inactiveColor = Colors.white.withValues(alpha: 0.35);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final activeColor = colorScheme.primary;
+    final inactiveColor = colorScheme.onSurface.withValues(
+      alpha: isDark ? 0.35 : 0.55,
+    );
+    final navBackgroundColor = isDark
+        ? (brand?.deepNavy ?? colorScheme.surface)
+        : colorScheme.surface;
     final currentIndex = _calculateCurrentIndex(context);
 
     return Scaffold(
@@ -90,7 +96,7 @@ class BottomNavigationBarWidget extends StatelessWidget {
         child: Container(
           height: 84,
           decoration: BoxDecoration(
-            color: const Color(0xFF091018).withValues(alpha: 0.95),
+            color: navBackgroundColor.withValues(alpha: isDark ? 0.95 : 1),
             borderRadius: BorderRadius.circular(0),
           ),
           child: Row(
@@ -124,7 +130,9 @@ class BottomNavigationBarWidget extends StatelessWidget {
                               ),
                               child: Icon(
                                 item.icon,
-                                color: const Color(0xFF0B1020),
+                                color: isDark
+                                    ? (brand?.deepNavy ?? colorScheme.onPrimary)
+                                    : colorScheme.onPrimary,
                                 size: 30,
                               ),
                             ),

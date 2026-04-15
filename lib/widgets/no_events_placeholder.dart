@@ -8,9 +8,8 @@ class NoUpcomingEventsPlacehoder extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final brand = Theme.of(context).extension<BrandTheme>();
     final colorScheme = Theme.of(context).colorScheme;
-    final linkColor = brand?.linkTextGray ?? colorScheme.onSurfaceVariant;
+    final linkColor = colorScheme.primary;
 
     return InkWell(
       onTap: onTap,
@@ -19,7 +18,7 @@ class NoUpcomingEventsPlacehoder extends StatelessWidget {
         decoration: BoxDecoration(
           color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.62),
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
+          border: Border.all(color: colorScheme.outline.withValues(alpha: 0.2)),
         ),
         clipBehavior: Clip.antiAlias,
         child: Column(
@@ -35,14 +34,14 @@ class NoUpcomingEventsPlacehoder extends StatelessWidget {
                       children: [
                         Icon(
                           Icons.event_busy_outlined,
-                          color: brand?.neonCyan ?? colorScheme.primary,
+                          color: colorScheme.primary,
                           size: 20,
                         ),
                         const SizedBox(width: 8),
                         Text(
                           'No upcoming events',
                           style: context.textStyles.titleLarge?.semiBold
-                              .withColor(Colors.white),
+                              .withColor(colorScheme.onSurface),
                         ),
                       ],
                     ),
@@ -50,7 +49,7 @@ class NoUpcomingEventsPlacehoder extends StatelessWidget {
                     Text(
                       'New sessions will appear here as soon as they are announced.',
                       style: context.textStyles.bodyMedium?.withColor(
-                        Colors.white.withValues(alpha: 0.56),
+                        colorScheme.onSurface.withValues(alpha: 0.62),
                       ),
                     ),
                     const Spacer(),

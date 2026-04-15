@@ -19,6 +19,8 @@ class EventDetailsScreen extends StatelessWidget {
     final dateFormat = DateFormat('EEEE, MMMM dd, yyyy • hh:mm a');
     final colorScheme = Theme.of(context).colorScheme;
     final brand = Theme.of(context).extension<BrandTheme>();
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final primaryAccent = isDark ? colorScheme.secondary : colorScheme.primary;
 
     return Scaffold(
       body: Container(
@@ -32,12 +34,12 @@ class EventDetailsScreen extends StatelessWidget {
                 icon: Container(
                   padding: const EdgeInsets.all(AppSpacing.sm),
                   decoration: BoxDecoration(
-                    color: Colors.black.withValues(alpha: 0.5),
+                    color: colorScheme.shadow.withValues(alpha: 0.5),
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(
+                  child: Icon(
                     Icons.arrow_back_rounded,
-                    color: Colors.white,
+                    color: colorScheme.onSurface,
                   ),
                 ),
                 onPressed: () => context.pop(),
@@ -53,8 +55,8 @@ class EventDetailsScreen extends StatelessWidget {
                           begin: Alignment.topCenter,
                           end: Alignment.bottomCenter,
                           colors: [
-                            Colors.black.withValues(alpha: 0.0),
-                            Colors.black.withValues(alpha: 0.5),
+                            colorScheme.shadow.withValues(alpha: 0.0),
+                            colorScheme.shadow.withValues(alpha: 0.5),
                           ],
                         ),
                       ),
@@ -72,7 +74,7 @@ class EventDetailsScreen extends StatelessWidget {
                     Text(
                       event.title,
                       style: context.textStyles.headlineMedium?.bold.withColor(
-                        Colors.white,
+                        colorScheme.onSurface,
                       ),
                     ),
                     const SizedBox(height: AppSpacing.lg),
@@ -162,8 +164,8 @@ class EventDetailsScreen extends StatelessWidget {
                           icon: const Icon(Icons.open_in_new_rounded),
                           label: const Text('Register for Event'),
                           style: FilledButton.styleFrom(
-                            backgroundColor: brand?.neonCyan,
-                            foregroundColor: Colors.black,
+                            backgroundColor: primaryAccent,
+                            foregroundColor: colorScheme.onPrimary,
                             padding: const EdgeInsets.symmetric(
                               vertical: AppSpacing.md,
                               horizontal: AppSpacing.lg,

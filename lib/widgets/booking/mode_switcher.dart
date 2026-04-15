@@ -12,21 +12,23 @@ class ModeSwitcher extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final brand = Theme.of(context).extension<BrandTheme>();
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final primaryAccent = isDark ? colorScheme.secondary : colorScheme.primary;
+    final secondaryAccent = isDark ? colorScheme.primary : colorScheme.tertiary;
+    final onSurface = colorScheme.onSurface;
 
     Widget buildButton(BookMode buttonMode, String label, IconData icon) {
       final selected = mode == buttonMode;
+      final selectedColor = buttonMode == BookMode.coworking
+          ? primaryAccent
+          : secondaryAccent;
       return Expanded(
         child: GestureDetector(
           onTap: () => onChanged(buttonMode),
           child: Container(
             padding: const EdgeInsets.symmetric(vertical: 12),
             decoration: BoxDecoration(
-              color: selected
-                  ? (buttonMode == BookMode.coworking
-                        ? brand?.neonCyan ?? colorScheme.primary
-                        : brand?.neonYellow ?? colorScheme.secondary)
-                  : Colors.transparent,
+              color: selected ? selectedColor : Colors.transparent,
               borderRadius: BorderRadius.circular(12),
             ),
             child: Row(
@@ -36,16 +38,16 @@ class ModeSwitcher extends StatelessWidget {
                   icon,
                   size: 16,
                   color: selected
-                      ? Colors.black
-                      : Colors.white.withValues(alpha: 0.56),
+                      ? colorScheme.onPrimary
+                      : onSurface.withValues(alpha: 0.56),
                 ),
                 const SizedBox(width: 6),
                 Text(
                   label,
                   style: context.textStyles.labelLarge?.semiBold.withColor(
                     selected
-                        ? Colors.black
-                        : Colors.white.withValues(alpha: 0.56),
+                        ? colorScheme.onPrimary
+                        : onSurface.withValues(alpha: 0.56),
                   ),
                 ),
               ],
@@ -60,7 +62,7 @@ class ModeSwitcher extends StatelessWidget {
       decoration: BoxDecoration(
         color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.4),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
+        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.2)),
       ),
       child: Row(
         children: [

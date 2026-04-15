@@ -173,7 +173,8 @@ class _HostEventSectionState extends State<HostEventSection> {
   Widget build(BuildContext context) {
     final draft = context.watch<BookingDraftProvider>();
     final colorScheme = Theme.of(context).colorScheme;
-    final brand = Theme.of(context).extension<BrandTheme>();
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final primaryAccent = isDark ? colorScheme.secondary : colorScheme.primary;
 
     return Container(
       width: double.infinity,
@@ -181,7 +182,7 @@ class _HostEventSectionState extends State<HostEventSection> {
       decoration: BoxDecoration(
         color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.62),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
+        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.2)),
       ),
       child: Form(
         key: _formKey,
@@ -190,16 +191,13 @@ class _HostEventSectionState extends State<HostEventSection> {
           children: [
             Row(
               children: [
-                Icon(
-                  Icons.auto_awesome_outlined,
-                  color: brand?.neonYellow ?? colorScheme.secondary,
-                ),
+                Icon(Icons.auto_awesome_outlined, color: primaryAccent),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
                     'Host your event at Base42',
                     style: context.textStyles.titleMedium?.semiBold.withColor(
-                      Colors.white,
+                      colorScheme.onSurface,
                     ),
                   ),
                 ),
@@ -209,7 +207,7 @@ class _HostEventSectionState extends State<HostEventSection> {
             Text(
               'Please fill in the event information and submit your request.',
               style: context.textStyles.bodySmall?.withColor(
-                Colors.white.withValues(alpha: 0.62),
+                colorScheme.onSurface.withValues(alpha: 0.62),
               ),
             ),
             const SizedBox(height: 14),
@@ -315,7 +313,7 @@ class _HostEventSectionState extends State<HostEventSection> {
             Text(
               'Physical presence event *',
               style: context.textStyles.labelLarge?.withColor(
-                Colors.white.withValues(alpha: 0.72),
+                colorScheme.onSurface.withValues(alpha: 0.72),
               ),
             ),
             const SizedBox(height: 8),
@@ -343,21 +341,22 @@ class _HostEventSectionState extends State<HostEventSection> {
               style: ButtonStyle(
                 foregroundColor: WidgetStateProperty.resolveWith((states) {
                   if (states.contains(WidgetState.selected)) {
-                    return brand?.neonYellow ?? colorScheme.secondary;
+                    return primaryAccent;
                   }
-                  return Colors.white.withValues(alpha: 0.7);
+                  return colorScheme.onSurface.withValues(alpha: 0.7);
                 }),
                 backgroundColor: WidgetStateProperty.resolveWith((states) {
                   if (states.contains(WidgetState.selected)) {
-                    return (brand?.neonYellow ?? colorScheme.secondary)
-                        .withValues(alpha: 0.16);
+                    return primaryAccent.withValues(alpha: 0.16);
                   }
                   return colorScheme.surfaceContainerHighest.withValues(
                     alpha: 0.35,
                   );
                 }),
                 side: WidgetStateProperty.all(
-                  BorderSide(color: Colors.white.withValues(alpha: 0.1)),
+                  BorderSide(
+                    color: colorScheme.outline.withValues(alpha: 0.25),
+                  ),
                 ),
               ),
             ),
@@ -380,7 +379,7 @@ class _HostEventSectionState extends State<HostEventSection> {
             Text(
               'Please check your spam folder if you do not see the confirmation email in your inbox.',
               style: context.textStyles.bodySmall?.withColor(
-                Colors.white.withValues(alpha: 0.56),
+                colorScheme.onSurface.withValues(alpha: 0.56),
               ),
             ),
             const SizedBox(height: 14),

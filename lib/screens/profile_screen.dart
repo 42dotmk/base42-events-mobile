@@ -210,6 +210,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget build(BuildContext context) {
     final brand = Theme.of(context).extension<BrandTheme>();
     final colorScheme = Theme.of(context).colorScheme;
+    final primaryAccent = colorScheme.primary;
     final authProvider = context.watch<AuthProvider>();
 
     final displayName = _formatDisplayName(authProvider.currentUser?.username);
@@ -238,21 +239,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       width: 86,
                       height: 86,
                       decoration: BoxDecoration(
-                        color: (brand?.neonYellow ?? colorScheme.secondary)
-                            .withValues(alpha: 0.18),
+                        color: primaryAccent.withValues(alpha: 0.18),
                         borderRadius: BorderRadius.circular(20),
                         border: Border.all(
-                          color: (brand?.neonYellow ?? colorScheme.secondary)
-                              .withValues(alpha: 0.45),
+                          color: primaryAccent.withValues(alpha: 0.45),
                         ),
                       ),
                       alignment: Alignment.center,
                       child: Text(
                         initials,
                         style: context.textStyles.headlineMedium?.bold
-                            .withColor(
-                              brand?.neonYellow ?? colorScheme.secondary,
-                            ),
+                            .withColor(primaryAccent),
                       ),
                     ),
                     const SizedBox(width: 14),
@@ -263,13 +260,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           Text(
                             displayName,
                             style: context.textStyles.headlineSmall?.semiBold
-                                .withColor(Colors.white),
+                                .withColor(colorScheme.onSurface),
                           ),
                           const SizedBox(height: 4),
                           Text(
                             email,
                             style: context.textStyles.titleLarge?.withColor(
-                              Colors.white.withValues(alpha: 0.48),
+                              colorScheme.onSurface.withValues(alpha: 0.6),
                             ),
                           ),
                         ],
@@ -286,8 +283,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(
-                      color: (brand?.neonYellow ?? colorScheme.secondary)
-                          .withValues(alpha: 0.25),
+                      color: primaryAccent.withValues(alpha: 0.25),
                     ),
                   ),
                   padding: const EdgeInsets.all(14),
@@ -297,13 +293,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         width: 52,
                         height: 52,
                         decoration: BoxDecoration(
-                          color: (brand?.neonYellow ?? colorScheme.secondary)
-                              .withValues(alpha: 0.15),
+                          color: primaryAccent.withValues(alpha: 0.15),
                           borderRadius: BorderRadius.circular(16),
                         ),
                         child: Icon(
                           Icons.workspace_premium_outlined,
-                          color: brand?.neonYellow ?? colorScheme.secondary,
+                          color: primaryAccent,
                         ),
                       ),
                       const SizedBox(width: 12),
@@ -314,13 +309,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             Text(
                               'Monthly Member',
                               style: context.textStyles.titleLarge?.semiBold
-                                  .withColor(Colors.white),
+                                  .withColor(colorScheme.onSurface),
                             ),
                             const SizedBox(height: 2),
                             Text(
                               'Member since Sep 15, 2025',
                               style: context.textStyles.titleMedium?.withColor(
-                                Colors.white.withValues(alpha: 0.46),
+                                colorScheme.onSurface.withValues(alpha: 0.6),
                               ),
                             ),
                           ],
@@ -328,7 +323,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                       Icon(
                         Icons.chevron_right_rounded,
-                        color: Colors.white.withValues(alpha: 0.24),
+                        color: colorScheme.onSurface.withValues(alpha: 0.4),
                       ),
                     ],
                   ),
@@ -340,9 +335,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       child: _StatTile(
                         value: '${_bookings.length}',
                         label: 'Bookings',
-                        valueColor:
-                            brand?.neonYellow.withValues(alpha: 0.85) ??
-                            colorScheme.secondary,
+                        valueColor: primaryAccent.withValues(alpha: 0.85),
                       ),
                     ),
                     const SizedBox(width: 12),
@@ -350,7 +343,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       child: _StatTile(
                         value: '${upcomingBookings.length}',
                         label: 'Upcoming',
-                        valueColor: brand?.neonCyan ?? colorScheme.primary,
+                        valueColor: primaryAccent,
                       ),
                     ),
                     const SizedBox(width: 12),
@@ -358,7 +351,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       child: _StatTile(
                         value: '${pastBookings.length}',
                         label: 'Completed',
-                        valueColor: Colors.white.withValues(alpha: 0.56),
+                        valueColor: colorScheme.onSurface.withValues(
+                          alpha: 0.65,
+                        ),
                       ),
                     ),
                   ],
@@ -368,7 +363,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   'MY BOOKINGS',
                   style: context.textStyles.headlineSmall?.semiBold
                       .withSize(38 / 2)
-                      .withColor(Colors.white.withValues(alpha: 0.8)),
+                      .withColor(colorScheme.onSurface.withValues(alpha: 0.8)),
                 ),
                 const SizedBox(height: 14),
                 Row(
@@ -424,7 +419,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   'ACCOUNT',
                   style: context.textStyles.headlineSmall?.semiBold
                       .withSize(38 / 2)
-                      .withColor(Colors.white.withValues(alpha: 0.8)),
+                      .withColor(colorScheme.onSurface.withValues(alpha: 0.8)),
                 ),
                 const SizedBox(height: 10),
                 ..._menuItems.map((item) => _AccountMenuTile(item: item)),
@@ -458,9 +453,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     ),
                                   ),
                                 )
-                              : const Icon(
+                              : Icon(
                                   Icons.logout_rounded,
-                                  color: Color(0xFFF16464),
+                                  color: colorScheme.error,
                                 ),
                         ),
                         const SizedBox(width: 12),
@@ -468,7 +463,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           'Sign Out',
                           style: context.textStyles.headlineSmall?.semiBold
                               .withSize(37 / 2)
-                              .withColor(const Color(0xFFF16464)),
+                              .withColor(colorScheme.error),
                         ),
                       ],
                     ),
@@ -481,14 +476,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       Text(
                         'Base42 Mobile v0.1.0',
                         style: context.textStyles.bodySmall?.withColor(
-                          Colors.white.withValues(alpha: 0.2),
+                          colorScheme.onSurface.withValues(alpha: 0.35),
                         ),
                       ),
                       const SizedBox(height: 6),
                       Text(
                         'Made with love in Skopje',
                         style: context.textStyles.bodySmall?.withColor(
-                          Colors.white.withValues(alpha: 0.16),
+                          colorScheme.onSurface.withValues(alpha: 0.3),
                         ),
                       ),
                     ],
@@ -523,7 +518,7 @@ class _StatTile extends StatelessWidget {
       decoration: BoxDecoration(
         color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.62),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
+        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.2)),
       ),
       child: Column(
         children: [
@@ -537,7 +532,7 @@ class _StatTile extends StatelessWidget {
           Text(
             label,
             style: context.textStyles.titleMedium?.withColor(
-              Colors.white.withValues(alpha: 0.44),
+              colorScheme.onSurface.withValues(alpha: 0.5),
             ),
           ),
         ],
@@ -559,8 +554,9 @@ class _FilterChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final brand = Theme.of(context).extension<BrandTheme>();
     final colorScheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final selectedColor = isDark ? colorScheme.secondary : colorScheme.primary;
 
     return InkWell(
       onTap: onTap,
@@ -569,25 +565,21 @@ class _FilterChip extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
         decoration: BoxDecoration(
           color: selected
-              ? (brand?.neonYellow ?? colorScheme.secondary).withValues(
-                  alpha: 0.18,
-                )
+              ? selectedColor.withValues(alpha: 0.18)
               : colorScheme.surfaceContainerHighest.withValues(alpha: 0.62),
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: selected
-                ? (brand?.neonYellow ?? colorScheme.secondary).withValues(
-                    alpha: 0.6,
-                  )
-                : Colors.white.withValues(alpha: 0.08),
+                ? selectedColor.withValues(alpha: 0.6)
+                : colorScheme.outline.withValues(alpha: 0.2),
           ),
         ),
         child: Text(
           label,
           style: context.textStyles.titleMedium?.semiBold.withColor(
             selected
-                ? brand?.neonYellow ?? colorScheme.secondary
-                : Colors.white.withValues(alpha: 0.44),
+                ? selectedColor
+                : colorScheme.onSurface.withValues(alpha: 0.5),
           ),
         ),
       ),
@@ -625,7 +617,7 @@ class _AccountMenuTile extends StatelessWidget {
               ),
               child: Icon(
                 item.icon,
-                color: Colors.white.withValues(alpha: 0.48),
+                color: colorScheme.onSurface.withValues(alpha: 0.55),
               ),
             ),
             const SizedBox(width: 14),
@@ -637,13 +629,13 @@ class _AccountMenuTile extends StatelessWidget {
                     item.label,
                     style: context.textStyles.headlineSmall?.semiBold
                         .withSize(37 / 2)
-                        .withColor(Colors.white),
+                        .withColor(colorScheme.onSurface),
                   ),
                   const SizedBox(height: 2),
                   Text(
                     item.description,
                     style: context.textStyles.titleLarge?.withColor(
-                      Colors.white.withValues(alpha: 0.46),
+                      colorScheme.onSurface.withValues(alpha: 0.58),
                     ),
                   ),
                 ],
@@ -651,7 +643,7 @@ class _AccountMenuTile extends StatelessWidget {
             ),
             Icon(
               Icons.chevron_right_rounded,
-              color: Colors.white.withValues(alpha: 0.22),
+              color: colorScheme.onSurface.withValues(alpha: 0.4),
             ),
           ],
         ),
@@ -667,6 +659,7 @@ class _EmptyBookingsState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     final text = filter == _BookingFilter.upcoming
         ? 'No upcoming bookings'
         : 'No past bookings';
@@ -679,19 +672,19 @@ class _EmptyBookingsState extends StatelessWidget {
           context,
         ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.55),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
+        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.2)),
       ),
       child: Row(
         children: [
           Icon(
             Icons.event_busy_outlined,
-            color: Colors.white.withValues(alpha: 0.45),
+            color: colorScheme.onSurface.withValues(alpha: 0.55),
           ),
           const SizedBox(width: 10),
           Text(
             text,
             style: context.textStyles.titleMedium?.withColor(
-              Colors.white.withValues(alpha: 0.56),
+              colorScheme.onSurface.withValues(alpha: 0.62),
             ),
           ),
         ],
