@@ -95,6 +95,37 @@ class UserService {
     }
   }
 
+  Future<void> changeAttendanceStatus({
+    required String token,
+    required int eventId,
+    required int? userId,
+    required String status,
+  }) async {
+    if (userId == null) {
+      throw Exception('User ID is required to change attendance status');
+    }
+
+    try {
+      var url = Uri.parse(changeAttendanceStatusApiUrl);
+      var response = await postWithAuth(url.toString(), token, {
+        'userId': userId,
+        'eventId': eventId,
+        'status': status,
+      });
+
+      if (response.statusCode != 200 && response.statusCode != 201) {
+        final errorData = json.decode(response.body);
+        final errorMessage =
+            errorData['error']?['message'] ??
+            errorData['message'] ??
+            'Unable to update your attendance status';
+        throw Exception(errorMessage);
+      }
+    } catch (e) {
+      throw Exception('Error updating attendance status: $e');
+    }
+  }
+
   Future<http.Response> getWithAuth(String url, String token) async {
     return await http.get(
       Uri.parse(url),

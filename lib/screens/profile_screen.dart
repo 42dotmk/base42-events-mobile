@@ -2,13 +2,16 @@ import 'package:base42_events_mobile/nav.dart';
 import 'package:base42_events_mobile/providers/auth_provider.dart';
 import 'package:base42_events_mobile/theme.dart';
 import 'package:base42_events_mobile/widgets/booking/booking_card.dart';
+import 'package:base42_events_mobile/widgets/profile/account_menu.dart';
+import 'package:base42_events_mobile/widgets/profile/empty_booking_state.dart';
+import 'package:base42_events_mobile/widgets/profile/event_attendance_section.dart';
+import 'package:base42_events_mobile/widgets/profile/filter_chip.dart'
+    as profile;
+import 'package:base42_events_mobile/widgets/profile/stat_tile.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-
-enum _BookingFilter { upcoming, past }
 
 enum _BookingStatus { confirmed, pending, completed, cancelled }
 
@@ -30,20 +33,6 @@ class _BookingItem {
   });
 }
 
-class _AccountMenuItem {
-  final IconData icon;
-  final String label;
-  final String description;
-  final String? route;
-
-  const _AccountMenuItem({
-    required this.icon,
-    required this.label,
-    required this.description,
-    this.route,
-  });
-}
-
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
 
@@ -53,7 +42,7 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   bool _isKeycloakLoading = false;
-  _BookingFilter _bookingFilter = _BookingFilter.upcoming;
+  BookingFilter _bookingFilter = BookingFilter.upcoming;
 
   static final List<_BookingItem> _bookings = [
     _BookingItem(
@@ -90,29 +79,39 @@ class _ProfileScreenState extends State<ProfileScreen> {
     ),
   ];
 
-  static const List<_AccountMenuItem> _menuItems = [
-    _AccountMenuItem(
+  static const List<AccountMenuItem> _menuItems = [
+    AccountMenuItem(
       icon: Icons.credit_card_outlined,
       label: 'Membership & Billing',
       description: 'Manage your plan',
     ),
-    _AccountMenuItem(
+    AccountMenuItem(
       icon: Icons.notifications_none_rounded,
       label: 'Notifications',
       description: 'Event reminders, booking updates',
     ),
-    _AccountMenuItem(
+    AccountMenuItem(
       icon: Icons.settings_outlined,
       label: 'Settings',
       description: 'App preferences',
       route: AppRoutes.settings,
     ),
-    _AccountMenuItem(
+    AccountMenuItem(
       icon: Icons.help_outline_rounded,
       label: 'Help & Support',
       description: 'FAQ, contact support',
     ),
   ];
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
 
   Future<void> _logout(BuildContext context) async {
     try {
@@ -218,7 +217,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
     final upcomingBookings = _getUpcomingBookings();
     final pastBookings = _getPastBookings();
-    final visibleBookings = _bookingFilter == _BookingFilter.upcoming
+    final visibleBookings = _bookingFilter == BookingFilter.upcoming
         ? upcomingBookings
         : pastBookings;
 
@@ -337,7 +336,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 Row(
                   children: [
                     Expanded(
-                      child: _StatTile(
+                      child: StatTile(
                         value: '${_bookings.length}',
                         label: 'Bookings',
                         valueColor:
@@ -347,7 +346,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                     const SizedBox(width: 12),
                     Expanded(
-                      child: _StatTile(
+                      child: StatTile(
                         value: '${upcomingBookings.length}',
                         label: 'Upcoming',
                         valueColor: brand?.neonCyan ?? colorScheme.primary,
@@ -355,7 +354,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                     const SizedBox(width: 12),
                     Expanded(
-                      child: _StatTile(
+                      child: StatTile(
                         value: '${pastBookings.length}',
                         label: 'Completed',
                         valueColor: Colors.white.withValues(alpha: 0.56),
@@ -373,25 +372,25 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 const SizedBox(height: 14),
                 Row(
                   children: [
-                    _FilterChip(
+                    profile.FilterChip(
                       label: 'Upcoming (${upcomingBookings.length})',
-                      selected: _bookingFilter == _BookingFilter.upcoming,
+                      selected: _bookingFilter == BookingFilter.upcoming,
                       onTap: () => setState(
-                        () => _bookingFilter = _BookingFilter.upcoming,
+                        () => _bookingFilter = BookingFilter.upcoming,
                       ),
                     ),
                     const SizedBox(width: 8),
-                    _FilterChip(
+                    profile.FilterChip(
                       label: 'Past (${pastBookings.length})',
-                      selected: _bookingFilter == _BookingFilter.past,
+                      selected: _bookingFilter == BookingFilter.past,
                       onTap: () =>
-                          setState(() => _bookingFilter = _BookingFilter.past),
+                          setState(() => _bookingFilter = BookingFilter.past),
                     ),
                   ],
                 ),
                 const SizedBox(height: 12),
                 if (visibleBookings.isEmpty)
-                  _EmptyBookingsState(filter: _bookingFilter)
+                  EmptyBookingsState(filter: _bookingFilter)
                 else
                   ...visibleBookings.map((booking) {
                     final (
@@ -420,6 +419,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     );
                   }),
                 const SizedBox(height: 26),
+                const EventAttendanceSection(),
+                const SizedBox(height: 26),
                 Text(
                   'ACCOUNT',
                   style: context.textStyles.headlineSmall?.semiBold
@@ -427,7 +428,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       .withColor(Colors.white.withValues(alpha: 0.8)),
                 ),
                 const SizedBox(height: 10),
-                ..._menuItems.map((item) => _AccountMenuTile(item: item)),
+                ..._menuItems.map((item) => AccountMenuTile(item: item)),
                 const SizedBox(height: 10),
                 InkWell(
                   onTap: _isKeycloakLoading ? null : () => _logout(context),
@@ -498,203 +499,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
           ),
         ),
-      ),
-    );
-  }
-}
-
-class _StatTile extends StatelessWidget {
-  final String value;
-  final String label;
-  final Color valueColor;
-
-  const _StatTile({
-    required this.value,
-    required this.label,
-    required this.valueColor,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 16),
-      decoration: BoxDecoration(
-        color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.62),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
-      ),
-      child: Column(
-        children: [
-          Text(
-            value,
-            style: context.textStyles.headlineMedium?.bold.withColor(
-              valueColor,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            label,
-            style: context.textStyles.titleMedium?.withColor(
-              Colors.white.withValues(alpha: 0.44),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _FilterChip extends StatelessWidget {
-  final String label;
-  final bool selected;
-  final VoidCallback onTap;
-
-  const _FilterChip({
-    required this.label,
-    required this.selected,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final brand = Theme.of(context).extension<BrandTheme>();
-    final colorScheme = Theme.of(context).colorScheme;
-
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
-        decoration: BoxDecoration(
-          color: selected
-              ? (brand?.neonYellow ?? colorScheme.secondary).withValues(
-                  alpha: 0.18,
-                )
-              : colorScheme.surfaceContainerHighest.withValues(alpha: 0.62),
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: selected
-                ? (brand?.neonYellow ?? colorScheme.secondary).withValues(
-                    alpha: 0.6,
-                  )
-                : Colors.white.withValues(alpha: 0.08),
-          ),
-        ),
-        child: Text(
-          label,
-          style: context.textStyles.titleMedium?.semiBold.withColor(
-            selected
-                ? brand?.neonYellow ?? colorScheme.secondary
-                : Colors.white.withValues(alpha: 0.44),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _AccountMenuTile extends StatelessWidget {
-  final _AccountMenuItem item;
-
-  const _AccountMenuTile({required this.item});
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-
-    return InkWell(
-      onTap: () {
-        HapticFeedback.selectionClick();
-        if (item.route != null) context.push(item.route!);
-      },
-      borderRadius: BorderRadius.circular(16),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8),
-        child: Row(
-          children: [
-            Container(
-              width: 54,
-              height: 54,
-              decoration: BoxDecoration(
-                color: colorScheme.surfaceContainerHighest.withValues(
-                  alpha: 0.62,
-                ),
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: Icon(
-                item.icon,
-                color: Colors.white.withValues(alpha: 0.48),
-              ),
-            ),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    item.label,
-                    style: context.textStyles.headlineSmall?.semiBold
-                        .withSize(37 / 2)
-                        .withColor(Colors.white),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    item.description,
-                    style: context.textStyles.titleLarge?.withColor(
-                      Colors.white.withValues(alpha: 0.46),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Icon(
-              Icons.chevron_right_rounded,
-              color: Colors.white.withValues(alpha: 0.22),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _EmptyBookingsState extends StatelessWidget {
-  final _BookingFilter filter;
-
-  const _EmptyBookingsState({required this.filter});
-
-  @override
-  Widget build(BuildContext context) {
-    final text = filter == _BookingFilter.upcoming
-        ? 'No upcoming bookings'
-        : 'No past bookings';
-
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 18),
-      decoration: BoxDecoration(
-        color: Theme.of(
-          context,
-        ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.55),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
-      ),
-      child: Row(
-        children: [
-          Icon(
-            Icons.event_busy_outlined,
-            color: Colors.white.withValues(alpha: 0.45),
-          ),
-          const SizedBox(width: 10),
-          Text(
-            text,
-            style: context.textStyles.titleMedium?.withColor(
-              Colors.white.withValues(alpha: 0.56),
-            ),
-          ),
-        ],
       ),
     );
   }
