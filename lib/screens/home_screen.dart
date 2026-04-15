@@ -1,9 +1,10 @@
 import 'package:base42_events_mobile/theme.dart';
 import 'package:base42_events_mobile/providers/auth_provider.dart';
 import 'package:base42_events_mobile/models/event.dart';
+import 'package:base42_events_mobile/nav.dart';
 import 'package:base42_events_mobile/services/event_service.dart';
 import 'package:base42_events_mobile/widgets/no_events_placeholder.dart';
-import 'package:base42_events_mobile/widgets/booking_card.dart';
+import 'package:base42_events_mobile/widgets/booking/booking_card.dart';
 import 'package:base42_events_mobile/widgets/location_card.dart';
 import 'package:base42_events_mobile/widgets/quick_action_tile.dart';
 import 'package:base42_events_mobile/widgets/section_header_row.dart';
@@ -61,6 +62,7 @@ class _HomeScreenState extends State<HomeScreen> {
       _QuickAction(
         icon: Icons.monitor_outlined,
         label: 'Book a Desk',
+        route: AppRoutes.book,
         color: brand?.quickActionDesk ?? colorScheme.secondary,
       ),
       _QuickAction(

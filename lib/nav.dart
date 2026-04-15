@@ -1,6 +1,6 @@
 import 'package:base42_events_mobile/models/event.dart';
 import 'package:base42_events_mobile/providers/auth_provider.dart';
-import 'package:base42_events_mobile/screens/book_placeholder_screen.dart';
+import 'package:base42_events_mobile/screens/book_screen.dart';
 import 'package:base42_events_mobile/screens/event_details_screen.dart';
 import 'package:base42_events_mobile/screens/event_list_screen.dart';
 import 'package:base42_events_mobile/screens/home_screen.dart';
@@ -69,7 +69,7 @@ class AppRouter {
             path: AppRoutes.book,
             name: 'book',
             pageBuilder: (context, state) =>
-                const NoTransitionPage(child: BookPlaceholderScreen()),
+                const NoTransitionPage(child: BookScreen()),
           ),
           GoRoute(
             path: AppRoutes.eventDetails,

@@ -48,6 +48,8 @@ class BrandTheme extends ThemeExtension<BrandTheme> {
   final Color neonCyan; // #7EF3F4
   final Color neonYellow; // #E9DF4A
   final Color linkTextGray; // muted gray for text links
+  final Color successGreen; // success state color
+  final Color errorRed; // error state color
   final Color quickActionDesk;
   final Color quickActionEvents;
   final Color quickActionCafe;
@@ -66,6 +68,8 @@ class BrandTheme extends ThemeExtension<BrandTheme> {
     required this.neonCyan,
     required this.neonYellow,
     required this.linkTextGray,
+    required this.successGreen,
+    required this.errorRed,
     required this.quickActionDesk,
     required this.quickActionEvents,
     required this.quickActionCafe,
@@ -95,6 +99,8 @@ class BrandTheme extends ThemeExtension<BrandTheme> {
     Color? neonCyan,
     Color? neonYellow,
     Color? linkTextGray,
+    Color? successGreen,
+    Color? errorRed,
     Color? quickActionDesk,
     Color? quickActionEvents,
     Color? quickActionCafe,
@@ -112,6 +118,8 @@ class BrandTheme extends ThemeExtension<BrandTheme> {
     neonCyan: neonCyan ?? this.neonCyan,
     neonYellow: neonYellow ?? this.neonYellow,
     linkTextGray: linkTextGray ?? this.linkTextGray,
+    successGreen: successGreen ?? this.successGreen,
+    errorRed: errorRed ?? this.errorRed,
     quickActionDesk: quickActionDesk ?? this.quickActionDesk,
     quickActionEvents: quickActionEvents ?? this.quickActionEvents,
     quickActionCafe: quickActionCafe ?? this.quickActionCafe,
@@ -145,6 +153,8 @@ class BrandTheme extends ThemeExtension<BrandTheme> {
       neonCyan: Color.lerp(neonCyan, other.neonCyan, t)!,
       neonYellow: Color.lerp(neonYellow, other.neonYellow, t)!,
       linkTextGray: Color.lerp(linkTextGray, other.linkTextGray, t)!,
+      successGreen: Color.lerp(successGreen, other.successGreen, t)!,
+      errorRed: Color.lerp(errorRed, other.errorRed, t)!,
       quickActionDesk: Color.lerp(quickActionDesk, other.quickActionDesk, t)!,
       quickActionEvents: Color.lerp(
         quickActionEvents,
@@ -402,6 +412,8 @@ ThemeData get lightTheme => ThemeData(
       neonCyan: Color(0xFF7EF3F4),
       neonYellow: Color(0xFFE9DF4A),
       linkTextGray: Color(0xFF9AA3B2),
+      successGreen: Color(0xFF69D976),
+      errorRed: Color(0xFFE27B7B),
       quickActionDesk: Color(0xFFE9DF4A),
       quickActionEvents: Color(0xFF7EF3F4),
       quickActionCafe: Color(0xFFE39A4B),
@@ -492,6 +504,8 @@ ThemeData get darkTheme => ThemeData(
       neonCyan: Color(0xFF7EF3F4),
       neonYellow: Color(0xFFE9DF4A),
       linkTextGray: Color(0xFF9AA3B2),
+      successGreen: Color(0xFF69D976),
+      errorRed: Color(0xFFE27B7B),
       quickActionDesk: Color(0xFFE9DF4A),
       quickActionEvents: Color(0xFF7EF3F4),
       quickActionCafe: Color(0xFFE39A4B),

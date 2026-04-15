@@ -1,7 +1,10 @@
 import 'package:base42_events_mobile/theme.dart';
+import 'package:base42_events_mobile/providers/booking_draft_provider.dart';
+import 'package:base42_events_mobile/widgets/booking/booking_draft_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:base42_events_mobile/nav.dart';
+import 'package:provider/provider.dart';
 
 class BottomNavigationBarWidget extends StatelessWidget {
   const BottomNavigationBarWidget({super.key, required this.child});
@@ -42,8 +45,27 @@ class BottomNavigationBarWidget extends StatelessWidget {
     return 0;
   }
 
-  void _onItemTap(BuildContext context, _NavItem item) {
+  Future<void> _onItemTap(BuildContext context, _NavItem item) async {
     if (item.route != null) {
+      final String location = GoRouterState.of(context).matchedLocation;
+      final leavingBookPage =
+          location == AppRoutes.book && item.route != AppRoutes.book;
+
+      if (leavingBookPage) {
+        final draft = context.read<BookingDraftProvider>();
+        if (draft.hasDraft) {
+          final decision = await showBookingDraftDialog(context: context);
+          if (!context.mounted) {
+            return;
+          }
+
+          if (decision == BookingDraftDecision.discardDraft) {
+            draft.clear();
+          }
+        }
+      }
+
+      if (!context.mounted) return;
       context.go(item.route!);
       return;
     }
