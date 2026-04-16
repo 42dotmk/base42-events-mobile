@@ -32,7 +32,7 @@ class SettingsScreen extends StatelessWidget {
                     ),
                     Text(
                       'Settings',
-                      style: context.textStyles.headlineMedium?.bold.withColor(
+                      style: context.textStyles.headlineSmall?.bold.withColor(
                         colorScheme.onSurface,
                       ),
                     ),
@@ -98,7 +98,7 @@ class SettingsScreen extends StatelessWidget {
                                         const SizedBox(height: 2),
                                         Text(
                                           'Event reminders & booking updates',
-                                          style: context.textStyles.titleLarge
+                                          style: context.textStyles.titleSmall
                                               ?.withColor(
                                                 colorScheme.onSurface
                                                     .withValues(alpha: 0.46),

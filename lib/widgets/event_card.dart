@@ -52,7 +52,7 @@ class EventCard extends StatelessWidget {
               top: 10,
               child: ChipLabel(
                 text: dateFormat.format(event.start),
-                color: colorScheme.secondary,
+                color: Colors.white,
               ),
             ),
             Positioned(
@@ -60,7 +60,7 @@ class EventCard extends StatelessWidget {
               top: 10,
               child: ChipLabel(
                 text: timeFormat.format(event.start),
-                color: colorScheme.secondary,
+                color: Colors.white,
               ),
             ),
             Positioned.fill(
@@ -71,8 +71,8 @@ class EventCard extends StatelessWidget {
                     end: Alignment.bottomCenter,
                     colors: [
                       Colors.transparent,
-                      colorScheme.shadow.withValues(alpha: 0.0),
-                      colorScheme.shadow.withValues(alpha: 0.58),
+                      colorScheme.shadow.withValues(alpha: 0.18),
+                      colorScheme.shadow.withValues(alpha: 0.72),
                     ],
                   ),
                 ),
@@ -86,7 +86,7 @@ class EventCard extends StatelessWidget {
                 event.title,
                 textAlign: TextAlign.center,
                 style: context.textStyles.titleLarge?.bold.withColor(
-                  colorScheme.onSurface,
+                  Colors.white,
                 ),
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,

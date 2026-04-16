@@ -1,34 +1,15 @@
 import 'package:base42_events_mobile/nav.dart';
 import 'package:base42_events_mobile/providers/auth_provider.dart';
 import 'package:base42_events_mobile/theme.dart';
-import 'package:base42_events_mobile/widgets/booking/booking_card.dart';
+import 'package:base42_events_mobile/widgets/profile/account_menu_tile.dart';
+import 'package:base42_events_mobile/widgets/profile/booking_filter_switch.dart';
+import 'package:base42_events_mobile/widgets/profile/membership_card.dart';
+import 'package:base42_events_mobile/widgets/profile/profile_initials_avatar.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 enum _BookingFilter { upcoming, past }
-
-enum _BookingStatus { confirmed, pending, completed, cancelled }
-
-class _BookingItem {
-  final String roomName;
-  final String floorName;
-  final DateTime date;
-  final String timeStart;
-  final String timeEnd;
-  final _BookingStatus status;
-
-  const _BookingItem({
-    required this.roomName,
-    required this.floorName,
-    required this.date,
-    required this.timeStart,
-    required this.timeEnd,
-    required this.status,
-  });
-}
 
 class _AccountMenuItem {
   final IconData icon;
@@ -54,41 +35,6 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> {
   bool _isKeycloakLoading = false;
   _BookingFilter _bookingFilter = _BookingFilter.upcoming;
-
-  static final List<_BookingItem> _bookings = [
-    _BookingItem(
-      roomName: 'Main Open Workspace',
-      floorName: 'First Floor',
-      date: DateTime(2026, 2, 12),
-      timeStart: '09:00',
-      timeEnd: '17:00',
-      status: _BookingStatus.confirmed,
-    ),
-    _BookingItem(
-      roomName: 'Open Space Northeast',
-      floorName: 'Ground Floor',
-      date: DateTime(2026, 2, 14),
-      timeStart: '14:00',
-      timeEnd: '16:00',
-      status: _BookingStatus.confirmed,
-    ),
-    _BookingItem(
-      roomName: 'Quiet Pod 3',
-      floorName: 'First Floor',
-      date: DateTime(2026, 1, 18),
-      timeStart: '10:00',
-      timeEnd: '12:00',
-      status: _BookingStatus.completed,
-    ),
-    _BookingItem(
-      roomName: 'Meeting Room B',
-      floorName: 'Second Floor',
-      date: DateTime(2026, 1, 10),
-      timeStart: '15:00',
-      timeEnd: '16:00',
-      status: _BookingStatus.cancelled,
-    ),
-  ];
 
   static const List<_AccountMenuItem> _menuItems = [
     _AccountMenuItem(
@@ -154,58 +100,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return letters.isEmpty ? 'GU' : letters;
   }
 
-  List<_BookingItem> _getUpcomingBookings() {
-    return _bookings
-        .where(
-          (booking) =>
-              booking.status == _BookingStatus.confirmed ||
-              booking.status == _BookingStatus.pending,
-        )
-        .toList();
-  }
-
-  List<_BookingItem> _getPastBookings() {
-    return _bookings
-        .where(
-          (booking) =>
-              booking.status == _BookingStatus.completed ||
-              booking.status == _BookingStatus.cancelled,
-        )
-        .toList();
-  }
-
-  (Color, Color, String) _bookingStatusMeta(
-    _BookingStatus status,
-    BrandTheme brand,
-  ) {
-    switch (status) {
-      case _BookingStatus.confirmed:
-        return (
-          brand.bookingStatusConfirmedText,
-          brand.bookingStatusConfirmedBackground,
-          'Confirmed',
-        );
-      case _BookingStatus.pending:
-        return (
-          brand.bookingStatusPendingText,
-          brand.bookingStatusPendingBackground,
-          'Pending',
-        );
-      case _BookingStatus.completed:
-        return (
-          brand.bookingStatusCompletedText,
-          brand.bookingStatusCompletedBackground,
-          'Completed',
-        );
-      case _BookingStatus.cancelled:
-        return (
-          brand.bookingStatusCancelledText,
-          brand.bookingStatusCancelledBackground,
-          'Cancelled',
-        );
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final brand = Theme.of(context).extension<BrandTheme>();
@@ -217,13 +111,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final email = authProvider.currentUser?.email ?? 'Sign in to your account';
     final initials = _buildInitials(displayName);
 
-    final upcomingBookings = _getUpcomingBookings();
-    final pastBookings = _getPastBookings();
-    final visibleBookings = _bookingFilter == _BookingFilter.upcoming
-        ? upcomingBookings
-        : pastBookings;
-
-    //FIXME: Replace static code with components
     return Scaffold(
       body: Container(
         decoration: BoxDecoration(gradient: brand?.backdropGradient),
@@ -235,22 +122,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
               children: [
                 Row(
                   children: [
-                    Container(
-                      width: 86,
-                      height: 86,
-                      decoration: BoxDecoration(
-                        color: primaryAccent.withValues(alpha: 0.18),
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(
-                          color: primaryAccent.withValues(alpha: 0.45),
-                        ),
-                      ),
-                      alignment: Alignment.center,
-                      child: Text(
-                        initials,
-                        style: context.textStyles.headlineMedium?.bold
-                            .withColor(primaryAccent),
-                      ),
+                    ProfileInitialsAvatar(
+                      initials: initials,
+                      size: 78,
+                      accentColor: primaryAccent,
                     ),
                     const SizedBox(width: 14),
                     Expanded(
@@ -265,7 +140,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           const SizedBox(height: 4),
                           Text(
                             email,
-                            style: context.textStyles.titleLarge?.withColor(
+                            style: context.textStyles.titleMedium?.withColor(
                               colorScheme.onSurface.withValues(alpha: 0.6),
                             ),
                           ),
@@ -275,154 +150,51 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ],
                 ),
                 const SizedBox(height: 16),
-                Container(
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    color: colorScheme.surfaceContainerHighest.withValues(
-                      alpha: 0.62,
-                    ),
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(
-                      color: primaryAccent.withValues(alpha: 0.25),
-                    ),
-                  ),
-                  padding: const EdgeInsets.all(14),
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 52,
-                        height: 52,
-                        decoration: BoxDecoration(
-                          color: primaryAccent.withValues(alpha: 0.15),
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        child: Icon(
-                          Icons.workspace_premium_outlined,
-                          color: primaryAccent,
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Monthly Member',
-                              style: context.textStyles.titleLarge?.semiBold
-                                  .withColor(colorScheme.onSurface),
-                            ),
-                            const SizedBox(height: 2),
-                            Text(
-                              'Member since Sep 15, 2025',
-                              style: context.textStyles.titleMedium?.withColor(
-                                colorScheme.onSurface.withValues(alpha: 0.6),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Icon(
-                        Icons.chevron_right_rounded,
-                        color: colorScheme.onSurface.withValues(alpha: 0.4),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 14),
-                Row(
-                  children: [
-                    Expanded(
-                      child: _StatTile(
-                        value: '${_bookings.length}',
-                        label: 'Bookings',
-                        valueColor: primaryAccent.withValues(alpha: 0.85),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: _StatTile(
-                        value: '${upcomingBookings.length}',
-                        label: 'Upcoming',
-                        valueColor: primaryAccent,
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: _StatTile(
-                        value: '${pastBookings.length}',
-                        label: 'Completed',
-                        valueColor: colorScheme.onSurface.withValues(
-                          alpha: 0.65,
-                        ),
-                      ),
-                    ),
-                  ],
+                const MembershipCard(
+                  title: 'Monthly Member',
+                  subtitle: 'Member since Sep 15, 2025',
                 ),
                 const SizedBox(height: 30),
                 Text(
                   'MY BOOKINGS',
-                  style: context.textStyles.headlineSmall?.semiBold
-                      .withSize(38 / 2)
-                      .withColor(colorScheme.onSurface.withValues(alpha: 0.8)),
+                  style: context.textStyles.titleMedium?.semiBold.withColor(
+                    colorScheme.onSurface.withValues(alpha: 0.8),
+                  ),
                 ),
                 const SizedBox(height: 14),
-                Row(
-                  children: [
-                    _FilterChip(
-                      label: 'Upcoming (${upcomingBookings.length})',
-                      selected: _bookingFilter == _BookingFilter.upcoming,
-                      onTap: () => setState(
-                        () => _bookingFilter = _BookingFilter.upcoming,
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    _FilterChip(
-                      label: 'Past (${pastBookings.length})',
-                      selected: _bookingFilter == _BookingFilter.past,
-                      onTap: () =>
-                          setState(() => _bookingFilter = _BookingFilter.past),
-                    ),
-                  ],
+                BookingFilterSwitch(
+                  upcomingLabel: 'Upcoming',
+                  pastLabel: 'Past',
+                  showUpcoming: _bookingFilter == _BookingFilter.upcoming,
+                  onUpcomingTap: () {
+                    setState(() => _bookingFilter = _BookingFilter.upcoming);
+                  },
+                  onPastTap: () {
+                    setState(() => _bookingFilter = _BookingFilter.past);
+                  },
                 ),
                 const SizedBox(height: 12),
-                if (visibleBookings.isEmpty)
-                  _EmptyBookingsState(filter: _bookingFilter)
-                else
-                  ...visibleBookings.map((booking) {
-                    final (
-                      statusTextColor,
-                      statusBackgroundColor,
-                      statusLabel,
-                    ) = _bookingStatusMeta(
-                      booking.status,
-                      brand!,
-                    );
-                    final dateText = DateFormat(
-                      'MMM d, yyyy',
-                    ).format(booking.date);
-
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 10),
-                      child: BookingCard(
-                        spaceName: booking.roomName,
-                        floor: booking.floorName,
-                        status: statusLabel,
-                        date: dateText,
-                        timeRange: '${booking.timeStart} - ${booking.timeEnd}',
-                        statusTextColor: statusTextColor,
-                        statusBackgroundColor: statusBackgroundColor,
-                      ),
-                    );
-                  }),
+                _EmptyBookingsState(filter: _bookingFilter),
                 const SizedBox(height: 26),
                 Text(
                   'ACCOUNT',
-                  style: context.textStyles.headlineSmall?.semiBold
-                      .withSize(38 / 2)
-                      .withColor(colorScheme.onSurface.withValues(alpha: 0.8)),
+                  style: context.textStyles.titleMedium?.semiBold.withColor(
+                    colorScheme.onSurface.withValues(alpha: 0.8),
+                  ),
                 ),
                 const SizedBox(height: 10),
-                ..._menuItems.map((item) => _AccountMenuTile(item: item)),
+                ..._menuItems.map(
+                  (item) => AccountMenuTile(
+                    icon: item.icon,
+                    label: item.label,
+                    description: item.description,
+                    onTap: () {
+                      if (item.route != null) {
+                        context.push(item.route!);
+                      }
+                    },
+                  ),
+                ),
                 const SizedBox(height: 10),
                 InkWell(
                   onTap: _isKeycloakLoading ? null : () => _logout(context),
@@ -435,8 +207,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     child: Row(
                       children: [
                         Container(
-                          width: 54,
-                          height: 54,
+                          width: 50,
+                          height: 50,
                           decoration: BoxDecoration(
                             color: const Color(
                               0xFFB44949,
@@ -461,8 +233,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         const SizedBox(width: 12),
                         Text(
                           'Sign Out',
-                          style: context.textStyles.headlineSmall?.semiBold
-                              .withSize(37 / 2)
+                          style: context.textStyles.titleMedium?.semiBold
                               .withColor(colorScheme.error),
                         ),
                       ],
@@ -492,160 +263,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ],
             ),
           ),
-        ),
-      ),
-    );
-  }
-}
-
-class _StatTile extends StatelessWidget {
-  final String value;
-  final String label;
-  final Color valueColor;
-
-  const _StatTile({
-    required this.value,
-    required this.label,
-    required this.valueColor,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 16),
-      decoration: BoxDecoration(
-        color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.62),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.2)),
-      ),
-      child: Column(
-        children: [
-          Text(
-            value,
-            style: context.textStyles.headlineMedium?.bold.withColor(
-              valueColor,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            label,
-            style: context.textStyles.titleMedium?.withColor(
-              colorScheme.onSurface.withValues(alpha: 0.5),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _FilterChip extends StatelessWidget {
-  final String label;
-  final bool selected;
-  final VoidCallback onTap;
-
-  const _FilterChip({
-    required this.label,
-    required this.selected,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final selectedColor = isDark ? colorScheme.secondary : colorScheme.primary;
-
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
-        decoration: BoxDecoration(
-          color: selected
-              ? selectedColor.withValues(alpha: 0.18)
-              : colorScheme.surfaceContainerHighest.withValues(alpha: 0.62),
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: selected
-                ? selectedColor.withValues(alpha: 0.6)
-                : colorScheme.outline.withValues(alpha: 0.2),
-          ),
-        ),
-        child: Text(
-          label,
-          style: context.textStyles.titleMedium?.semiBold.withColor(
-            selected
-                ? selectedColor
-                : colorScheme.onSurface.withValues(alpha: 0.5),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _AccountMenuTile extends StatelessWidget {
-  final _AccountMenuItem item;
-
-  const _AccountMenuTile({required this.item});
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-
-    return InkWell(
-      onTap: () {
-        HapticFeedback.selectionClick();
-        if (item.route != null) context.push(item.route!);
-      },
-      borderRadius: BorderRadius.circular(16),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8),
-        child: Row(
-          children: [
-            Container(
-              width: 54,
-              height: 54,
-              decoration: BoxDecoration(
-                color: colorScheme.surfaceContainerHighest.withValues(
-                  alpha: 0.62,
-                ),
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: Icon(
-                item.icon,
-                color: colorScheme.onSurface.withValues(alpha: 0.55),
-              ),
-            ),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    item.label,
-                    style: context.textStyles.headlineSmall?.semiBold
-                        .withSize(37 / 2)
-                        .withColor(colorScheme.onSurface),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    item.description,
-                    style: context.textStyles.titleLarge?.withColor(
-                      colorScheme.onSurface.withValues(alpha: 0.58),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Icon(
-              Icons.chevron_right_rounded,
-              color: colorScheme.onSurface.withValues(alpha: 0.4),
-            ),
-          ],
         ),
       ),
     );

@@ -26,10 +26,11 @@ class BookingCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final brand = Theme.of(context).extension<BrandTheme>()!;
     final colorScheme = Theme.of(context).colorScheme;
-    final resolvedStatusTextColor =
-        statusTextColor ?? brand.bookingStatusConfirmedText;
     final resolvedStatusBackgroundColor =
         statusBackgroundColor ?? brand.bookingStatusConfirmedBackground;
+    final statusOnColor = resolvedStatusBackgroundColor.computeLuminance() > 0.5
+        ? Colors.black
+        : Colors.white;
 
     return Container(
       width: double.infinity,
@@ -80,7 +81,7 @@ class BookingCard extends StatelessWidget {
                     ),
                     decoration: BoxDecoration(
                       color: resolvedStatusBackgroundColor.withValues(
-                        alpha: 0.42,
+                        alpha: 0.86,
                       ),
                       borderRadius: BorderRadius.circular(999),
                     ),
@@ -89,7 +90,7 @@ class BookingCard extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: context.textStyles.labelMedium?.semiBold.withColor(
-                        resolvedStatusTextColor,
+                        statusOnColor,
                       ),
                     ),
                   ),

@@ -131,6 +131,9 @@ class _BookableSpaceCard extends StatelessWidget {
       default:
         availabilityColor = brand?.errorRed ?? colorScheme.error;
     }
+    final availabilityOnColor = availabilityColor.computeLuminance() > 0.5
+        ? Colors.black
+        : Colors.white;
 
     return Container(
       padding: const EdgeInsets.all(14),
@@ -181,13 +184,13 @@ class _BookableSpaceCard extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: availabilityColor.withValues(alpha: 0.2),
+                  color: availabilityColor.withValues(alpha: 0.86),
                   borderRadius: BorderRadius.circular(999),
                 ),
                 child: Text(
                   space.availability,
                   style: context.textStyles.labelSmall?.semiBold.withColor(
-                    availabilityColor,
+                    availabilityOnColor,
                   ),
                 ),
               ),

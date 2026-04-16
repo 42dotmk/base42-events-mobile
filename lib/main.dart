@@ -50,7 +50,6 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     final themeMode = context.watch<SettingsProvider>().themeMode;
 
-    // Still reading storage — show a plain dark splash
     if (_onboardingDone == null) {
       return MaterialApp(
         debugShowCheckedModeBanner: false,
@@ -61,7 +60,6 @@ class _MyAppState extends State<MyApp> {
       );
     }
 
-    // First launch — show onboarding
     if (!_onboardingDone!) {
       return MaterialApp(
         debugShowCheckedModeBanner: false,
@@ -72,7 +70,6 @@ class _MyAppState extends State<MyApp> {
       );
     }
 
-    // Normal app
     return MaterialApp.router(
       title: 'EventFlow',
       debugShowCheckedModeBanner: false,

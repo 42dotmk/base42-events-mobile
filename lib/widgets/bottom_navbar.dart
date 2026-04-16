@@ -24,12 +24,8 @@ class BottomNavigationBarWidget extends StatelessWidget {
       label: 'Book',
       isCenter: true,
     ),
-    _NavItem(icon: Icons.coffee_outlined, label: 'Cafe'),
-    _NavItem(
-      route: AppRoutes.profile,
-      icon: Icons.person_outline_rounded,
-      label: 'Profile',
-    ),
+    _NavItem(icon: Icons.workspaces_outline, label: 'Projects'),
+    _NavItem(icon: Icons.shopping_bag_outlined, label: 'Shop'),
   ];
 
   int _calculateCurrentIndex(BuildContext context) {
@@ -40,8 +36,6 @@ class BottomNavigationBarWidget extends StatelessWidget {
       return 1;
     }
     if (location == AppRoutes.book) return 2;
-    if (location == AppRoutes.profile) return 4;
-
     return 0;
   }
 
@@ -80,7 +74,7 @@ class BottomNavigationBarWidget extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
     final brand = Theme.of(context).extension<BrandTheme>();
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final activeColor = colorScheme.primary;
+    final activeColor = isDark ? colorScheme.primary : colorScheme.primary;
     final inactiveColor = colorScheme.onSurface.withValues(
       alpha: isDark ? 0.35 : 0.55,
     );
@@ -88,112 +82,132 @@ class BottomNavigationBarWidget extends StatelessWidget {
         ? (brand?.deepNavy ?? colorScheme.surface)
         : colorScheme.surface;
     final currentIndex = _calculateCurrentIndex(context);
+    final location = GoRouterState.of(context).matchedLocation;
+    final isHomeRoute = location == AppRoutes.home;
 
-    return Scaffold(
-      body: child,
-      bottomNavigationBar: SafeArea(
-        top: false,
-        child: Container(
-          height: 84,
-          decoration: BoxDecoration(
-            color: navBackgroundColor.withValues(alpha: isDark ? 0.95 : 1),
-            borderRadius: BorderRadius.circular(0),
-          ),
-          child: Row(
-            children: _items.map((item) {
-              final isCenter = item.isCenter;
-              final isActive = _items.indexOf(item) == currentIndex;
+    return PopScope(
+      canPop: isHomeRoute,
+      onPopInvokedWithResult: (didPop, _) {
+        if (didPop) return;
 
-              if (isCenter) {
-                return Expanded(
-                  child: Center(
-                    child: Transform.translate(
-                      offset: const Offset(0, -16),
-                      child: GestureDetector(
-                        onTap: () => _onItemTap(context, item),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Container(
-                              width: 54,
-                              height: 54,
-                              decoration: BoxDecoration(
-                                color: activeColor,
-                                borderRadius: BorderRadius.circular(16),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: activeColor.withValues(alpha: 0.35),
-                                    blurRadius: 18,
-                                    offset: const Offset(0, 8),
-                                  ),
-                                ],
+        final currentLocation = GoRouterState.of(context).matchedLocation;
+        if (currentLocation.startsWith('/event/')) {
+          return;
+        }
+
+        if (currentLocation != AppRoutes.home) {
+          context.go(AppRoutes.home);
+        }
+      },
+      child: Scaffold(
+        body: child,
+        bottomNavigationBar: SafeArea(
+          top: false,
+          child: Container(
+            height: 84,
+            decoration: BoxDecoration(
+              color: navBackgroundColor.withValues(alpha: isDark ? 0.95 : 1),
+              borderRadius: BorderRadius.circular(0),
+            ),
+            child: Row(
+              children: _items.map((item) {
+                final isCenter = item.isCenter;
+                final isActive = _items.indexOf(item) == currentIndex;
+
+                if (isCenter) {
+                  return Expanded(
+                    child: Center(
+                      child: Transform.translate(
+                        offset: const Offset(0, -16),
+                        child: GestureDetector(
+                          onTap: () => _onItemTap(context, item),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Container(
+                                width: 54,
+                                height: 54,
+                                decoration: BoxDecoration(
+                                  color: activeColor,
+                                  borderRadius: BorderRadius.circular(16),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: activeColor.withValues(
+                                        alpha: 0.35,
+                                      ),
+                                      blurRadius: 18,
+                                      offset: const Offset(0, 8),
+                                    ),
+                                  ],
+                                ),
+                                child: Icon(
+                                  item.icon,
+                                  color: isDark
+                                      ? (brand?.deepNavy ??
+                                            colorScheme.onPrimary)
+                                      : Colors.white,
+                                  size: 30,
+                                ),
                               ),
-                              child: Icon(
-                                item.icon,
-                                color: isDark
-                                    ? (brand?.deepNavy ?? colorScheme.onPrimary)
-                                    : colorScheme.onPrimary,
-                                size: 30,
+                              const SizedBox(height: 4),
+                              Text(
+                                item.label,
+                                style: context.textStyles.labelSmall?.medium
+                                    .withColor(activeColor),
                               ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              item.label,
-                              style: context.textStyles.labelSmall?.medium
-                                  .withColor(activeColor),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
+                      ),
+                    ),
+                  );
+                }
+
+                return Expanded(
+                  child: InkWell(
+                    onTap: () => _onItemTap(context, item),
+                    borderRadius: BorderRadius.circular(16),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 10),
+                      child: Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          if (isActive)
+                            Positioned(
+                              top: 0,
+                              child: Container(
+                                width: 28,
+                                height: 2,
+                                decoration: BoxDecoration(
+                                  color: activeColor,
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                              ),
+                            ),
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                item.icon,
+                                size: isActive ? 24 : 22,
+                                color: isActive ? activeColor : inactiveColor,
+                              ),
+                              const SizedBox(height: 3),
+                              Text(
+                                item.label,
+                                style: context.textStyles.labelSmall?.withColor(
+                                  isActive ? activeColor : inactiveColor,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
                     ),
                   ),
                 );
-              }
-
-              return Expanded(
-                child: InkWell(
-                  onTap: () => _onItemTap(context, item),
-                  borderRadius: BorderRadius.circular(16),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 10),
-                    child: Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        if (isActive)
-                          Positioned(
-                            top: 0,
-                            child: Container(
-                              width: 28,
-                              height: 2,
-                              decoration: BoxDecoration(
-                                color: activeColor,
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                            ),
-                          ),
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              item.icon,
-                              size: isActive ? 24 : 22,
-                              color: isActive ? activeColor : inactiveColor,
-                            ),
-                            const SizedBox(height: 3),
-                            Text(
-                              item.label,
-                              style: context.textStyles.labelSmall?.withColor(
-                                isActive ? activeColor : inactiveColor,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              );
-            }).toList(),
+              }).toList(),
+            ),
           ),
         ),
       ),

@@ -6,9 +6,9 @@ import 'package:base42_events_mobile/services/event_service.dart';
 import 'package:base42_events_mobile/widgets/no_events_placeholder.dart';
 import 'package:base42_events_mobile/widgets/booking/booking_card.dart';
 import 'package:base42_events_mobile/widgets/location_card.dart';
+import 'package:base42_events_mobile/widgets/profile/profile_initials_avatar.dart';
 import 'package:base42_events_mobile/widgets/quick_action_tile.dart';
 import 'package:base42_events_mobile/widgets/section_header_row.dart';
-import 'package:base42_events_mobile/widgets/space_availability_cards.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
@@ -58,25 +58,23 @@ class _HomeScreenState extends State<HomeScreen> {
     final brand = Theme.of(context).extension<BrandTheme>();
     final colorScheme = Theme.of(context).colorScheme;
     final onSurface = colorScheme.onSurface;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final primaryAccent = isDark ? colorScheme.secondary : colorScheme.primary;
+    final primaryAccent = colorScheme.primary;
     final linkColor = brand?.linkTextGray ?? colorScheme.onSurfaceVariant;
     final quickActions = [
       _QuickAction(
         icon: Icons.monitor_outlined,
-        label: 'Book a Desk',
+        label: 'Book an Event',
         route: AppRoutes.book,
         color: colorScheme.primary,
       ),
       _QuickAction(
-        icon: Icons.calendar_month_outlined,
-        label: 'Events',
-        route: '/events',
+        icon: Icons.volunteer_activism_outlined,
+        label: 'Volunteer',
         color: colorScheme.primary,
       ),
       _QuickAction(
-        icon: Icons.coffee_outlined,
-        label: 'Cafe Menu',
+        icon: Icons.card_membership_outlined,
+        label: 'Member',
         color: colorScheme.primary,
       ),
     ];
@@ -204,18 +202,13 @@ class _HomeScreenState extends State<HomeScreen> {
                               ],
                             ),
                           ),
-                          Container(
-                            width: 56,
-                            height: 56,
-                            decoration: BoxDecoration(
-                              color: primaryAccent.withValues(alpha: 0.26),
-                              shape: BoxShape.circle,
-                            ),
-                            alignment: Alignment.center,
-                            child: Text(
-                              initials,
-                              style: context.textStyles.titleLarge?.bold
-                                  .withColor(primaryAccent),
+                          InkWell(
+                            onTap: () => context.go(AppRoutes.profile),
+                            borderRadius: BorderRadius.circular(999),
+                            child: ProfileInitialsAvatar(
+                              initials: initials,
+                              size: 56,
+                              accentColor: primaryAccent,
                             ),
                           ),
                         ],
@@ -262,20 +255,6 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   const SizedBox(height: 10),
                   const BookingCard(),
-                  const SizedBox(height: 26),
-                  SectionHeaderRow(
-                    title: 'SPACE AVAILABILITY',
-                    trailingLabel: 'View floors',
-                    trailingColor: linkColor,
-                  ),
-                  const SizedBox(height: 10),
-                  Row(
-                    children: [
-                      Expanded(child: AvailableDesksCard()),
-                      const SizedBox(width: 12),
-                      const Expanded(child: FloorsOpenCard()),
-                    ],
-                  ),
                   const SizedBox(height: 26),
                   SectionHeaderRow(
                     title: 'UPCOMING EVENTS',

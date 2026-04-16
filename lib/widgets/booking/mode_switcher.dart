@@ -14,7 +14,7 @@ class ModeSwitcher extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final primaryAccent = isDark ? colorScheme.secondary : colorScheme.primary;
-    final secondaryAccent = isDark ? colorScheme.primary : colorScheme.tertiary;
+    final secondaryAccent = colorScheme.primary;
     final onSurface = colorScheme.onSurface;
 
     Widget buildButton(BookMode buttonMode, String label, IconData icon) {
