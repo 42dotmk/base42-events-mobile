@@ -356,23 +356,36 @@ class _MyBookingsSection extends StatelessWidget {
   }
 
   String _resolveSpaceName(MyBooking booking) {
+    final eventType = booking.eventType.trim();
+    if (eventType.isNotEmpty) {
+      return eventType;
+    }
+
     final eventName = booking.eventName.trim();
-    final organizer = booking.organizerEntity.trim();
     if (eventName.isNotEmpty) {
       return eventName;
     }
+
+    final organizer = booking.organizerEntity.trim();
     if (organizer.isNotEmpty) {
       return organizer;
     }
+
     return 'Event request';
   }
 
   String _resolveFloorLabel(MyBooking booking) {
-    final eventType = booking.eventType.trim();
-    if (eventType.isEmpty) {
-      return 'Type not specified';
+    final organizer = booking.organizerEntity.trim();
+    if (organizer.isNotEmpty) {
+      return organizer;
     }
-    return eventType;
+
+    final eventType = booking.eventType.trim();
+    if (eventType.isNotEmpty) {
+      return eventType;
+    }
+
+    return 'Booking request';
   }
 
   String _formatTimeRange(DateTime start, DateTime end) {

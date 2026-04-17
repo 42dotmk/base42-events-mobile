@@ -157,28 +157,6 @@ class _HomeScreenState extends State<HomeScreen> {
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
                                         Icon(
-                                          Icons.wifi_rounded,
-                                          size: 14,
-                                          color: onSurface.withValues(
-                                            alpha: 0.55,
-                                          ),
-                                        ),
-                                        const SizedBox(width: 4),
-                                        Text(
-                                          'Connected',
-                                          style: context.textStyles.titleSmall
-                                              ?.withColor(
-                                                onSurface.withValues(
-                                                  alpha: 0.72,
-                                                ),
-                                              ),
-                                        ),
-                                      ],
-                                    ),
-                                    Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        Icon(
                                           Icons.group_outlined,
                                           size: 14,
                                           color: onSurface.withValues(
