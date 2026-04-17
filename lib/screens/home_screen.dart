@@ -59,6 +59,8 @@ class _HomeScreenState extends State<HomeScreen> {
     final colorScheme = Theme.of(context).colorScheme;
     final onSurface = colorScheme.onSurface;
     final primaryAccent = colorScheme.primary;
+    final now = DateTime.now();
+    final isOpen = now.hour >= 10 && now.hour < 22;
     final linkColor = brand?.linkTextGray ?? colorScheme.onSurfaceVariant;
     final quickActions = [
       _QuickAction(
@@ -135,15 +137,17 @@ class _HomeScreenState extends State<HomeScreen> {
                                           width: 10,
                                           height: 10,
                                           decoration: BoxDecoration(
-                                            color:
-                                                brand?.successGreen ??
-                                                colorScheme.secondary,
+                                            color: isOpen
+                                                ? (brand?.successGreen ??
+                                                      colorScheme.secondary)
+                                                : (brand?.errorRed ??
+                                                      colorScheme.error),
                                             shape: BoxShape.circle,
                                           ),
                                         ),
                                         const SizedBox(width: 6),
                                         Text(
-                                          'Open now',
+                                          isOpen ? 'Open now' : 'Closed',
                                           style: context.textStyles.titleSmall
                                               ?.withColor(
                                                 onSurface.withValues(
