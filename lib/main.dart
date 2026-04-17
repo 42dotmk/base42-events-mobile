@@ -2,7 +2,7 @@ import 'package:base42_events_mobile/providers/auth_provider.dart';
 import 'package:base42_events_mobile/providers/booking_draft_provider.dart';
 import 'package:base42_events_mobile/providers/my_bookings_provider.dart';
 import 'package:base42_events_mobile/providers/settings_provider.dart';
-import 'package:base42_events_mobile/screens/onboarding_screen.dart';
+import 'package:base42_events_mobile/screens/placeholder_onboarding_screen.dart';
 import 'package:base42_events_mobile/services/secure_storage_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -68,7 +68,7 @@ class _MyAppState extends State<MyApp> {
         theme: lightTheme,
         darkTheme: darkTheme,
         themeMode: themeMode,
-        home: OnboardingScreen(onComplete: _completeOnboarding),
+        home: PlaceholderOnboardingScreen(onComplete: _completeOnboarding),
       );
     }
 

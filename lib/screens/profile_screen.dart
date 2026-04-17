@@ -47,15 +47,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
       description: 'Manage your plan',
     ),
     _AccountMenuItem(
-      icon: Icons.notifications_none_rounded,
-      label: 'Notifications',
-      description: 'Event reminders, booking updates',
-    ),
-    _AccountMenuItem(
       icon: Icons.settings_outlined,
       label: 'Settings',
       description: 'App preferences',
       route: AppRoutes.settings,
+    ),
+    _AccountMenuItem(
+      icon: Icons.info_outline_rounded,
+      label: 'About Base42',
+      description: 'Location, contacts, and rules',
+      route: AppRoutes.about,
     ),
     _AccountMenuItem(
       icon: Icons.help_outline_rounded,

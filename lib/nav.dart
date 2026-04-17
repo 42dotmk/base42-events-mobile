@@ -1,11 +1,13 @@
 import 'package:base42_events_mobile/models/event.dart';
 import 'package:base42_events_mobile/providers/auth_provider.dart';
+import 'package:base42_events_mobile/screens/about_screen.dart';
 import 'package:base42_events_mobile/screens/book_screen.dart';
 import 'package:base42_events_mobile/screens/event_details_screen.dart';
 import 'package:base42_events_mobile/screens/event_list_screen.dart';
 import 'package:base42_events_mobile/screens/home_screen.dart';
 import 'package:base42_events_mobile/screens/logged_out_screen.dart';
 import 'package:base42_events_mobile/screens/profile_screen.dart';
+import 'package:base42_events_mobile/screens/rules_screen.dart';
 import 'package:base42_events_mobile/screens/settings_screen.dart';
 import 'package:base42_events_mobile/widgets/bottom_navbar.dart';
 import 'package:flutter/material.dart';
@@ -93,6 +95,18 @@ class AppRouter {
         parentNavigatorKey: _rootNavigatorKey,
         builder: (context, state) => const SettingsScreen(),
       ),
+      GoRoute(
+        path: AppRoutes.about,
+        name: 'about',
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) => const AboutScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.rules,
+        name: 'rules',
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) => const RulesScreen(),
+      ),
     ],
   );
 }
@@ -105,4 +119,6 @@ class AppRoutes {
   static const String profile = '/profile';
   static const String eventDetails = '/event/:id';
   static const String settings = '/settings';
+  static const String about = '/about';
+  static const String rules = '/about/rules';
 }
