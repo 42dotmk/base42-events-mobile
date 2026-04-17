@@ -8,6 +8,8 @@ const String logoutUserApiUrl = '$baseUrl/api/auth/logout';
 const String exchangeKeycloakTokenApiUrl =
     '$baseUrl/api/auth/keycloak/callback';
 const String bookingSubmitApiUrl = '$baseUrl/api/event-requests/submit';
+const String projectsApiUrl =
+    'https://api.github.com/users/42dotmk/repos?sort=pushed&direction=desc&per_page=20';
 
 // Keycloak / OAuth configuration
 const String keycloakIssuerUrl = 'https://id.42.mk/realms/42mk';

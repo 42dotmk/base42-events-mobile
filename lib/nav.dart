@@ -7,6 +7,7 @@ import 'package:base42_events_mobile/screens/event_list_screen.dart';
 import 'package:base42_events_mobile/screens/home_screen.dart';
 import 'package:base42_events_mobile/screens/logged_out_screen.dart';
 import 'package:base42_events_mobile/screens/profile_screen.dart';
+import 'package:base42_events_mobile/screens/projects_screen.dart';
 import 'package:base42_events_mobile/screens/rules_screen.dart';
 import 'package:base42_events_mobile/screens/settings_screen.dart';
 import 'package:base42_events_mobile/widgets/bottom_navbar.dart';
@@ -87,6 +88,12 @@ class AppRouter {
             pageBuilder: (context, state) =>
                 const NoTransitionPage(child: ProfileScreen()),
           ),
+          GoRoute(
+            path: AppRoutes.projects,
+            name: 'projects',
+            pageBuilder: (context, state) =>
+                const NoTransitionPage(child: ProjectsScreen()),
+          ),
         ],
       ),
       GoRoute(
@@ -117,6 +124,7 @@ class AppRoutes {
   static const String events = '/events';
   static const String book = '/book';
   static const String profile = '/profile';
+  static const String projects = '/projects';
   static const String eventDetails = '/event/:id';
   static const String settings = '/settings';
   static const String about = '/about';
