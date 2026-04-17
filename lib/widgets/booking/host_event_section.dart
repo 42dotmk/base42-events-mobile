@@ -1,4 +1,5 @@
 import 'package:base42_events_mobile/providers/booking_draft_provider.dart';
+import 'package:base42_events_mobile/providers/my_bookings_provider.dart';
 import 'package:base42_events_mobile/services/booking_service.dart';
 import 'package:base42_events_mobile/theme.dart';
 import 'package:base42_events_mobile/types.dart';
@@ -118,30 +119,30 @@ class _HostEventSectionState extends State<HostEventSection> {
 
     setState(() => _isSubmitting = true);
     try {
-      final response = await _service.submitBookingRequest(
-        BookingRequestPayload(
-          organizerEntity: _organizerEntityController.text.trim(),
-          initiatorName: _initiatorNameController.text.trim(),
-          email: _emailController.text.trim(),
-          phone: _phoneController.text.trim(),
-          companyName: _companyNameController.text.trim(),
-          eventName: _eventNameController.text.trim(),
-          eventTheme: _eventThemeController.text.trim(),
-          eventPurpose: _eventPurposeController.text.trim(),
-          eventAgenda: _eventAgendaController.text.trim(),
-          eventType: draft.eventType ?? '',
-          eventDate: bookingFormatDateForApi(draft.eventDate!),
-          eventStartTime: bookingFormatTime(draft.startTime!),
-          eventEndTime: bookingFormatTime(draft.endTime!),
-          physicalPresence: draft.physicalPresence,
-          expectedGuests: _expectedGuestsController.text.trim(),
-        ),
+      final payload = BookingRequestPayload(
+        organizerEntity: _organizerEntityController.text.trim(),
+        initiatorName: _initiatorNameController.text.trim(),
+        email: _emailController.text.trim(),
+        phone: _phoneController.text.trim(),
+        companyName: _companyNameController.text.trim(),
+        eventName: _eventNameController.text.trim(),
+        eventTheme: _eventThemeController.text.trim(),
+        eventPurpose: _eventPurposeController.text.trim(),
+        eventAgenda: _eventAgendaController.text.trim(),
+        eventType: draft.eventType ?? '',
+        eventDate: bookingFormatDateForApi(draft.eventDate!),
+        eventStartTime: bookingFormatTime(draft.startTime!),
+        eventEndTime: bookingFormatTime(draft.endTime!),
+        physicalPresence: draft.physicalPresence,
+        expectedGuests: _expectedGuestsController.text.trim(),
       );
+      final response = await _service.submitBookingRequest(payload);
 
       if (!mounted) return;
 
       if (response != null &&
           (response.statusCode == 200 || response.statusCode == 201)) {
+        context.read<MyBookingsProvider>().addFromRequest(payload);
         showBookingResultDialog(
           context: context,
           type: BookingResultType.success,

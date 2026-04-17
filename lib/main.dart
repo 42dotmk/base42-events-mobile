@@ -1,5 +1,6 @@
 import 'package:base42_events_mobile/providers/auth_provider.dart';
 import 'package:base42_events_mobile/providers/booking_draft_provider.dart';
+import 'package:base42_events_mobile/providers/my_bookings_provider.dart';
 import 'package:base42_events_mobile/providers/settings_provider.dart';
 import 'package:base42_events_mobile/screens/onboarding_screen.dart';
 import 'package:base42_events_mobile/services/secure_storage_service.dart';
@@ -15,6 +16,7 @@ void main() {
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => SettingsProvider()),
         ChangeNotifierProvider(create: (_) => BookingDraftProvider()),
+        ChangeNotifierProvider(create: (_) => MyBookingsProvider()),
       ],
       child: const MyApp(),
     ),
