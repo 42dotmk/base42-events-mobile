@@ -3,6 +3,7 @@ import 'package:base42_events_mobile/providers/auth_provider.dart';
 import 'package:base42_events_mobile/models/event.dart';
 import 'package:base42_events_mobile/nav.dart';
 import 'package:base42_events_mobile/services/event_service.dart';
+import 'package:base42_events_mobile/widgets/event_card.dart';
 import 'package:base42_events_mobile/widgets/no_events_placeholder.dart';
 import 'package:base42_events_mobile/widgets/booking/booking_card.dart';
 import 'package:base42_events_mobile/widgets/location_card.dart';
@@ -11,7 +12,6 @@ import 'package:base42_events_mobile/widgets/quick_action_tile.dart';
 import 'package:base42_events_mobile/widgets/section_header_row.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 class _QuickAction {
@@ -231,7 +231,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   const SizedBox(height: 24),
                   SectionHeaderRow(
-                    title: "TODAY'S BOOKING",
+                    title: "AVAILABLE SPACES",
                     trailingLabel: 'All bookings',
                     trailingColor: linkColor,
                   ),
@@ -246,7 +246,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   const SizedBox(height: 10),
                   SizedBox(
-                    height: 240,
+                    height: 220,
                     child: FutureBuilder<List<Event>>(
                       future: _eventsFuture,
                       builder: (context, snapshot) {
@@ -285,16 +285,32 @@ class _HomeScreenState extends State<HomeScreen> {
 
                         final previewEvents = upcoming.take(6).toList();
 
-                        return ListView.separated(
-                          scrollDirection: Axis.horizontal,
+                        if (previewEvents.length == 1) {
+                          final singleEvent = previewEvents.first;
+                          return EventCard(
+                            event: singleEvent,
+                            onTap: () => context.push(
+                              '/event/${singleEvent.id}',
+                              extra: singleEvent,
+                            ),
+                          );
+                        }
+
+                        return PageView.builder(
+                          controller: PageController(viewportFraction: 0.9),
                           itemCount: previewEvents.length,
-                          separatorBuilder: (_, __) =>
-                              const SizedBox(width: 14),
+                          padEnds: false,
                           itemBuilder: (context, index) {
                             final event = previewEvents[index];
-                            return SizedBox(
-                              width: 340,
-                              child: _UpcomingEventCard(event: event),
+                            return Padding(
+                              padding: const EdgeInsets.only(right: 14),
+                              child: EventCard(
+                                event: event,
+                                onTap: () => context.push(
+                                  '/event/${event.id}',
+                                  extra: event,
+                                ),
+                              ),
                             );
                           },
                         );
@@ -307,132 +323,6 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
           ),
-        ),
-      ),
-    );
-  }
-}
-
-class _UpcomingEventCard extends StatelessWidget {
-  final Event event;
-
-  const _UpcomingEventCard({required this.event});
-
-  Color _tagBackground(String tagLower, ColorScheme colorScheme) {
-    if (tagLower.contains('ai')) return colorScheme.primaryContainer;
-    if (tagLower.contains('pydata')) return colorScheme.secondaryContainer;
-    if (tagLower.contains('machine')) return colorScheme.tertiaryContainer;
-    if (tagLower.contains('game')) {
-      return colorScheme.surfaceContainerHighest;
-    }
-    if (tagLower.contains('hack')) return colorScheme.errorContainer;
-    return colorScheme.surfaceContainerHighest;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final onSurface = colorScheme.onSurface;
-    final dateFormat = DateFormat('MMM d, yyyy');
-    final timeFormat = DateFormat('HH:mm');
-
-    return InkWell(
-      onTap: () => context.push('/event/${event.id}', extra: event),
-      borderRadius: BorderRadius.circular(20),
-      child: Container(
-        decoration: BoxDecoration(
-          color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.62),
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: colorScheme.outline.withValues(alpha: 0.2)),
-        ),
-        clipBehavior: Clip.antiAlias,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              height: 6,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [colorScheme.secondary, colorScheme.primary],
-                ),
-              ),
-            ),
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(18, 16, 18, 16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Text(
-                          dateFormat.format(event.start),
-                          style: context.textStyles.titleLarge?.semiBold
-                              .withColor(colorScheme.primary),
-                        ),
-                        const SizedBox(width: 12),
-                        Container(
-                          width: 2,
-                          height: 20,
-                          color: colorScheme.outline.withValues(alpha: 0.3),
-                        ),
-                        const SizedBox(width: 12),
-                        Text(
-                          timeFormat.format(event.start),
-                          style: context.textStyles.titleLarge?.medium
-                              .withColor(onSurface.withValues(alpha: 0.6)),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    Text(
-                      event.title,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: context.textStyles.headlineSmall?.semiBold
-                          .withSize(36 / 2)
-                          .withColor(onSurface),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      event.summary,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: context.textStyles.titleLarge?.withColor(
-                        onSurface.withValues(alpha: 0.68),
-                      ),
-                    ),
-                    const Spacer(),
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 6,
-                      children: event.tags.take(3).map((tag) {
-                        final lower = tag.tagName.toLowerCase();
-                        final background = _tagBackground(lower, colorScheme);
-                        return Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 5,
-                          ),
-                          decoration: BoxDecoration(
-                            color: background,
-                            borderRadius: BorderRadius.circular(999),
-                          ),
-                          child: Text(
-                            tag.tagName,
-                            style: context.textStyles.labelLarge?.semiBold
-                                .withColor(
-                                  colorScheme.onSurface.withValues(alpha: 0.88),
-                                ),
-                          ),
-                        );
-                      }).toList(),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
         ),
       ),
     );
