@@ -1,10 +1,11 @@
+import 'package:base42_events_mobile/nav.dart';
 import 'package:base42_events_mobile/models/project_repo.dart';
 import 'package:base42_events_mobile/services/projects_service.dart';
 import 'package:base42_events_mobile/theme.dart';
 import 'package:base42_events_mobile/widgets/error_view.dart';
 import 'package:base42_events_mobile/widgets/projects/projects_list.dart';
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:go_router/go_router.dart';
 
 class ProjectsScreen extends StatefulWidget {
   const ProjectsScreen({super.key});
@@ -48,16 +49,9 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
   }
 
   Future<void> _openProject(ProjectRepo project) async {
-    final uri = Uri.parse(project.htmlUrl);
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri, mode: LaunchMode.externalApplication);
-      return;
-    }
-
-    if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Could not open project link.')),
-    );
+    final owner = Uri.encodeComponent(project.ownerLogin);
+    final repo = Uri.encodeComponent(project.name);
+    context.push(AppRoutes.projectDetailsPath(owner, repo), extra: project);
   }
 
   @override

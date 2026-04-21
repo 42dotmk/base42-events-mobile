@@ -40,7 +40,9 @@ class BottomNavigationBarWidget extends StatelessWidget {
       return 1;
     }
     if (location == AppRoutes.book) return 2;
-    if (location == AppRoutes.projects) return 3;
+    if (location == AppRoutes.projects || location.startsWith('/projects/')) {
+      return 3;
+    }
     return 0;
   }
 

@@ -1,0 +1,236 @@
+import 'package:base42_events_mobile/models/project_commit_week.dart';
+import 'package:base42_events_mobile/models/project_details.dart';
+import 'package:base42_events_mobile/models/project_repo.dart';
+import 'package:base42_events_mobile/services/projects_service.dart';
+import 'package:base42_events_mobile/theme.dart';
+import 'package:base42_events_mobile/utils.dart';
+import 'package:base42_events_mobile/widgets/error_view.dart';
+import 'package:base42_events_mobile/widgets/projects/project_activity_pulse.dart';
+import 'package:base42_events_mobile/widgets/projects/project_details_hero.dart';
+import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:url_launcher/url_launcher.dart';
+
+class ProjectDetailsScreen extends StatefulWidget {
+  final ProjectRepo project;
+
+  const ProjectDetailsScreen({super.key, required this.project});
+
+  @override
+  State<ProjectDetailsScreen> createState() => _ProjectDetailsScreenState();
+}
+
+class _ProjectDetailsScreenState extends State<ProjectDetailsScreen> {
+  final ProjectsService _projectsService = ProjectsService();
+
+  ProjectDetails? _details;
+  bool _isLoading = true;
+  bool _isActivityLoading = true;
+  String? _errorMessage;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadDetails();
+  }
+
+  Future<void> _loadDetails() async {
+    setState(() {
+      _isLoading = true;
+      _isActivityLoading = true;
+      _errorMessage = null;
+    });
+
+    try {
+      final details = await _projectsService.fetchProjectDetails(
+        widget.project,
+      );
+      if (!mounted) return;
+
+      setState(() {
+        _details = details;
+        _isLoading = false;
+      });
+
+      await _loadCommitActivityWithRetry(details);
+    } catch (error) {
+      if (!mounted) return;
+      setState(() {
+        _errorMessage = error.toString();
+        _isLoading = false;
+        _isActivityLoading = false;
+      });
+    }
+  }
+
+  Future<void> _loadCommitActivityWithRetry(ProjectDetails details) async {
+    final owner = details.project.ownerLogin;
+    final repo = details.project.name;
+
+    List<ProjectCommitWeek>? activity = await _projectsService
+        .fetchCommitActivity(owner, repo);
+
+    if (activity == null) {
+      await Future.delayed(const Duration(seconds: 2));
+      activity = await _projectsService.fetchCommitActivity(owner, repo);
+    }
+
+    if (!mounted) return;
+
+    setState(() {
+      _details = details.copyWith(commitActivity: activity ?? const []);
+      _isActivityLoading = false;
+    });
+  }
+
+  Future<void> _openProjectUrl() async {
+    final uri = Uri.parse(widget.project.htmlUrl);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+      return;
+    }
+
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Could not open project link.')),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Scaffold(
+      body: SafeArea(
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
+              child: Row(
+                children: [
+                  IconButton(
+                    onPressed: () => context.pop(),
+                    icon: const Icon(Icons.arrow_back_rounded),
+                  ),
+                  Text(
+                    'Project Details',
+                    style: context.textStyles.titleLarge?.semiBold.withColor(
+                      colorScheme.onSurface,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Expanded(child: _buildBody(context)),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBody(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    if (_isLoading) {
+      return Center(
+        child: CircularProgressIndicator(color: colorScheme.primary),
+      );
+    }
+
+    if (_errorMessage != null) {
+      return ErrorView(
+        title: 'Failed to load project details',
+        message: _errorMessage!,
+        onRetry: _loadDetails,
+      );
+    }
+
+    final details = _details;
+    if (details == null) {
+      return ErrorView(
+        title: 'Project details unavailable',
+        message: 'Unable to prepare project details view.',
+        onRetry: _loadDetails,
+      );
+    }
+
+    final pushedAtText = projectLastSyncLabel(details.project.pushedAt);
+
+    return RefreshIndicator(
+      onRefresh: _loadDetails,
+      color: colorScheme.primary,
+      child: ListView(
+        padding: const EdgeInsets.fromLTRB(20, 10, 20, 24),
+        children: [
+          Container(
+            padding: const EdgeInsets.all(AppSpacing.lg),
+            decoration: BoxDecoration(
+              color: colorScheme.surfaceContainerHighest.withValues(
+                alpha: 0.45,
+              ),
+              borderRadius: BorderRadius.circular(AppRadius.xl),
+              border: Border.all(
+                color: colorScheme.outline.withValues(alpha: 0.24),
+              ),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                ProjectDetailsHero(
+                  details: details,
+                  onJoinTap: _openProjectUrl,
+                ),
+                const SizedBox(height: AppSpacing.lg),
+                Divider(color: colorScheme.outline.withValues(alpha: 0.22)),
+                const SizedBox(height: AppSpacing.lg),
+                _StatsRow(label: 'Language', value: details.project.language),
+                const SizedBox(height: AppSpacing.lg),
+                _StatsRow(
+                  label: 'Stargazers',
+                  value: projectStarsLabel(details.project.stargazersCount),
+                ),
+                const SizedBox(height: AppSpacing.lg),
+                _StatsRow(label: 'Last Sync', value: pushedAtText),
+                const SizedBox(height: AppSpacing.lg),
+                ProjectActivityPulse(
+                  activity: details.commitActivity,
+                  isLoading: _isActivityLoading,
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _StatsRow extends StatelessWidget {
+  final String label;
+  final String value;
+
+  const _StatsRow({required this.label, required this.value});
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Row(
+      children: [
+        Text(
+          label,
+          style: context.textStyles.titleMedium?.withColor(
+            colorScheme.onSurface.withValues(alpha: 0.7),
+          ),
+        ),
+        const Spacer(),
+        Text(
+          value,
+          style: context.textStyles.titleLarge?.semiBold.withColor(
+            colorScheme.primary,
+          ),
+        ),
+      ],
+    );
+  }
+}
