@@ -6,8 +6,8 @@ import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:base42_events_mobile/models/event.dart';
 import 'package:base42_events_mobile/theme.dart';
+import 'package:base42_events_mobile/utils.dart';
 import 'package:base42_events_mobile/widgets/event_info_row.dart';
-import 'package:base42_events_mobile/widgets/tag_chip.dart';
 import 'package:base42_events_mobile/widgets/event_media_hero.dart';
 
 class EventDetailsScreen extends StatefulWidget {
@@ -27,11 +27,11 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
     final dateFormat = DateFormat('EEEE, MMMM dd, yyyy • hh:mm a');
     final colorScheme = Theme.of(context).colorScheme;
     final brand = Theme.of(context).extension<BrandTheme>();
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final primaryAccent = isDark ? colorScheme.secondary : colorScheme.primary;
-    final descriptionPreview = _buildDescriptionPreview(
+    final primaryAccent = colorScheme.primary;
+    final descriptionPreview = buildEventDescriptionPreview(
       widget.event.description,
     );
+    final descriptionHtml = buildEventDescriptionHtml(widget.event.description);
 
     return PopScope(
       canPop: false,
@@ -90,23 +90,27 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                         style: context.textStyles.headlineMedium?.bold
                             .withColor(colorScheme.onSurface),
                       ),
-                      const SizedBox(height: AppSpacing.lg),
+                      const SizedBox(height: AppSpacing.md),
                       EventInfoRow(
                         icon: Icons.calendar_today_rounded,
                         text: dateFormat.format(widget.event.start),
                         colorScheme: colorScheme,
                       ),
                       if (widget.event.tags.isNotEmpty) ...[
-                        const SizedBox(height: AppSpacing.lg),
+                        const SizedBox(height: AppSpacing.md),
                         Wrap(
                           spacing: AppSpacing.sm,
                           runSpacing: AppSpacing.sm,
                           children: widget.event.tags
-                              .map((tag) => EventTagChip(label: tag.tagName))
+                              .map(
+                                (tag) => _EventFilterStyleTagChip(
+                                  label: tag.tagName,
+                                ),
+                              )
                               .toList(),
                         ),
                       ],
-                      const SizedBox(height: AppSpacing.xl),
+                      const SizedBox(height: AppSpacing.lg),
                       Container(
                         width: double.infinity,
                         padding: const EdgeInsets.all(1),
@@ -158,6 +162,9 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                                           style: context.textStyles.bodyMedium
                                               ?.withColor(
                                                 colorScheme.onSurfaceVariant,
+                                              )
+                                              .copyWith(
+                                                fontWeight: FontWeight.w400,
                                               ),
                                         ),
                                         Positioned(
@@ -186,18 +193,19 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                                   ),
                             children: [
                               Html(
-                                data: widget.event.description,
+                                data: descriptionHtml,
                                 style: {
                                   "body": Style(
                                     margin: Margins.zero,
                                     fontSize: FontSize(FontSizes.bodyMedium),
+                                    fontWeight: FontWeight.w400,
                                     lineHeight: const LineHeight(1.6),
                                   ),
                                   "h1": Style(
                                     fontSize: FontSize(
                                       FontSizes.headlineMedium,
                                     ),
-                                    fontWeight: FontWeight.w600,
+                                    fontWeight: FontWeight.w400,
                                     margin: Margins.only(
                                       top: AppSpacing.lg,
                                       bottom: AppSpacing.md,
@@ -205,7 +213,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                                   ),
                                   "h2": Style(
                                     fontSize: FontSize(FontSizes.headlineSmall),
-                                    fontWeight: FontWeight.w600,
+                                    fontWeight: FontWeight.w400,
                                     margin: Margins.only(
                                       top: AppSpacing.lg,
                                       bottom: AppSpacing.md,
@@ -213,7 +221,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                                   ),
                                   "h3": Style(
                                     fontSize: FontSize(FontSizes.titleLarge),
-                                    fontWeight: FontWeight.w600,
+                                    fontWeight: FontWeight.w400,
                                     margin: Margins.only(
                                       top: AppSpacing.md,
                                       bottom: AppSpacing.sm,
@@ -287,13 +295,28 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
       await launchUrl(uri, mode: LaunchMode.externalApplication);
     }
   }
+}
 
-  String _buildDescriptionPreview(String html) {
-    final withoutBreaks = html
-        .replaceAll(RegExp(r'<\s*br\s*/?>', caseSensitive: false), ' ')
-        .replaceAll(RegExp(r'</\s*p\s*>', caseSensitive: false), ' ')
-        .replaceAll(RegExp(r'</\s*li\s*>', caseSensitive: false), ' ');
-    final withoutTags = withoutBreaks.replaceAll(RegExp(r'<[^>]*>'), ' ');
-    return withoutTags.replaceAll(RegExp(r'\s+'), ' ').trim();
+class _EventFilterStyleTagChip extends StatelessWidget {
+  final String label;
+
+  const _EventFilterStyleTagChip({required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final accent = colorScheme.primary;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+      decoration: BoxDecoration(
+        color: accent.withValues(alpha: 0.18),
+        borderRadius: BorderRadius.circular(999),
+        border: Border.all(color: accent.withValues(alpha: 0.6)),
+      ),
+      child: Text(
+        label,
+        style: context.textStyles.labelMedium?.medium.withColor(accent),
+      ),
+    );
   }
 }
