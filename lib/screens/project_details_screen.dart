@@ -1,4 +1,3 @@
-import 'package:base42_events_mobile/models/project_commit_week.dart';
 import 'package:base42_events_mobile/models/project_details.dart';
 import 'package:base42_events_mobile/models/project_repo.dart';
 import 'package:base42_events_mobile/services/projects_service.dart';
@@ -25,7 +24,6 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen> {
 
   ProjectDetails? _details;
   bool _isLoading = true;
-  bool _isActivityLoading = true;
   String? _errorMessage;
 
   @override
@@ -37,7 +35,6 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen> {
   Future<void> _loadDetails() async {
     setState(() {
       _isLoading = true;
-      _isActivityLoading = true;
       _errorMessage = null;
     });
 
@@ -51,36 +48,13 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen> {
         _details = details;
         _isLoading = false;
       });
-
-      await _loadCommitActivityWithRetry(details);
     } catch (error) {
       if (!mounted) return;
       setState(() {
         _errorMessage = error.toString();
         _isLoading = false;
-        _isActivityLoading = false;
       });
     }
-  }
-
-  Future<void> _loadCommitActivityWithRetry(ProjectDetails details) async {
-    final owner = details.project.ownerLogin;
-    final repo = details.project.name;
-
-    List<ProjectCommitWeek>? activity = await _projectsService
-        .fetchCommitActivity(owner, repo);
-
-    if (activity == null) {
-      await Future.delayed(const Duration(seconds: 2));
-      activity = await _projectsService.fetchCommitActivity(owner, repo);
-    }
-
-    if (!mounted) return;
-
-    setState(() {
-      _details = details.copyWith(commitActivity: activity ?? const []);
-      _isActivityLoading = false;
-    });
   }
 
   Future<void> _openProjectUrl() async {
@@ -194,7 +168,7 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen> {
                 const SizedBox(height: AppSpacing.lg),
                 ProjectActivityPulse(
                   activity: details.commitActivity,
-                  isLoading: _isActivityLoading,
+                  isLoading: false,
                 ),
               ],
             ),

@@ -84,12 +84,12 @@ class ProjectActivityPulse extends StatelessWidget {
   List<ProjectCommitWeek> _buildBars() {
     if (isLoading) {
       return const [
-        ProjectCommitWeek(week: 0, total: 3),
-        ProjectCommitWeek(week: 0, total: 5),
-        ProjectCommitWeek(week: 0, total: 4),
-        ProjectCommitWeek(week: 0, total: 7),
-        ProjectCommitWeek(week: 0, total: 6),
-        ProjectCommitWeek(week: 0, total: 2),
+        ProjectCommitWeek(week: 0, total: 3, days: []),
+        ProjectCommitWeek(week: 0, total: 5, days: []),
+        ProjectCommitWeek(week: 0, total: 4, days: []),
+        ProjectCommitWeek(week: 0, total: 7, days: []),
+        ProjectCommitWeek(week: 0, total: 6, days: []),
+        ProjectCommitWeek(week: 0, total: 2, days: []),
       ];
     }
 
