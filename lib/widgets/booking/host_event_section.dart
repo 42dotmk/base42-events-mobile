@@ -273,147 +273,138 @@ class _HostEventSectionState extends State<HostEventSection> {
     final eventType = _resolvedEventType(draft);
     final selectedSpace = _findSelectedSpace(eventType);
 
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.62),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.2)),
-      ),
-      child: Form(
-        key: _formKey,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SelectedSpacePreviewCard(space: selectedSpace),
-            const SizedBox(height: 12),
-            DropdownButtonFormField<String>(
-              initialValue: eventType,
-              decoration: bookingInputDecoration(context, 'Space *'),
-              dropdownColor: colorScheme.surfaceContainerHighest,
-              items: hostEventSpaceOptions
-                  .map(
-                    (space) => DropdownMenuItem<String>(
-                      value: space.value,
-                      child: Text(space.label),
-                    ),
-                  )
-                  .toList(),
-              onChanged: draft.setEventType,
-              validator: (value) {
-                if (value == null || value.trim().isEmpty) {
-                  return 'Required field';
-                }
-                return null;
-              },
+    return Form(
+      key: _formKey,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SelectedSpacePreviewCard(space: selectedSpace),
+          const SizedBox(height: 12),
+          DropdownButtonFormField<String>(
+            initialValue: eventType,
+            decoration: bookingInputDecoration(context, 'Space *'),
+            dropdownColor: colorScheme.surfaceContainerHighest,
+            items: hostEventSpaceOptions
+                .map(
+                  (space) => DropdownMenuItem<String>(
+                    value: space.value,
+                    child: Text(space.label),
+                  ),
+                )
+                .toList(),
+            onChanged: draft.setEventType,
+            validator: (value) {
+              if (value == null || value.trim().isEmpty) {
+                return 'Required field';
+              }
+              return null;
+            },
+          ),
+          const SizedBox(height: 14),
+          Text(
+            'Fill in the Details',
+            style: context.textStyles.titleMedium?.semiBold.withColor(
+              colorScheme.onSurface,
             ),
-            const SizedBox(height: 14),
-            Text(
-              'Fill in the Details',
-              style: context.textStyles.titleMedium?.semiBold.withColor(
-                colorScheme.onSurface,
+          ),
+          const SizedBox(height: 12),
+          BookingHostTextField(
+            controller: _organizationController,
+            label: 'Organization *',
+            validator: bookingRequiredFieldValidator,
+            onChanged: draft.setOrganizerEntity,
+          ),
+          BookingHostTextField(
+            controller: _emailController,
+            label: 'Contact Email *',
+            validator: _requiredEmailValidator,
+            onChanged: draft.setEmail,
+            textCapitalization: TextCapitalization.none,
+          ),
+          BookingDateTimeButtonField(
+            label: 'Preferred Date *',
+            value: draft.eventDate == null
+                ? 'mm/dd/yyyy'
+                : bookingFormatDate(draft.eventDate!),
+            onTap: _pickDate,
+          ),
+          DropdownButtonFormField<String>(
+            initialValue: _selectedTimeSlot?.value,
+            decoration: bookingInputDecoration(context, 'Time *'),
+            dropdownColor: colorScheme.surfaceContainerHighest,
+            items: _timeSlots
+                .map(
+                  (slot) => DropdownMenuItem<String>(
+                    value: slot.value,
+                    child: Text(slot.uiLabel),
+                  ),
+                )
+                .toList(),
+            onChanged: _onTimeSlotChanged,
+            validator: (value) {
+              if (value == null || value.trim().isEmpty) {
+                return 'Required field';
+              }
+              return null;
+            },
+          ),
+          const SizedBox(height: 10),
+          BookingHostTextField(
+            controller: _expectedAttendeesController,
+            label: 'Expected Attendees *',
+            validator: _expectedAttendeesValidator,
+            onChanged: draft.setExpectedGuests,
+            keyboardType: TextInputType.number,
+            textCapitalization: TextCapitalization.none,
+          ),
+          BookingHostTextField(
+            controller: _eventDescriptionController,
+            label: 'Event Description *',
+            validator: bookingRequiredFieldValidator,
+            onChanged: draft.setEventAgenda,
+            maxLines: 5,
+            textCapitalization: TextCapitalization.sentences,
+          ),
+          const SizedBox(height: 6),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: colorScheme.surface.withValues(alpha: 0.45),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: colorScheme.outline.withValues(alpha: 0.2),
               ),
             ),
-            const SizedBox(height: 12),
-            BookingHostTextField(
-              controller: _organizationController,
-              label: 'Organization *',
-              validator: bookingRequiredFieldValidator,
-              onChanged: draft.setOrganizerEntity,
-            ),
-            BookingHostTextField(
-              controller: _emailController,
-              label: 'Contact Email *',
-              validator: _requiredEmailValidator,
-              onChanged: draft.setEmail,
-              textCapitalization: TextCapitalization.none,
-            ),
-            BookingDateTimeButtonField(
-              label: 'Preferred Date *',
-              value: draft.eventDate == null
-                  ? 'mm/dd/yyyy'
-                  : bookingFormatDate(draft.eventDate!),
-              onTap: _pickDate,
-            ),
-            DropdownButtonFormField<String>(
-              initialValue: _selectedTimeSlot?.value,
-              decoration: bookingInputDecoration(context, 'Time *'),
-              dropdownColor: colorScheme.surfaceContainerHighest,
-              items: _timeSlots
-                  .map(
-                    (slot) => DropdownMenuItem<String>(
-                      value: slot.value,
-                      child: Text(slot.uiLabel),
-                    ),
-                  )
-                  .toList(),
-              onChanged: _onTimeSlotChanged,
-              validator: (value) {
-                if (value == null || value.trim().isEmpty) {
-                  return 'Required field';
-                }
-                return null;
-              },
-            ),
-            const SizedBox(height: 10),
-            BookingHostTextField(
-              controller: _expectedAttendeesController,
-              label: 'Expected Attendees *',
-              validator: _expectedAttendeesValidator,
-              onChanged: draft.setExpectedGuests,
-              keyboardType: TextInputType.number,
-              textCapitalization: TextCapitalization.none,
-            ),
-            BookingHostTextField(
-              controller: _eventDescriptionController,
-              label: 'Event Description *',
-              validator: bookingRequiredFieldValidator,
-              onChanged: draft.setEventAgenda,
-              maxLines: 5,
-              textCapitalization: TextCapitalization.sentences,
-            ),
-            const SizedBox(height: 6),
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: colorScheme.surface.withValues(alpha: 0.45),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: colorScheme.outline.withValues(alpha: 0.2),
-                ),
-              ),
-              child: Text(
-                'Base42 is a community space. Bookings are typically '
-                'free for community events and meetups.',
-                style: context.textStyles.bodyMedium?.withColor(
-                  colorScheme.onSurface.withValues(alpha: 0.75),
-                ),
+            child: Text(
+              'Base42 is a community space. Bookings are typically '
+              'free for community events and meetups.',
+              style: context.textStyles.bodyMedium?.withColor(
+                colorScheme.onSurface.withValues(alpha: 0.75),
               ),
             ),
-            const SizedBox(height: 14),
-            SizedBox(
-              width: double.infinity,
-              child: FilledButton.icon(
-                onPressed: _isSubmitting ? null : _submit,
-                icon: _isSubmitting
-                    ? SizedBox(
-                        width: 16,
-                        height: 16,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: colorScheme.onPrimary,
-                        ),
-                      )
-                    : const Icon(Icons.send_outlined),
-                label: Text(
-                  _isSubmitting ? 'Submitting...' : 'Submit Booking Request',
-                ),
+          ),
+          const SizedBox(height: 14),
+          SizedBox(
+            width: double.infinity,
+            child: FilledButton.icon(
+              onPressed: _isSubmitting ? null : _submit,
+              icon: _isSubmitting
+                  ? SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: colorScheme.onPrimary,
+                      ),
+                    )
+                  : const Icon(Icons.send_outlined),
+              label: Text(
+                _isSubmitting ? 'Submitting...' : 'Submit Booking Request',
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
