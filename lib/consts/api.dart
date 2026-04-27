@@ -10,6 +10,7 @@ const String exchangeKeycloakTokenApiUrl =
 const String bookingSubmitApiUrl = '$baseUrl/api/event-requests/submit';
 const String changeAttendanceStatusApiUrl =
     '$baseUrl/api/user-events/change-status';
+const String userEventsApiUrl = '$baseUrl/api/user-events/me';
 
 // Keycloak / OAuth configuration
 const String keycloakIssuerUrl = 'https://id.42.mk/realms/42mk';

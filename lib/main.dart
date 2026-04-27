@@ -1,5 +1,7 @@
+import 'package:base42_events_mobile/providers/attendance_provider.dart';
 import 'package:base42_events_mobile/providers/auth_provider.dart';
 import 'package:base42_events_mobile/providers/booking_draft_provider.dart';
+import 'package:base42_events_mobile/providers/event_provider.dart';
 import 'package:base42_events_mobile/providers/settings_provider.dart';
 import 'package:base42_events_mobile/screens/onboarding_screen.dart';
 import 'package:base42_events_mobile/services/secure_storage_service.dart';
@@ -12,9 +14,22 @@ void main() {
   runApp(
     MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => SettingsProvider()),
         ChangeNotifierProvider(create: (_) => BookingDraftProvider()),
+        ChangeNotifierProvider(create: (_) => EventProvider()),
+        ChangeNotifierProxyProvider<EventProvider, AttendanceProvider>(
+          create: (context) =>
+              AttendanceProvider(eventProvider: context.read<EventProvider>()),
+          update: (context, eventProvider, previous) =>
+              previous ?? AttendanceProvider(eventProvider: eventProvider),
+        ),
+        ChangeNotifierProxyProvider<AttendanceProvider, AuthProvider>(
+          create: (context) => AuthProvider(
+            attendanceProvider: context.read<AttendanceProvider>(),
+          ),
+          update: (context, attendance, previous) =>
+              previous ?? AuthProvider(attendanceProvider: attendance),
+        ),
       ],
       child: const MyApp(),
     ),

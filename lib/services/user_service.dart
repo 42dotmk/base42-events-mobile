@@ -4,6 +4,7 @@ import 'package:base42_events_mobile/consts/api.dart';
 import 'package:base42_events_mobile/types.dart';
 import 'package:http/http.dart' as http;
 import 'package:base42_events_mobile/models/user.dart';
+import 'package:base42_events_mobile/models/user_event.dart';
 
 class UserService {
   Future<List<User>> getUsersData() async {
@@ -110,7 +111,7 @@ class UserService {
       var response = await postWithAuth(url.toString(), token, {
         'userId': userId,
         'eventId': eventId,
-        'status': status,
+        'attendanceStatus': status,
       });
 
       if (response.statusCode != 200 && response.statusCode != 201) {
@@ -123,6 +124,36 @@ class UserService {
       }
     } catch (e) {
       throw Exception('Error updating attendance status: $e');
+    }
+  }
+
+  Future<List<UserEventResponse>> getUserEventsWithDetails(
+    String token,
+    int userId,
+  ) async {
+    try {
+      var url = Uri.parse(userEventsApiUrl);
+      var response = await getWithAuth(url.toString(), token);
+
+      if (response.statusCode == 200) {
+        var data = jsonDecode(response.body);
+        List<dynamic> responseData = data['data'] ?? [];
+
+        return responseData.map((item) {
+          return UserEventResponse(
+            eventId: item['eventId'],
+            status: item['attendanceStatus'],
+          );
+        }).toList();
+      } else {
+        var errorData = jsonDecode(response.body);
+        String error =
+            errorData['error']?['message'] ??
+            'Failed to fetch user events (HTTP ${response.statusCode})';
+        throw Exception(error);
+      }
+    } catch (e) {
+      throw Exception('Failed to fetch user events: $e');
     }
   }
 
