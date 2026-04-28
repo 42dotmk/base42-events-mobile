@@ -24,7 +24,11 @@ class BottomNavigationBarWidget extends StatelessWidget {
       label: 'Book',
       isCenter: true,
     ),
-    _NavItem(icon: Icons.workspaces_outline, label: 'Projects'),
+    _NavItem(
+      route: AppRoutes.projects,
+      icon: Icons.workspaces_outline,
+      label: 'Projects',
+    ),
     _NavItem(icon: Icons.shopping_bag_outlined, label: 'Shop'),
   ];
 
@@ -36,6 +40,9 @@ class BottomNavigationBarWidget extends StatelessWidget {
       return 1;
     }
     if (location == AppRoutes.book) return 2;
+    if (location == AppRoutes.projects || location.startsWith('/projects/')) {
+      return 3;
+    }
     return 0;
   }
 

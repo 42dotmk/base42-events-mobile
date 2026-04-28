@@ -1,5 +1,7 @@
-import 'package:flutter/material.dart';
 import 'dart:convert';
+
+import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 String bookingFormatDate(DateTime date) {
   final mm = date.month.toString().padLeft(2, '0');
@@ -42,6 +44,30 @@ String? bookingEmailValidator(String? value) {
   }
 
   return null;
+}
+
+String projectListUpdatedLabel(DateTime? pushedAt) {
+  if (pushedAt == null) {
+    return 'RECENT';
+  }
+
+  return DateFormat('MMM yyyy').format(pushedAt).toUpperCase();
+}
+
+String projectLastSyncLabel(DateTime? pushedAt) {
+  if (pushedAt == null) {
+    return 'Unknown';
+  }
+
+  return DateFormat('MMM d, yyyy').format(pushedAt);
+}
+
+String projectStarsLabel(int value) {
+  if (value >= 1000) {
+    return '${(value / 1000).toStringAsFixed(1)}k';
+  }
+
+  return value.toString();
 }
 
 String sanitizeEventDescription(String raw) {
