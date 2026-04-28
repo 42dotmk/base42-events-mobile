@@ -7,6 +7,8 @@ const String loginUserApiUrl = '$baseUrl/api/auth/local';
 const String logoutUserApiUrl = '$baseUrl/api/auth/logout';
 const String exchangeKeycloakTokenApiUrl =
     '$baseUrl/api/auth/keycloak/callback';
+const String bookingSubmitApiUrl = '$baseUrl/api/event-requests/submit';
+const String projectsApiUrl = '$baseUrl/api/projects';
 
 // Keycloak / OAuth configuration
 const String keycloakIssuerUrl = 'https://id.42.mk/realms/42mk';
