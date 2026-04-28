@@ -1,7 +1,8 @@
 import 'package:base42_events_mobile/providers/auth_provider.dart';
 import 'package:base42_events_mobile/providers/booking_draft_provider.dart';
+import 'package:base42_events_mobile/providers/my_bookings_provider.dart';
 import 'package:base42_events_mobile/providers/settings_provider.dart';
-import 'package:base42_events_mobile/screens/onboarding_screen.dart';
+import 'package:base42_events_mobile/screens/placeholder_onboarding_screen.dart';
 import 'package:base42_events_mobile/services/secure_storage_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -15,6 +16,7 @@ void main() {
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => SettingsProvider()),
         ChangeNotifierProvider(create: (_) => BookingDraftProvider()),
+        ChangeNotifierProvider(create: (_) => MyBookingsProvider()),
       ],
       child: const MyApp(),
     ),
@@ -50,7 +52,6 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     final themeMode = context.watch<SettingsProvider>().themeMode;
 
-    // Still reading storage — show a plain dark splash
     if (_onboardingDone == null) {
       return MaterialApp(
         debugShowCheckedModeBanner: false,
@@ -61,18 +62,16 @@ class _MyAppState extends State<MyApp> {
       );
     }
 
-    // First launch — show onboarding
     if (!_onboardingDone!) {
       return MaterialApp(
         debugShowCheckedModeBanner: false,
         theme: lightTheme,
         darkTheme: darkTheme,
         themeMode: themeMode,
-        home: OnboardingScreen(onComplete: _completeOnboarding),
+        home: PlaceholderOnboardingScreen(onComplete: _completeOnboarding),
       );
     }
 
-    // Normal app
     return MaterialApp.router(
       title: 'EventFlow',
       debugShowCheckedModeBanner: false,

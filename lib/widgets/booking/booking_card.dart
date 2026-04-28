@@ -26,17 +26,18 @@ class BookingCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final brand = Theme.of(context).extension<BrandTheme>()!;
     final colorScheme = Theme.of(context).colorScheme;
-    final resolvedStatusTextColor =
-        statusTextColor ?? brand.bookingStatusConfirmedText;
     final resolvedStatusBackgroundColor =
         statusBackgroundColor ?? brand.bookingStatusConfirmedBackground;
+    final statusOnColor = resolvedStatusBackgroundColor.computeLuminance() > 0.5
+        ? Colors.black
+        : Colors.white;
 
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
         color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.62),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
+        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.2)),
       ),
       child: Padding(
         padding: const EdgeInsets.all(20),
@@ -56,7 +57,7 @@ class BookingCard extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                         style: context.textStyles.headlineSmall?.bold
                             .withSize(20)
-                            .withColor(Colors.white),
+                            .withColor(colorScheme.onSurface),
                       ),
                       const SizedBox(height: 3),
                       Text(
@@ -64,7 +65,7 @@ class BookingCard extends StatelessWidget {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: context.textStyles.titleSmall?.medium.withColor(
-                          Colors.white.withValues(alpha: 0.5),
+                          colorScheme.onSurface.withValues(alpha: 0.62),
                         ),
                       ),
                     ],
@@ -80,7 +81,7 @@ class BookingCard extends StatelessWidget {
                     ),
                     decoration: BoxDecoration(
                       color: resolvedStatusBackgroundColor.withValues(
-                        alpha: 0.42,
+                        alpha: 0.86,
                       ),
                       borderRadius: BorderRadius.circular(999),
                     ),
@@ -89,7 +90,7 @@ class BookingCard extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: context.textStyles.labelMedium?.semiBold.withColor(
-                        resolvedStatusTextColor,
+                        statusOnColor,
                       ),
                     ),
                   ),
@@ -107,13 +108,13 @@ class BookingCard extends StatelessWidget {
                     Icon(
                       Icons.calendar_today_outlined,
                       size: 20,
-                      color: Colors.white.withValues(alpha: 0.62),
+                      color: colorScheme.onSurface.withValues(alpha: 0.62),
                     ),
                     const SizedBox(width: 8),
                     Text(
                       date,
                       style: context.textStyles.bodySmall?.medium.withColor(
-                        Colors.white.withValues(alpha: 0.66),
+                        colorScheme.onSurface.withValues(alpha: 0.72),
                       ),
                     ),
                   ],
@@ -124,13 +125,13 @@ class BookingCard extends StatelessWidget {
                     Icon(
                       Icons.access_time_rounded,
                       size: 20,
-                      color: Colors.white.withValues(alpha: 0.62),
+                      color: colorScheme.onSurface.withValues(alpha: 0.62),
                     ),
                     const SizedBox(width: 8),
                     Text(
                       timeRange,
                       style: context.textStyles.bodySmall?.medium.withColor(
-                        Colors.white.withValues(alpha: 0.66),
+                        colorScheme.onSurface.withValues(alpha: 0.72),
                       ),
                     ),
                   ],

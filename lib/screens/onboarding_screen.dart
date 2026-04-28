@@ -6,7 +6,15 @@ import 'package:provider/provider.dart';
 
 class OnboardingScreen extends StatefulWidget {
   final VoidCallback onComplete;
-  const OnboardingScreen({super.key, required this.onComplete});
+  final bool showSkip;
+  final String? doneButtonLabel;
+
+  const OnboardingScreen({
+    super.key,
+    required this.onComplete,
+    this.showSkip = true,
+    this.doneButtonLabel,
+  });
 
   @override
   State<OnboardingScreen> createState() => _OnboardingScreenState();
@@ -63,7 +71,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   const _LangToggle(),
-                  if (!isLast)
+                  if (widget.showSkip && !isLast)
                     TextButton(
                       onPressed: widget.onComplete,
                       child: Text(
@@ -92,6 +100,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               totalPages: _totalPages,
               isLast: isLast,
               onNext: _next,
+              doneButtonLabel: widget.doneButtonLabel,
               brand: brand,
             ),
           ),
@@ -185,6 +194,7 @@ class _BottomBar extends StatelessWidget {
   final int totalPages;
   final bool isLast;
   final VoidCallback onNext;
+  final String? doneButtonLabel;
   final BrandTheme? brand;
 
   const _BottomBar({
@@ -192,6 +202,7 @@ class _BottomBar extends StatelessWidget {
     required this.totalPages,
     required this.isLast,
     required this.onNext,
+    required this.doneButtonLabel,
     required this.brand,
   });
 
@@ -200,7 +211,6 @@ class _BottomBar extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
     final cyan = brand?.neonCyan ?? colorScheme.primary;
     final yellow = brand?.neonYellow ?? colorScheme.secondary;
-    final s = AppStrings.of(context);
 
     return Container(
       decoration: BoxDecoration(
@@ -271,7 +281,8 @@ class _BottomBar extends StatelessWidget {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Text(
-                            s.obEnterButton,
+                            doneButtonLabel ??
+                                AppStrings.of(context).obEnterButton,
                             style: const TextStyle(
                               color: Colors.black,
                               fontWeight: FontWeight.w700,

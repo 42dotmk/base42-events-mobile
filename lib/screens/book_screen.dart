@@ -81,6 +81,7 @@ class _BookScreenState extends State<BookScreen> {
   @override
   Widget build(BuildContext context) {
     final brand = Theme.of(context).extension<BrandTheme>();
+    final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
       body: Container(
@@ -97,7 +98,7 @@ class _BookScreenState extends State<BookScreen> {
                     Text(
                       'Book a Space',
                       style: context.textStyles.headlineSmall?.bold.withColor(
-                        Colors.white,
+                        colorScheme.onSurface,
                       ),
                     ),
                     const SizedBox(height: 16),

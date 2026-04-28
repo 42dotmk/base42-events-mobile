@@ -17,6 +17,7 @@ class SectionHeaderRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     final trailing = Row(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -35,7 +36,7 @@ class SectionHeaderRow extends StatelessWidget {
         Text(
           title,
           style: context.textStyles.titleMedium?.semiBold.withColor(
-            Colors.white.withValues(alpha: 0.78),
+            colorScheme.onSurface.withValues(alpha: 0.78),
           ),
         ),
         const Spacer(),

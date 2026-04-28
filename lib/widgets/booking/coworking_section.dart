@@ -84,6 +84,7 @@ class _FloorChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final onSurface = colorScheme.onSurface;
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -95,15 +96,15 @@ class _FloorChip extends StatelessWidget {
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: selected
-                ? Colors.white.withValues(alpha: 0.24)
-                : Colors.white.withValues(alpha: 0.08),
+                ? colorScheme.outline.withValues(alpha: 0.4)
+                : colorScheme.outline.withValues(alpha: 0.2),
           ),
         ),
         child: Text(
           label,
           textAlign: TextAlign.center,
           style: context.textStyles.labelLarge?.semiBold.withColor(
-            selected ? Colors.white : Colors.white.withValues(alpha: 0.62),
+            selected ? onSurface : onSurface.withValues(alpha: 0.62),
           ),
         ),
       ),
@@ -124,19 +125,22 @@ class _BookableSpaceCard extends StatelessWidget {
     Color availabilityColor;
     switch (space.availability) {
       case 'Available':
-        availabilityColor = const Color(0xFF69D976);
+        availabilityColor = brand?.successGreen ?? colorScheme.secondary;
       case 'Limited':
         availabilityColor = brand?.neonYellow ?? colorScheme.secondary;
       default:
-        availabilityColor = const Color(0xFFE27B7B);
+        availabilityColor = brand?.errorRed ?? colorScheme.error;
     }
+    final availabilityOnColor = availabilityColor.computeLuminance() > 0.5
+        ? Colors.black
+        : Colors.white;
 
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.62),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
+        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.2)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -165,13 +169,13 @@ class _BookableSpaceCard extends StatelessWidget {
                     Text(
                       space.name,
                       style: context.textStyles.titleMedium?.semiBold.withColor(
-                        Colors.white,
+                        colorScheme.onSurface,
                       ),
                     ),
                     Text(
                       space.type,
                       style: context.textStyles.bodySmall?.withColor(
-                        Colors.white.withValues(alpha: 0.56),
+                        colorScheme.onSurface.withValues(alpha: 0.62),
                       ),
                     ),
                   ],
@@ -180,13 +184,13 @@ class _BookableSpaceCard extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: availabilityColor.withValues(alpha: 0.2),
+                  color: availabilityColor.withValues(alpha: 0.86),
                   borderRadius: BorderRadius.circular(999),
                 ),
                 child: Text(
                   space.availability,
                   style: context.textStyles.labelSmall?.semiBold.withColor(
-                    availabilityColor,
+                    availabilityOnColor,
                   ),
                 ),
               ),
@@ -196,7 +200,7 @@ class _BookableSpaceCard extends StatelessWidget {
           Text(
             '${space.capacity} seats • ${space.price}',
             style: context.textStyles.bodySmall?.medium.withColor(
-              Colors.white.withValues(alpha: 0.62),
+              colorScheme.onSurface.withValues(alpha: 0.66),
             ),
           ),
           const SizedBox(height: 8),
@@ -211,13 +215,13 @@ class _BookableSpaceCard extends StatelessWidget {
                       vertical: 4,
                     ),
                     decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.06),
+                      color: colorScheme.surface.withValues(alpha: 0.6),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
                       item,
                       style: context.textStyles.labelSmall?.withColor(
-                        Colors.white.withValues(alpha: 0.7),
+                        colorScheme.onSurface.withValues(alpha: 0.7),
                       ),
                     ),
                   ),

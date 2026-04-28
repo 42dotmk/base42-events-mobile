@@ -16,8 +16,6 @@ class EventCard extends StatelessWidget {
     final dateFormat = DateFormat('dd.MM.yyyy');
     final timeFormat = DateFormat('HH:mm');
     final colorScheme = Theme.of(context).colorScheme;
-    final brand = Theme.of(context).extension<BrandTheme>();
-
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -26,7 +24,7 @@ class EventCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(AppRadius.lg),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.35),
+              color: colorScheme.shadow.withValues(alpha: 0.22),
               blurRadius: 18,
               spreadRadius: 0.5,
               offset: const Offset(0, 10),
@@ -37,9 +35,7 @@ class EventCard extends StatelessWidget {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(AppRadius.lg),
             side: BorderSide(
-              color: (brand?.deepTeal ?? colorScheme.primary).withValues(
-                alpha: 0.7,
-              ),
+              color: colorScheme.outline.withValues(alpha: 0.4),
               width: 1.6,
             ),
           ),
@@ -56,7 +52,7 @@ class EventCard extends StatelessWidget {
               top: 10,
               child: ChipLabel(
                 text: dateFormat.format(event.start),
-                color: brand?.neonYellow ?? colorScheme.secondary,
+                color: Colors.white,
               ),
             ),
             Positioned(
@@ -64,7 +60,7 @@ class EventCard extends StatelessWidget {
               top: 10,
               child: ChipLabel(
                 text: timeFormat.format(event.start),
-                color: brand?.neonYellow ?? colorScheme.secondary,
+                color: Colors.white,
               ),
             ),
             Positioned.fill(
@@ -75,8 +71,8 @@ class EventCard extends StatelessWidget {
                     end: Alignment.bottomCenter,
                     colors: [
                       Colors.transparent,
-                      Colors.black.withValues(alpha: 0.0),
-                      Colors.black.withValues(alpha: 0.58),
+                      colorScheme.shadow.withValues(alpha: 0.18),
+                      colorScheme.shadow.withValues(alpha: 0.72),
                     ],
                   ),
                 ),

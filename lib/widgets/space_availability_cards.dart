@@ -13,12 +13,11 @@ class AvailableDesksCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final brand = Theme.of(context).extension<BrandTheme>();
     final colorScheme = Theme.of(context).colorScheme;
 
     return _AvailabilityCard(
       icon: Icons.bolt_rounded,
-      iconColor: brand?.neonYellow ?? colorScheme.secondary,
+      iconColor: colorScheme.primary,
       title: 'Available Desks',
       value: value,
       subtitle: subtitle,
@@ -38,12 +37,11 @@ class FloorsOpenCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final brand = Theme.of(context).extension<BrandTheme>();
     final colorScheme = Theme.of(context).colorScheme;
 
     return _AvailabilityCard(
       icon: Icons.location_on_outlined,
-      iconColor: brand?.neonYellow ?? colorScheme.secondary,
+      iconColor: colorScheme.primary,
       title: 'Floors Open',
       value: value,
       subtitle: subtitle,
@@ -69,12 +67,13 @@ class _AvailabilityCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final onSurface = colorScheme.onSurface;
 
     return Container(
       decoration: BoxDecoration(
         color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.62),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
+        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.2)),
       ),
       padding: const EdgeInsets.fromLTRB(18, 16, 18, 18),
       child: Column(
@@ -91,7 +90,7 @@ class _AvailabilityCard extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: context.textStyles.titleMedium?.semiBold.withColor(
-                    Colors.white.withValues(alpha: 0.67),
+                    onSurface.withValues(alpha: 0.67),
                   ),
                 ),
               ),
@@ -108,7 +107,7 @@ class _AvailabilityCard extends StatelessWidget {
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: context.textStyles.titleMedium?.withColor(
-              Colors.white.withValues(alpha: 0.48),
+              onSurface.withValues(alpha: 0.6),
             ),
           ),
         ],
