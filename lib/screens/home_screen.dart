@@ -58,7 +58,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final quickActions = [
       _QuickAction(
         icon: Icons.monitor_outlined,
-        label: 'Book an Event',
+        label: 'Book Event',
         route: AppRoutes.book,
         color: colorScheme.primary,
       ),
