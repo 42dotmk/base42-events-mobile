@@ -1,5 +1,6 @@
 import 'package:base42_events_mobile/models/project_details.dart';
 import 'package:base42_events_mobile/models/project_repo.dart';
+import 'package:base42_events_mobile/providers/auth_provider.dart';
 import 'package:base42_events_mobile/services/projects_service.dart';
 import 'package:base42_events_mobile/theme.dart';
 import 'package:base42_events_mobile/utils.dart';
@@ -8,6 +9,7 @@ import 'package:base42_events_mobile/widgets/projects/project_activity_pulse.dar
 import 'package:base42_events_mobile/widgets/projects/project_details_hero.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class ProjectDetailsScreen extends StatefulWidget {
@@ -20,7 +22,7 @@ class ProjectDetailsScreen extends StatefulWidget {
 }
 
 class _ProjectDetailsScreenState extends State<ProjectDetailsScreen> {
-  final ProjectsService _projectsService = ProjectsService();
+  late final ProjectsService _projectsService;
 
   ProjectDetails? _details;
   bool _isLoading = true;
@@ -29,6 +31,8 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen> {
   @override
   void initState() {
     super.initState();
+    final authProvider = context.read<AuthProvider>();
+    _projectsService = ProjectsService(authProvider);
     _loadDetails();
   }
 

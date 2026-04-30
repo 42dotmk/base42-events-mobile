@@ -1,11 +1,13 @@
 import 'package:base42_events_mobile/nav.dart';
 import 'package:base42_events_mobile/models/project_repo.dart';
+import 'package:base42_events_mobile/providers/auth_provider.dart';
 import 'package:base42_events_mobile/services/projects_service.dart';
 import 'package:base42_events_mobile/theme.dart';
 import 'package:base42_events_mobile/widgets/error_view.dart';
 import 'package:base42_events_mobile/widgets/projects/projects_list.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 
 class ProjectsScreen extends StatefulWidget {
   const ProjectsScreen({super.key});
@@ -15,7 +17,7 @@ class ProjectsScreen extends StatefulWidget {
 }
 
 class _ProjectsScreenState extends State<ProjectsScreen> {
-  final ProjectsService _projectsService = ProjectsService();
+  late final ProjectsService _projectsService;
   List<ProjectRepo> _projects = [];
   bool _isLoading = true;
   String? _errorMessage;
@@ -23,10 +25,28 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
   @override
   void initState() {
     super.initState();
+    final authProvider = context.read<AuthProvider>();
+    _projectsService = ProjectsService(authProvider);
     _loadProjects();
   }
 
   Future<void> _loadProjects() async {
+    final authProvider = context.read<AuthProvider>();
+
+    while (authProvider.isLoading) {
+      await Future.delayed(const Duration(milliseconds: 100));
+      if (!mounted) return;
+    }
+
+    if (!authProvider.isAuthenticated) {
+      if (!mounted) return;
+      setState(() {
+        _errorMessage = 'Please login to view projects';
+        _isLoading = false;
+      });
+      return;
+    }
+
     setState(() {
       _isLoading = true;
       _errorMessage = null;
