@@ -63,6 +63,8 @@ class _EventListScreenState extends State<EventListScreen> {
   }
 
   Future<void> _loadEvents() async {
+    if (!mounted) return;
+
     setState(() {
       _isLoading = true;
       _errorMessage = null;
@@ -71,6 +73,9 @@ class _EventListScreenState extends State<EventListScreen> {
     try {
       final events = await _eventService.fetchEvents();
       final allTags = _extractTags(events);
+
+      if (!mounted) return;
+
       setState(() {
         _events = events;
         if (!_hasTag(allTags, _activeTag)) {
@@ -79,6 +84,8 @@ class _EventListScreenState extends State<EventListScreen> {
         _isLoading = false;
       });
     } catch (e) {
+      if (!mounted) return;
+
       setState(() {
         _errorMessage = e.toString();
         _isLoading = false;

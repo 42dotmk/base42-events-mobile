@@ -10,6 +10,7 @@ import 'package:base42_events_mobile/widgets/location_card.dart';
 import 'package:base42_events_mobile/widgets/profile/profile_initials_avatar.dart';
 import 'package:base42_events_mobile/widgets/quick_action_tile.dart';
 import 'package:base42_events_mobile/widgets/section_header_row.dart';
+import 'package:base42_events_mobile/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -45,14 +46,6 @@ class _HomeScreenState extends State<HomeScreen> {
     _eventsFuture = _eventService.fetchEvents();
   }
 
-  String _firstNameFromUsername(String? username) {
-    final value = username?.trim() ?? '';
-    if (value.isEmpty) return 'there';
-
-    final parts = value.split(RegExp(r'\s+'));
-    return parts.first;
-  }
-
   @override
   Widget build(BuildContext context) {
     final brand = Theme.of(context).extension<BrandTheme>();
@@ -81,10 +74,9 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     ];
     final currentUser = context.watch<AuthProvider>().currentUser;
-    final firstName = _firstNameFromUsername(currentUser?.username);
-    final initials = firstName.isNotEmpty
-        ? firstName.characters.first.toUpperCase()
-        : 'U';
+    final firstName = currentUser?.firstName;
+    final displayName = buildUserDisplayName(currentUser);
+    final initials = buildUserInitials(displayName);
 
     return Scaffold(
       body: Container(
@@ -119,9 +111,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ),
                                 const SizedBox(height: 2),
                                 Text(
-                                  currentUser != null
-                                      ? currentUser.username
-                                      : "Guest User",
+                                  currentUser?.firstName ?? "User",
                                   style: context.textStyles.headlineLarge?.bold
                                       .withColor(onSurface),
                                 ),
