@@ -1,4 +1,5 @@
 import 'package:base42_events_mobile/nav.dart';
+import 'package:base42_events_mobile/utils.dart';
 import 'package:base42_events_mobile/providers/auth_provider.dart';
 import 'package:base42_events_mobile/providers/my_bookings_provider.dart';
 import 'package:base42_events_mobile/theme.dart';
@@ -84,27 +85,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
-  String _formatDisplayName(String? username) {
-    final raw = (username ?? '').trim();
-    if (raw.isEmpty) return 'Guest User';
-
-    final segments = raw
-        .split(RegExp(r'[\s._-]+'))
-        .where((part) => part.isNotEmpty)
-        .toList();
-    if (segments.isEmpty) return 'Guest User';
-
-    return segments
-        .map((part) => part[0].toUpperCase() + part.substring(1).toLowerCase())
-        .join(' ');
-  }
-
-  String _buildInitials(String displayName) {
-    final parts = displayName.split(RegExp(r'\s+')).where((p) => p.isNotEmpty);
-    final letters = parts.take(2).map((p) => p[0].toUpperCase()).join();
-    return letters.isEmpty ? 'GU' : letters;
-  }
-
   @override
   Widget build(BuildContext context) {
     final brand = Theme.of(context).extension<BrandTheme>();
@@ -116,9 +96,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ? myBookingsProvider.upcomingBookings
         : myBookingsProvider.pastBookings;
 
-    final displayName = _formatDisplayName(authProvider.currentUser?.username);
+    final displayName = buildUserDisplayName(authProvider.currentUser);
     final email = authProvider.currentUser?.email ?? 'Sign in to your account';
-    final initials = _buildInitials(displayName);
+    final initials = buildUserInitials(displayName);
 
     return Scaffold(
       body: Container(

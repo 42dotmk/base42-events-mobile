@@ -10,6 +10,8 @@ class User {
     required this.id,
     required this.username,
     required this.email,
+    required this.firstName,
+    required this.surname,
     required this.provider,
     required this.confirmed,
     required this.blocked,
@@ -20,16 +22,22 @@ class User {
   int id;
   String username;
   String email;
+  String firstName;
+  String surname;
   String provider;
   bool confirmed;
   bool blocked;
   DateTime createdAt;
   DateTime updatedAt;
 
+  String get name => firstName;
+
   factory User.fromJson(Map<String, dynamic> json) => User(
     id: json["id"],
     username: json["username"],
     email: json["email"],
+    firstName: (json["firstName"] ?? json["name"] ?? '').toString(),
+    surname: (json["surname"] ?? json["lastName"] ?? '').toString(),
     provider: json["provider"],
     confirmed: json["confirmed"],
     blocked: json["blocked"],
@@ -41,6 +49,8 @@ class User {
     'id': id,
     'username': username,
     'email': email,
+    'firstName': firstName,
+    'surname': surname,
     'provider': provider,
     'confirmed': confirmed,
     'blocked': blocked,
