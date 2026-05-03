@@ -74,9 +74,9 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     ];
     final currentUser = context.watch<AuthProvider>().currentUser;
-    final firstName = currentUser?.firstName;
     final displayName = buildUserDisplayName(currentUser);
     final initials = buildUserInitials(displayName);
+    final profilePicture = currentUser?.profilePicture;
 
     return Scaffold(
       body: Container(
@@ -181,6 +181,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               initials: initials,
                               size: 56,
                               accentColor: primaryAccent,
+                              profilePicture: profilePicture,
                             ),
                           ),
                         ],
@@ -197,7 +198,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           crossAxisCount: 3,
                           mainAxisSpacing: 12,
                           crossAxisSpacing: 12,
-                          childAspectRatio: 1,
+                          childAspectRatio: 0.85,
                         ),
                     itemBuilder: (context, index) {
                       final action = quickActions[index];

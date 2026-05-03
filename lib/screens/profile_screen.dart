@@ -1,3 +1,4 @@
+import 'package:base42_events_mobile/consts/api.dart';
 import 'package:base42_events_mobile/nav.dart';
 import 'package:base42_events_mobile/utils.dart';
 import 'package:base42_events_mobile/providers/auth_provider.dart';
@@ -8,7 +9,6 @@ import 'package:base42_events_mobile/widgets/booking/booking_card.dart';
 import 'package:base42_events_mobile/widgets/profile/account_menu_tile.dart';
 import 'package:base42_events_mobile/widgets/profile/booking_filter_switch.dart';
 import 'package:base42_events_mobile/widgets/profile/membership_card.dart';
-import 'package:base42_events_mobile/widgets/profile/profile_initials_avatar.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
@@ -89,7 +89,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget build(BuildContext context) {
     final brand = Theme.of(context).extension<BrandTheme>();
     final colorScheme = Theme.of(context).colorScheme;
-    final primaryAccent = colorScheme.primary;
     final authProvider = context.watch<AuthProvider>();
     final myBookingsProvider = context.watch<MyBookingsProvider>();
     final filteredBookings = _bookingFilter == _BookingFilter.upcoming
@@ -99,6 +98,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final displayName = buildUserDisplayName(authProvider.currentUser);
     final email = authProvider.currentUser?.email ?? 'Sign in to your account';
     final initials = buildUserInitials(displayName);
+    final profilePicture = authProvider.currentUser?.profilePicture;
 
     return Scaffold(
       body: Container(
@@ -111,10 +111,41 @@ class _ProfileScreenState extends State<ProfileScreen> {
               children: [
                 Row(
                   children: [
-                    ProfileInitialsAvatar(
-                      initials: initials,
-                      size: 78,
-                      accentColor: primaryAccent,
+                    Container(
+                      width: 86,
+                      height: 86,
+                      decoration: BoxDecoration(
+                        color: (colorScheme.secondary).withValues(alpha: 0.18),
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(
+                          color: (colorScheme.primary).withValues(alpha: 0.45),
+                        ),
+                      ),
+                      alignment: Alignment.center,
+                      child: profilePicture != null
+                          ? ClipRRect(
+                              borderRadius: BorderRadius.circular(18),
+                              child: Image.network(
+                                profilePicture.getMediumUrl(baseUrl) ?? '',
+                                width: 86,
+                                height: 86,
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) =>
+                                    Text(
+                                      initials,
+                                      style: context
+                                          .textStyles
+                                          .headlineMedium
+                                          ?.bold
+                                          .withColor(colorScheme.secondary),
+                                    ),
+                              ),
+                            )
+                          : Text(
+                              initials,
+                              style: context.textStyles.headlineMedium?.bold
+                                  .withColor(colorScheme.secondary),
+                            ),
                     ),
                     const SizedBox(width: 14),
                     Expanded(
@@ -135,6 +166,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           ),
                         ],
                       ),
+                    ),
+                    IconButton(
+                      icon: Icon(
+                        Icons.edit_outlined,
+                        color: colorScheme.primary,
+                      ),
+                      onPressed: () => context.push(AppRoutes.editProfile),
                     ),
                   ],
                 ),

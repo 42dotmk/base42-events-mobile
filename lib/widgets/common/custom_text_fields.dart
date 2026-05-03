@@ -1,7 +1,7 @@
 import 'package:base42_events_mobile/theme.dart';
 import 'package:flutter/material.dart';
 
-InputDecoration bookingInputDecoration(BuildContext context, String label) {
+InputDecoration inputDecoration(BuildContext context, String label) {
   final colorScheme = Theme.of(context).colorScheme;
 
   return InputDecoration(
@@ -26,7 +26,7 @@ InputDecoration bookingInputDecoration(BuildContext context, String label) {
   );
 }
 
-class BookingHostTextField extends StatelessWidget {
+class CustomTextField extends StatelessWidget {
   final TextEditingController controller;
   final String label;
   final String? Function(String?)? validator;
@@ -35,7 +35,7 @@ class BookingHostTextField extends StatelessWidget {
   final TextInputType? keyboardType;
   final TextCapitalization textCapitalization;
 
-  const BookingHostTextField({
+  const CustomTextField({
     super.key,
     required this.controller,
     required this.label,
@@ -59,18 +59,18 @@ class BookingHostTextField extends StatelessWidget {
         keyboardType: keyboardType,
         textCapitalization: textCapitalization,
         style: context.textStyles.bodyMedium?.withColor(colorScheme.onSurface),
-        decoration: bookingInputDecoration(context, label),
+        decoration: inputDecoration(context, label),
       ),
     );
   }
 }
 
-class BookingDateTimeButtonField extends StatelessWidget {
+class CustomDateTimeButtonField extends StatelessWidget {
   final String label;
   final String value;
   final VoidCallback onTap;
 
-  const BookingDateTimeButtonField({
+  const CustomDateTimeButtonField({
     super.key,
     required this.label,
     required this.value,
@@ -86,7 +86,7 @@ class BookingDateTimeButtonField extends StatelessWidget {
         onTap: onTap,
         borderRadius: BorderRadius.circular(12),
         child: InputDecorator(
-          decoration: bookingInputDecoration(context, label),
+          decoration: inputDecoration(context, label),
           child: Row(
             children: [
               Expanded(

@@ -73,11 +73,11 @@ String projectStarsLabel(int value) {
 
 String buildUserDisplayName(User? user) {
   final firstName = (user?.firstName ?? '').trim();
-  final surname = (user?.surname ?? '').trim();
-  final fullName = [firstName, surname]
-      .where((part) => part.isNotEmpty)
-      .join(' ')
-      .trim();
+  final lastName = (user?.lastName ?? '').trim();
+  final fullName = [
+    firstName,
+    lastName,
+  ].where((part) => part.isNotEmpty).join(' ').trim();
   if (fullName.isNotEmpty) return fullName;
 
   final fallback = (user?.username ?? '').trim();

@@ -4,7 +4,7 @@ import 'package:base42_events_mobile/services/booking_service.dart';
 import 'package:base42_events_mobile/theme.dart';
 import 'package:base42_events_mobile/types.dart';
 import 'package:base42_events_mobile/utils.dart';
-import 'package:base42_events_mobile/widgets/booking/booking_form_fields.dart';
+import 'package:base42_events_mobile/widgets/common/custom_text_fields.dart';
 import 'package:base42_events_mobile/widgets/booking/booking_result_dialog.dart';
 import 'package:base42_events_mobile/widgets/booking/selected_space_card.dart';
 import 'package:flutter/material.dart';
@@ -282,7 +282,7 @@ class _HostEventSectionState extends State<HostEventSection> {
           const SizedBox(height: 12),
           DropdownButtonFormField<String>(
             initialValue: eventType,
-            decoration: bookingInputDecoration(context, 'Space *'),
+            decoration: inputDecoration(context, 'Space *'),
             dropdownColor: colorScheme.surfaceContainerHighest,
             items: hostEventSpaceOptions
                 .map(
@@ -308,20 +308,20 @@ class _HostEventSectionState extends State<HostEventSection> {
             ),
           ),
           const SizedBox(height: 12),
-          BookingHostTextField(
+          CustomTextField(
             controller: _organizationController,
             label: 'Organization *',
             validator: bookingRequiredFieldValidator,
             onChanged: draft.setOrganizerEntity,
           ),
-          BookingHostTextField(
+          CustomTextField(
             controller: _emailController,
             label: 'Contact Email *',
             validator: _requiredEmailValidator,
             onChanged: draft.setEmail,
             textCapitalization: TextCapitalization.none,
           ),
-          BookingDateTimeButtonField(
+          CustomDateTimeButtonField(
             label: 'Preferred Date *',
             value: draft.eventDate == null
                 ? 'mm/dd/yyyy'
@@ -330,7 +330,7 @@ class _HostEventSectionState extends State<HostEventSection> {
           ),
           DropdownButtonFormField<String>(
             initialValue: _selectedTimeSlot?.value,
-            decoration: bookingInputDecoration(context, 'Time *'),
+            decoration: inputDecoration(context, 'Time *'),
             dropdownColor: colorScheme.surfaceContainerHighest,
             items: _timeSlots
                 .map(
@@ -349,7 +349,7 @@ class _HostEventSectionState extends State<HostEventSection> {
             },
           ),
           const SizedBox(height: 10),
-          BookingHostTextField(
+          CustomTextField(
             controller: _expectedAttendeesController,
             label: 'Expected Attendees *',
             validator: _expectedAttendeesValidator,
@@ -357,7 +357,7 @@ class _HostEventSectionState extends State<HostEventSection> {
             keyboardType: TextInputType.number,
             textCapitalization: TextCapitalization.none,
           ),
-          BookingHostTextField(
+          CustomTextField(
             controller: _eventDescriptionController,
             label: 'Event Description *',
             validator: bookingRequiredFieldValidator,

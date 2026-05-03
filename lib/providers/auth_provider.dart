@@ -85,18 +85,7 @@ class AuthProvider extends ChangeNotifier {
   }
 
   Future<void> register() async {
-    developer.log('register() called', name: 'AuthProvider');
-
     try {
-      developer.log(
-        'Initiating Keycloak authorizeAndExchangeCode...\n'
-        '  clientId: $keycloakClientId\n'
-        '  redirectUri: $keycloakRedirectUri\n'
-        '  authorizationEndpoint: $keycloakRegisterUrl\n'
-        '  tokenEndpoint: $keycloakTokenEndpoint',
-        name: 'AuthProvider',
-      );
-
       final authResponse = await _appAuth.authorizeAndExchangeCode(
         AuthorizationTokenRequest(
           keycloakClientId,
@@ -110,15 +99,6 @@ class AuthProvider extends ChangeNotifier {
         ),
       );
 
-      developer.log(
-        'authorizeAndExchangeCode succeeded\n'
-        '  accessToken: ${authResponse.accessToken != null ? '[present, ${authResponse.accessToken!.length} chars]' : '[null]'}\n'
-        '  refreshToken: ${authResponse.refreshToken != null ? '[present]' : '[null]'}\n'
-        '  idToken: ${authResponse.idToken != null ? '[present]' : '[null]'}\n'
-        '  accessTokenExpiration: ${authResponse.accessTokenExpirationDateTime}',
-        name: 'AuthProvider',
-      );
-
       final accessToken = authResponse.accessToken;
 
       if (accessToken == null) {
@@ -128,11 +108,6 @@ class AuthProvider extends ChangeNotifier {
         );
         return;
       }
-
-      developer.log(
-        'Exchanging Keycloak token for Strapi token...',
-        name: 'AuthProvider',
-      );
 
       await exchangeForStrapiToken(accessToken);
 
@@ -160,12 +135,13 @@ class AuthProvider extends ChangeNotifier {
       }
 
       final result = await _userService.loginWithKeycloak(keycloakToken);
-      _currentUser = result.user;
       _token = result.jwt;
 
       if (_token == null) {
         throw Exception('Failed to retrieve Strapi auth token');
       }
+
+      _currentUser = await _userService.getCurrentAuthenticatedUser(_token!);
 
       await _storageService.saveToken(
         SecureStorageService.jwtTokenKey,
@@ -184,6 +160,10 @@ class AuthProvider extends ChangeNotifier {
       if (isUserCancelled(e)) {
         return;
       }
+      await _storageService.deleteToken(SecureStorageService.jwtTokenKey);
+      await _storageService.deleteToken(SecureStorageService.jwtExpirationKey);
+      _currentUser = null;
+      _token = null;
       developer.log(
         'Strapi token exchange failed: $e',
         name: 'AuthProvider',
@@ -229,5 +209,27 @@ class AuthProvider extends ChangeNotifier {
 
     return _token ??
         await _storageService.getToken(SecureStorageService.jwtTokenKey);
+  }
+
+  Future<void> refreshCurrentUser() async {
+    if (_token == null) {
+      throw Exception('Not authenticated');
+    }
+
+    try {
+      _currentUser = await _userService.getCurrentAuthenticatedUser(_token!);
+      notifyListeners();
+      developer.log(
+        'User data refreshed: ${_currentUser?.username}',
+        name: 'AuthProvider',
+      );
+    } catch (e) {
+      developer.log(
+        'Failed to refresh user data: $e',
+        name: 'AuthProvider',
+        error: e,
+      );
+      rethrow;
+    }
   }
 }
