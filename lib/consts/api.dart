@@ -11,6 +11,9 @@ const String uploadImageApiUrl = '$baseUrl/api/upload';
 const String exchangeKeycloakTokenApiUrl =
     '$baseUrl/api/auth/keycloak/callback';
 const String bookingSubmitApiUrl = '$baseUrl/api/event-requests/submit';
+const String changeAttendanceStatusApiUrl =
+    '$baseUrl/api/user-events/change-status';
+const String userEventsApiUrl = '$baseUrl/api/user-events/me';
 const String projectsApiUrl = '$baseUrl/api/projects';
 
 // Keycloak / OAuth configuration

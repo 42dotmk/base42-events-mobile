@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 import 'package:base42_events_mobile/models/event.dart';
-import 'package:base42_events_mobile/services/event_service.dart';
+import 'package:base42_events_mobile/providers/event_provider.dart';
 import 'package:base42_events_mobile/theme.dart';
 import 'package:base42_events_mobile/widgets/event_card.dart';
 import 'package:base42_events_mobile/widgets/error_view.dart';
@@ -14,11 +15,7 @@ class EventListScreen extends StatefulWidget {
 }
 
 class _EventListScreenState extends State<EventListScreen> {
-  final EventService _eventService = EventService();
   final TextEditingController _searchController = TextEditingController();
-  List<Event> _events = [];
-  bool _isLoading = true;
-  String? _errorMessage;
   String _query = '';
   String _activeTag = 'All';
 
@@ -53,7 +50,12 @@ class _EventListScreenState extends State<EventListScreen> {
   @override
   void initState() {
     super.initState();
-    _loadEvents();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final eventProvider = context.read<EventProvider>();
+      if (eventProvider.events.isEmpty && !eventProvider.isLoading) {
+        eventProvider.loadEvents();
+      }
+    });
   }
 
   @override
@@ -62,45 +64,20 @@ class _EventListScreenState extends State<EventListScreen> {
     super.dispose();
   }
 
-  Future<void> _loadEvents() async {
-    if (!mounted) return;
-
-    setState(() {
-      _isLoading = true;
-      _errorMessage = null;
-    });
-
-    try {
-      final events = await _eventService.fetchEvents();
-      final allTags = _extractTags(events);
-
-      if (!mounted) return;
-
-      setState(() {
-        _events = events;
-        if (!_hasTag(allTags, _activeTag)) {
-          _activeTag = 'All';
-        }
-        _isLoading = false;
-      });
-    } catch (e) {
-      if (!mounted) return;
-
-      setState(() {
-        _errorMessage = e.toString();
-        _isLoading = false;
-      });
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final eventProvider = context.watch<EventProvider>();
+
+    final events = eventProvider.events;
+    final isLoading = eventProvider.isLoading;
+    final errorMessage = eventProvider.errorMessage;
+
+    final allTags = _extractTags(events);
     final primaryAccent = colorScheme.primary;
-    final allTags = _extractTags(_events);
     final activeTag = _hasTag(allTags, _activeTag) ? _activeTag : 'All';
 
-    final filtered = _events.where((e) {
+    final filtered = events.where((e) {
       final query = _query.trim().toLowerCase();
       final matchesSearch =
           query.isEmpty ||
@@ -244,14 +221,18 @@ class _EventListScreenState extends State<EventListScreen> {
                 ),
               ),
               Expanded(
-                child: _isLoading
+                child: isLoading
                     ? Center(
                         child: CircularProgressIndicator(
                           color: colorScheme.primary,
                         ),
                       )
-                    : _errorMessage != null
-                    ? ErrorView(message: _errorMessage!, onRetry: _loadEvents)
+                    : errorMessage != null
+                    ? ErrorView(
+                        message: errorMessage,
+                        onRetry: () =>
+                            context.read<EventProvider>().loadEvents(),
+                      )
                     : filtered.isEmpty
                     ? Center(
                         child: Padding(
@@ -288,7 +269,8 @@ class _EventListScreenState extends State<EventListScreen> {
                         ),
                       )
                     : RefreshIndicator(
-                        onRefresh: _loadEvents,
+                        onRefresh: () =>
+                            context.read<EventProvider>().refreshEvents(),
                         color: colorScheme.primary,
                         child: ListView.separated(
                           padding: const EdgeInsets.fromLTRB(20, 6, 20, 24),

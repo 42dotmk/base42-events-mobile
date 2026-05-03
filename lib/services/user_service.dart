@@ -5,6 +5,7 @@ import 'package:base42_events_mobile/types/user.dart';
 import 'package:flutter/widgets.dart';
 import 'package:http/http.dart' as http;
 import 'package:base42_events_mobile/models/user.dart';
+import 'package:base42_events_mobile/models/user_event.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:http_parser/http_parser.dart';
 
@@ -95,6 +96,67 @@ class UserService {
       }
     } catch (e) {
       throw Exception('Failed to fetch current authenticated user: $e');
+    }
+  }
+
+  Future<void> changeAttendanceStatus({
+    required String token,
+    required int eventId,
+    required int? userId,
+    required String status,
+  }) async {
+    if (userId == null) {
+      throw Exception('User ID is required to change attendance status');
+    }
+
+    try {
+      var url = Uri.parse(changeAttendanceStatusApiUrl);
+      var response = await postWithAuth(url.toString(), token, {
+        'userId': userId,
+        'eventId': eventId,
+        'attendanceStatus': status,
+      });
+
+      if (response.statusCode != 200 && response.statusCode != 201) {
+        final errorData = json.decode(response.body);
+        final errorMessage =
+            errorData['error']?['message'] ??
+            errorData['message'] ??
+            'Unable to update your attendance status';
+        throw Exception(errorMessage);
+      }
+    } catch (e) {
+      throw Exception('Error updating attendance status: $e');
+    }
+  }
+
+  Future<List<UserEventResponse>> getUserEventsWithDetails(
+    String token,
+    int userId,
+  ) async {
+    try {
+      var url = Uri.parse(userEventsApiUrl);
+      var response = await getWithAuth(url.toString(), token);
+
+      if (response.statusCode == 200) {
+        var data = jsonDecode(response.body);
+        List<dynamic> responseData = data['data'] ?? [];
+
+        return responseData.map((item) {
+          return UserEventResponse(
+            eventId: item['eventId'],
+            status: item['attendanceStatus'],
+          );
+        }).toList();
+      } else {
+        var errorData = jsonDecode(response.body);
+        String error =
+            errorData['error']?['message'] ??
+            'Failed to fetch user events (HTTP ${response.statusCode})';
+        throw Exception(error);
+      }
+    } catch (e) {
+      throw Exception('Failed to fetch user events: $e');
     }
   }
 

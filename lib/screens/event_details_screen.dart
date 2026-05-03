@@ -1,10 +1,15 @@
+import 'package:base42_events_mobile/consts/enum.dart';
+import 'package:base42_events_mobile/widgets/common/custom_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:base42_events_mobile/nav.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:base42_events_mobile/models/event.dart';
+import 'package:base42_events_mobile/providers/attendance_provider.dart';
+import 'package:base42_events_mobile/providers/auth_provider.dart';
 import 'package:base42_events_mobile/theme.dart';
 import 'package:base42_events_mobile/utils.dart';
 import 'package:base42_events_mobile/widgets/event_info_row.dart';
@@ -20,7 +25,69 @@ class EventDetailsScreen extends StatefulWidget {
 }
 
 class _EventDetailsScreenState extends State<EventDetailsScreen> {
+  bool _isUpdatingAttendance = false;
   bool _isDescriptionExpanded = false;
+
+  Future<void> _setAttendance(EventAttendanceStatus status) async {
+    final authProvider = context.read<AuthProvider>();
+
+    if (!authProvider.isAuthenticated ||
+        authProvider.token == null ||
+        authProvider.currentUser == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Sign in to mark your attendance.')),
+      );
+      return;
+    }
+
+    setState(() => _isUpdatingAttendance = true);
+    try {
+      await context.read<AttendanceProvider>().updateEventAttendanceStatus(
+        token: authProvider.token!,
+        userId: authProvider.currentUser!.id,
+        event: widget.event,
+        status: status,
+      );
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              status == EventAttendanceStatus.interested
+                  ? 'Marked as Interested!'
+                  : 'Marked as Going!',
+            ),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Could not update attendance: $e'),
+            backgroundColor: Theme.of(context).colorScheme.error,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isUpdatingAttendance = false);
+    }
+  }
+
+  Future<void> _launchUrl(String url) async {
+    final uri = Uri.parse(url);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    }
+  }
+
+  void _handleBackNavigation(BuildContext context) {
+    if (context.canPop()) {
+      context.pop();
+      return;
+    }
+    context.go(AppRoutes.events);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -32,6 +99,9 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
       widget.event.description,
     );
     final descriptionHtml = buildEventDescriptionHtml(widget.event.description);
+    final currentStatus = context.watch<AttendanceProvider>().getStatus(
+      widget.event.id,
+    );
 
     return PopScope(
       canPop: false,
@@ -91,13 +161,42 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                             .withColor(colorScheme.onSurface),
                       ),
                       const SizedBox(height: AppSpacing.md),
+                      Row(
+                        children: [
+                          CustomButton.attendance(
+                            icon: Icons.star_rounded,
+                            label: 'Interested',
+                            isActive:
+                                currentStatus ==
+                                EventAttendanceStatus.interested.name,
+                            color: brand?.neonYellow ?? colorScheme.secondary,
+                            isLoading: _isUpdatingAttendance,
+                            onTap: () => _setAttendance(
+                              EventAttendanceStatus.interested,
+                            ),
+                          ),
+                          const SizedBox(width: AppSpacing.sm),
+                          CustomButton.attendance(
+                            icon: Icons.check_circle_rounded,
+                            label: 'Going',
+                            isActive:
+                                currentStatus ==
+                                EventAttendanceStatus.going.name,
+                            color: brand?.neonCyan ?? colorScheme.primary,
+                            isLoading: _isUpdatingAttendance,
+                            onTap: () =>
+                                _setAttendance(EventAttendanceStatus.going),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: AppSpacing.lg),
                       EventInfoRow(
                         icon: Icons.calendar_today_rounded,
                         text: dateFormat.format(widget.event.start),
                         colorScheme: colorScheme,
                       ),
                       if (widget.event.tags.isNotEmpty) ...[
-                        const SizedBox(height: AppSpacing.md),
+                        const SizedBox(height: AppSpacing.lg),
                         Wrap(
                           spacing: AppSpacing.sm,
                           runSpacing: AppSpacing.sm,
@@ -110,6 +209,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                               .toList(),
                         ),
                       ],
+
                       const SizedBox(height: AppSpacing.lg),
                       Container(
                         width: double.infinity,
@@ -279,21 +379,6 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
         ),
       ),
     );
-  }
-
-  void _handleBackNavigation(BuildContext context) {
-    if (context.canPop()) {
-      context.pop();
-      return;
-    }
-    context.go(AppRoutes.events);
-  }
-
-  Future<void> _launchUrl(String url) async {
-    final uri = Uri.parse(url);
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri, mode: LaunchMode.externalApplication);
-    }
   }
 }
 

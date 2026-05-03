@@ -4,17 +4,15 @@ import 'package:base42_events_mobile/utils.dart';
 import 'package:base42_events_mobile/providers/auth_provider.dart';
 import 'package:base42_events_mobile/providers/my_bookings_provider.dart';
 import 'package:base42_events_mobile/theme.dart';
-import 'package:base42_events_mobile/types.dart';
-import 'package:base42_events_mobile/widgets/booking/booking_card.dart';
+import 'package:base42_events_mobile/widgets/profile/empty_booking_state.dart';
+import 'package:base42_events_mobile/widgets/profile/event_attendance_section.dart';
+import 'package:base42_events_mobile/widgets/profile/my_bookings_section.dart';
 import 'package:base42_events_mobile/widgets/profile/account_menu_tile.dart';
 import 'package:base42_events_mobile/widgets/profile/booking_filter_switch.dart';
 import 'package:base42_events_mobile/widgets/profile/membership_card.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-
-enum _BookingFilter { upcoming, past }
 
 class _AccountMenuItem {
   final IconData icon;
@@ -39,7 +37,7 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   bool _isKeycloakLoading = false;
-  _BookingFilter _bookingFilter = _BookingFilter.upcoming;
+  BookingFilter _bookingFilter = BookingFilter.upcoming;
 
   static const List<_AccountMenuItem> _menuItems = [
     _AccountMenuItem(
@@ -66,6 +64,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
     ),
   ];
 
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
   Future<void> _logout(BuildContext context) async {
     try {
       setState(() => _isKeycloakLoading = true);
@@ -91,7 +99,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final colorScheme = Theme.of(context).colorScheme;
     final authProvider = context.watch<AuthProvider>();
     final myBookingsProvider = context.watch<MyBookingsProvider>();
-    final filteredBookings = _bookingFilter == _BookingFilter.upcoming
+    final filteredBookings = _bookingFilter == BookingFilter.upcoming
         ? myBookingsProvider.upcomingBookings
         : myBookingsProvider.pastBookings;
 
@@ -192,19 +200,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 BookingFilterSwitch(
                   upcomingLabel: 'Upcoming',
                   pastLabel: 'Past',
-                  showUpcoming: _bookingFilter == _BookingFilter.upcoming,
+                  showUpcoming: _bookingFilter == BookingFilter.upcoming,
                   onUpcomingTap: () {
-                    setState(() => _bookingFilter = _BookingFilter.upcoming);
+                    setState(() => _bookingFilter = BookingFilter.upcoming);
                   },
                   onPastTap: () {
-                    setState(() => _bookingFilter = _BookingFilter.past);
+                    setState(() => _bookingFilter = BookingFilter.past);
                   },
                 ),
                 const SizedBox(height: 12),
-                _MyBookingsSection(
+                MyBookingsSection(
                   filter: _bookingFilter,
                   bookings: filteredBookings,
                 ),
+                const SizedBox(height: 26),
+                const EventAttendanceSection(),
                 const SizedBox(height: 26),
                 Text(
                   'ACCOUNT',
@@ -296,139 +306,5 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ),
       ),
     );
-  }
-}
-
-class _EmptyBookingsState extends StatelessWidget {
-  final _BookingFilter filter;
-
-  const _EmptyBookingsState({required this.filter});
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final text = filter == _BookingFilter.upcoming
-        ? 'No upcoming bookings'
-        : 'No past bookings';
-
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 18),
-      decoration: BoxDecoration(
-        color: Theme.of(
-          context,
-        ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.55),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.2)),
-      ),
-      child: Row(
-        children: [
-          Icon(
-            Icons.event_busy_outlined,
-            color: colorScheme.onSurface.withValues(alpha: 0.55),
-          ),
-          const SizedBox(width: 10),
-          Text(
-            text,
-            style: context.textStyles.titleMedium?.withColor(
-              colorScheme.onSurface.withValues(alpha: 0.62),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _MyBookingsSection extends StatelessWidget {
-  final _BookingFilter filter;
-  final List<MyBooking> bookings;
-
-  const _MyBookingsSection({required this.filter, required this.bookings});
-
-  @override
-  Widget build(BuildContext context) {
-    if (bookings.isEmpty) {
-      return _EmptyBookingsState(filter: filter);
-    }
-
-    return Column(
-      children: bookings
-          .map(
-            (booking) => Padding(
-              padding: const EdgeInsets.only(bottom: 10),
-              child: BookingCard(
-                spaceName: _resolveSpaceName(booking),
-                floor: _resolveFloorLabel(booking),
-                status: booking.statusLabel,
-                date: DateFormat('MMM d, yyyy').format(booking.startDateTime),
-                timeRange: _formatTimeRange(
-                  booking.startDateTime,
-                  booking.endDateTime,
-                ),
-                statusBackgroundColor: _statusBackgroundColor(context, booking),
-              ),
-            ),
-          )
-          .toList(),
-    );
-  }
-
-  String _resolveSpaceName(MyBooking booking) {
-    final eventType = booking.eventType.trim();
-    if (eventType.isNotEmpty) {
-      return eventType;
-    }
-
-    final eventName = booking.eventName.trim();
-    if (eventName.isNotEmpty) {
-      return eventName;
-    }
-
-    final organizer = booking.organizerEntity.trim();
-    if (organizer.isNotEmpty) {
-      return organizer;
-    }
-
-    return 'Event request';
-  }
-
-  String _resolveFloorLabel(MyBooking booking) {
-    final organizer = booking.organizerEntity.trim();
-    if (organizer.isNotEmpty) {
-      return organizer;
-    }
-
-    final eventType = booking.eventType.trim();
-    if (eventType.isNotEmpty) {
-      return eventType;
-    }
-
-    return 'Booking request';
-  }
-
-  String _formatTimeRange(DateTime start, DateTime end) {
-    final formatter = DateFormat('HH:mm');
-    return '${formatter.format(start)} - ${formatter.format(end)}';
-  }
-
-  Color _statusBackgroundColor(BuildContext context, MyBooking booking) {
-    final brand = Theme.of(context).extension<BrandTheme>();
-    final colorScheme = Theme.of(context).colorScheme;
-
-    switch (booking.status) {
-      case MyBookingStatus.pending:
-        return brand?.bookingStatusPendingBackground ??
-            colorScheme.secondaryContainer;
-      case MyBookingStatus.confirmed:
-        return brand?.bookingStatusConfirmedBackground ??
-            colorScheme.primaryContainer;
-      case MyBookingStatus.completed:
-        return brand?.bookingStatusCompletedBackground ??
-            colorScheme.tertiaryContainer;
-      case MyBookingStatus.cancelled:
-        return brand?.bookingStatusCancelledBackground ??
-            colorScheme.errorContainer;
-    }
   }
 }
