@@ -24,7 +24,9 @@ class AttendanceActionModal extends StatelessWidget {
         decoration: BoxDecoration(
           color: colorScheme.surfaceContainerHighest,
           borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: Colors.white.withValues(alpha: 0.12)),
+          border: Border.all(
+            color: colorScheme.onSurface.withValues(alpha: 0.12),
+          ),
         ),
         padding: const EdgeInsets.all(24),
         child: Column(
@@ -34,7 +36,7 @@ class AttendanceActionModal extends StatelessWidget {
             Text(
               'Update Attendance',
               style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                color: Colors.white,
+                color: colorScheme.onSurface.withValues(alpha: 0.8),
                 fontWeight: FontWeight.w700,
               ),
               textAlign: TextAlign.center,
@@ -43,7 +45,11 @@ class AttendanceActionModal extends StatelessWidget {
             CustomButton.action(
               label: changeEventAttendanceStatus(currentStatus),
               icon: Icons.swap_horiz_rounded,
-              color: colorScheme.primary,
+              color: Color.alphaBlend(
+                Colors.black.withValues(alpha: 0.2),
+                colorScheme.secondary,
+              ),
+              variant: ButtonVariant.filled,
               onTap: () {
                 Navigator.of(context).pop();
                 onSwitch();
@@ -54,6 +60,7 @@ class AttendanceActionModal extends StatelessWidget {
               label: 'Cancel Attendance',
               icon: Icons.close_rounded,
               color: colorScheme.error,
+              variant: ButtonVariant.filled,
               onTap: () {
                 Navigator.of(context).pop();
                 onCancel();
@@ -68,7 +75,7 @@ class AttendanceActionModal extends StatelessWidget {
               child: Text(
                 'Dismiss',
                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  color: Colors.white.withValues(alpha: 0.6),
+                  color: colorScheme.onSurface.withValues(alpha: 0.6),
                 ),
               ),
             ),

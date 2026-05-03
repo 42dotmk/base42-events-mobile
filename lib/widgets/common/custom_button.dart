@@ -49,13 +49,14 @@ class CustomButton extends StatelessWidget {
     required String label,
     required Color color,
     required VoidCallback onTap,
+    required ButtonVariant variant,
   }) {
     return CustomButton(
       icon: icon,
       label: label,
       color: color,
       onTap: onTap,
-      variant: ButtonVariant.filled,
+      variant: variant,
       fullWidth: true,
     );
   }

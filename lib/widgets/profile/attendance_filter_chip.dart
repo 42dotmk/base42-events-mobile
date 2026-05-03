@@ -15,7 +15,6 @@ class AttendanceFilterChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final brand = Theme.of(context).extension<BrandTheme>();
     final colorScheme = Theme.of(context).colorScheme;
 
     return InkWell(

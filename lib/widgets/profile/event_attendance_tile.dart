@@ -8,7 +8,6 @@ class EventAttendanceTile extends StatelessWidget {
   final Event event;
   final Color statusColor;
   final String actionLabel;
-  final bool isActionEnabled;
   final VoidCallback onActionTap;
 
   const EventAttendanceTile({
@@ -17,7 +16,6 @@ class EventAttendanceTile extends StatelessWidget {
     required this.statusColor,
     required this.actionLabel,
     required this.onActionTap,
-    this.isActionEnabled = true,
   });
 
   @override
@@ -67,28 +65,29 @@ class EventAttendanceTile extends StatelessWidget {
               flex: 1,
               child: Center(
                 child: TextButton(
-                  onPressed: isActionEnabled ? onActionTap : null,
+                  onPressed: onActionTap,
                   style: TextButton.styleFrom(
-                    foregroundColor: isActionEnabled
-                        ? colorScheme.primary
-                        : colorScheme.onSurface.withValues(alpha: 0.45),
+                    foregroundColor: colorScheme.secondary,
                     padding: const EdgeInsets.symmetric(
                       horizontal: 16,
                       vertical: 12,
                     ),
-                    backgroundColor: isActionEnabled
-                        ? (colorScheme.primary).withValues(alpha: 0.1)
-                        : colorScheme.onSurface.withValues(alpha: 0.08),
+                    backgroundColor: colorScheme.secondary.withValues(
+                      alpha: 0.2,
+                    ),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16),
                     ),
+                    side: BorderSide(color: colorScheme.secondary),
                   ),
                   child: Text(
                     actionLabel,
+                    textAlign: TextAlign.center,
                     style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                      color: isActionEnabled
-                          ? colorScheme.primary
-                          : colorScheme.onSurface.withValues(alpha: 0.5),
+                      color: Color.alphaBlend(
+                        Colors.black.withValues(alpha: .08),
+                        colorScheme.secondary,
+                      ),
                       fontWeight: FontWeight.w700,
                     ),
                   ),

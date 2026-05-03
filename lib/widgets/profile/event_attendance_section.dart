@@ -17,6 +17,7 @@ class EventAttendanceSection extends StatefulWidget {
 }
 
 class _EventAttendanceSectionState extends State<EventAttendanceSection> {
+  final ScrollController _eventsAttendanceScrollController = ScrollController();
   EventAttendanceStatus _filter = EventAttendanceStatus.interested;
 
   EventAttendanceStatus _nextStatus(EventAttendanceStatus status) {
@@ -128,6 +129,12 @@ class _EventAttendanceSectionState extends State<EventAttendanceSection> {
   }
 
   @override
+  void dispose() {
+    _eventsAttendanceScrollController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final brand = Theme.of(context).extension<BrandTheme>();
     final colorScheme = Theme.of(context).colorScheme;
@@ -190,24 +197,36 @@ class _EventAttendanceSectionState extends State<EventAttendanceSection> {
             ),
           )
         else
-          ...visibleEvents.map((entry) {
-            final event = entry.key;
-            final rawStatus = entry.value.toLowerCase();
-            final status = EventAttendanceStatus.values.firstWhere(
-              (value) => value.name == rawStatus,
-              orElse: () => EventAttendanceStatus.interested,
-            );
-            return Padding(
-              padding: const EdgeInsets.only(bottom: 10),
-              child: EventAttendanceTile(
-                event: event,
-                statusColor: _statusColor(status, brand),
-                actionLabel: changeEventAttendanceStatus(status),
-                isActionEnabled: authProvider.isAuthenticated,
-                onActionTap: () => _showAttendanceModal(context, event, status),
+          SizedBox(
+            height: 250,
+            child: Scrollbar(
+              controller: _eventsAttendanceScrollController,
+              thumbVisibility: true,
+              child: SingleChildScrollView(
+                controller: _eventsAttendanceScrollController,
+                child: Column(
+                  children: visibleEvents.map((entry) {
+                    final event = entry.key;
+                    final rawStatus = entry.value.toLowerCase();
+                    final status = EventAttendanceStatus.values.firstWhere(
+                      (value) => value.name == rawStatus,
+                      orElse: () => EventAttendanceStatus.interested,
+                    );
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 10),
+                      child: EventAttendanceTile(
+                        event: event,
+                        statusColor: _statusColor(status, brand),
+                        actionLabel: changeEventAttendanceStatus(status),
+                        onActionTap: () =>
+                            _showAttendanceModal(context, event, status),
+                      ),
+                    );
+                  }).toList(),
+                ),
               ),
-            );
-          }),
+            ),
+          ),
       ],
     );
   }
