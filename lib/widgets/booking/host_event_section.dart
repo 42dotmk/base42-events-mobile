@@ -5,6 +5,7 @@ import 'package:base42_events_mobile/theme.dart';
 import 'package:base42_events_mobile/types.dart';
 import 'package:base42_events_mobile/utils.dart';
 import 'package:base42_events_mobile/widgets/booking/booking_form_fields.dart';
+import 'package:base42_events_mobile/widgets/custom_text_field.dart';
 import 'package:base42_events_mobile/widgets/booking/booking_result_dialog.dart';
 import 'package:base42_events_mobile/widgets/booking/selected_space_card.dart';
 import 'package:flutter/material.dart';
@@ -308,13 +309,13 @@ class _HostEventSectionState extends State<HostEventSection> {
             ),
           ),
           const SizedBox(height: 12),
-          BookingHostTextField(
+          CustomTextField(
             controller: _organizationController,
             label: 'Organization *',
             validator: bookingRequiredFieldValidator,
             onChanged: draft.setOrganizerEntity,
           ),
-          BookingHostTextField(
+          CustomTextField(
             controller: _emailController,
             label: 'Contact Email *',
             validator: _requiredEmailValidator,
@@ -349,7 +350,7 @@ class _HostEventSectionState extends State<HostEventSection> {
             },
           ),
           const SizedBox(height: 10),
-          BookingHostTextField(
+          CustomTextField(
             controller: _expectedAttendeesController,
             label: 'Expected Attendees *',
             validator: _expectedAttendeesValidator,
@@ -357,7 +358,7 @@ class _HostEventSectionState extends State<HostEventSection> {
             keyboardType: TextInputType.number,
             textCapitalization: TextCapitalization.none,
           ),
-          BookingHostTextField(
+          CustomTextField(
             controller: _eventDescriptionController,
             label: 'Event Description *',
             validator: bookingRequiredFieldValidator,

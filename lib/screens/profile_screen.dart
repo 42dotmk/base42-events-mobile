@@ -137,12 +137,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       width: 86,
                       height: 86,
                       decoration: BoxDecoration(
-                        color: (brand?.neonYellow ?? colorScheme.secondary)
-                            .withValues(alpha: 0.18),
+                        color: (colorScheme.secondary).withValues(alpha: 0.18),
                         borderRadius: BorderRadius.circular(20),
                         border: Border.all(
-                          color: (brand?.neonYellow ?? colorScheme.secondary)
-                              .withValues(alpha: 0.45),
+                          color: (colorScheme.primary).withValues(alpha: 0.45),
                         ),
                       ),
                       alignment: Alignment.center,
@@ -161,19 +159,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                           .textStyles
                                           .headlineMedium
                                           ?.bold
-                                          .withColor(
-                                            brand?.neonYellow ??
-                                                colorScheme.secondary,
-                                          ),
+                                          .withColor(colorScheme.secondary),
                                     ),
                               ),
                             )
                           : Text(
                               initials,
                               style: context.textStyles.headlineMedium?.bold
-                                  .withColor(
-                                    brand?.neonYellow ?? colorScheme.secondary,
-                                  ),
+                                  .withColor(colorScheme.secondary),
                             ),
                     ),
                     const SizedBox(width: 14),
@@ -199,7 +192,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     IconButton(
                       icon: Icon(
                         Icons.edit_outlined,
-                        color: brand?.neonYellow ?? colorScheme.primary,
+                        color: colorScheme.primary,
                       ),
                       onPressed: () => context.push(AppRoutes.editProfile),
                     ),

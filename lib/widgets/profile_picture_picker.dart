@@ -19,6 +19,48 @@ class ProfilePicturePicker extends StatelessWidget {
     required this.initials,
   });
 
+  void _showEnlarged(BuildContext context, String? imageUrl) {
+    showDialog(
+      context: context,
+      barrierColor: Colors.black87,
+      builder: (_) => Dialog(
+        backgroundColor: Colors.transparent,
+        insetPadding: const EdgeInsets.all(24),
+        child: Stack(
+          alignment: Alignment.topRight,
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(20),
+              child: selectedImage != null
+                  ? Image.file(File(selectedImage!.path), fit: BoxFit.contain)
+                  : imageUrl != null
+                  ? Image.network(imageUrl, fit: BoxFit.contain)
+                  : null,
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8),
+              child: GestureDetector(
+                onTap: () => Navigator.of(context).pop(),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.black54,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  padding: const EdgeInsets.all(6),
+                  child: const Icon(
+                    Icons.close_rounded,
+                    color: Colors.white,
+                    size: 20,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final brand = Theme.of(context).extension<BrandTheme>();
@@ -29,36 +71,37 @@ class ProfilePicturePicker extends StatelessWidget {
       imageUrl = currentProfilePicture!.getMediumUrl(baseUrl);
     }
 
+    final hasImage = selectedImage != null || imageUrl != null;
+
     return Center(
       child: Stack(
         children: [
-          Container(
-            width: 120,
-            height: 120,
-            decoration: BoxDecoration(
-              color: (brand?.neonYellow ?? colorScheme.secondary).withValues(
-                alpha: 0.18,
-              ),
-              borderRadius: BorderRadius.circular(60),
-              border: Border.all(
-                color: (brand?.neonYellow ?? colorScheme.secondary).withValues(
-                  alpha: 0.45,
+          GestureDetector(
+            onTap: hasImage ? () => _showEnlarged(context, imageUrl) : null,
+            child: Container(
+              width: 120,
+              height: 120,
+              decoration: BoxDecoration(
+                color: (colorScheme.secondary).withValues(alpha: 0.18),
+                borderRadius: BorderRadius.circular(60),
+                border: Border.all(
+                  color: (colorScheme.primary).withValues(alpha: 0.45),
+                  width: 2,
                 ),
-                width: 2,
               ),
-            ),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(58),
-              child: selectedImage != null
-                  ? Image.file(File(selectedImage!.path), fit: BoxFit.cover)
-                  : imageUrl != null
-                  ? Image.network(
-                      imageUrl,
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) =>
-                          _buildInitialsAvatar(context, brand, colorScheme),
-                    )
-                  : _buildInitialsAvatar(context, brand, colorScheme),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(58),
+                child: selectedImage != null
+                    ? Image.file(File(selectedImage!.path), fit: BoxFit.cover)
+                    : imageUrl != null
+                    ? Image.network(
+                        imageUrl,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) =>
+                            _buildInitialsAvatar(context, brand, colorScheme),
+                      )
+                    : _buildInitialsAvatar(context, brand, colorScheme),
+              ),
             ),
           ),
           Positioned(
@@ -70,12 +113,9 @@ class ProfilePicturePicker extends StatelessWidget {
                 width: 36,
                 height: 36,
                 decoration: BoxDecoration(
-                  color: brand?.neonYellow ?? colorScheme.primary,
+                  color: colorScheme.primary,
                   borderRadius: BorderRadius.circular(18),
-                  border: Border.all(
-                    color: brand?.deepNavy ?? colorScheme.surface,
-                    width: 3,
-                  ),
+                  border: Border.all(color: colorScheme.surface, width: 3),
                 ),
                 child: const Icon(
                   Icons.camera_alt_rounded,
@@ -100,7 +140,7 @@ class ProfilePicturePicker extends StatelessWidget {
         initials,
         style: context.textStyles.headlineMedium?.bold
             .withSize(48)
-            .withColor(brand?.neonYellow ?? colorScheme.secondary),
+            .withColor(colorScheme.secondary),
       ),
     );
   }

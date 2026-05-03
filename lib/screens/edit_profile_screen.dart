@@ -4,8 +4,9 @@ import 'package:base42_events_mobile/services/user_service.dart';
 import 'package:base42_events_mobile/theme.dart';
 import 'package:base42_events_mobile/types/user.dart';
 import 'package:base42_events_mobile/widgets/discard_changes_dialog.dart';
+import 'package:base42_events_mobile/widgets/profile/source_modal.dart';
 import 'package:base42_events_mobile/widgets/profile_picture_picker.dart';
-import 'package:base42_events_mobile/widgets/profile/styled_text_form_field.dart';
+import 'package:base42_events_mobile/widgets/custom_text_field.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
@@ -84,9 +85,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   }
 
   Future<void> _pickImage() async {
+    final source = await showImageSourceModal(context);
+    if (source == null) return;
+
     try {
       final XFile? image = await _picker.pickImage(
-        source: ImageSource.gallery,
+        source: source,
         maxWidth: 1024,
         maxHeight: 1024,
         imageQuality: 85,
@@ -214,13 +218,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(8, 8, 18, 0),
+                  padding: const EdgeInsets.fromLTRB(8, 8, 16, 0),
                   child: Row(
                     children: [
                       IconButton(
-                        icon: const Icon(
+                        icon: Icon(
                           Icons.arrow_back_ios_new_rounded,
-                          color: Colors.white,
+                          color: colorScheme.onSurface,
                         ),
                         onPressed: () async {
                           final shouldPop = await _onWillPop();
@@ -231,8 +235,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       ),
                       Text(
                         'Edit Profile',
-                        style: context.textStyles.headlineMedium?.bold
-                            .withColor(Colors.white),
+                        style: context.textStyles.titleLarge?.semiBold
+                            .withColor(
+                              colorScheme.onSurface.withValues(alpha: 0.8),
+                            ),
                       ),
                     ],
                   ),
@@ -257,9 +263,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                           const SizedBox(height: 30),
                           Text(
                             'PERSONAL INFORMATION',
-                            style: context.textStyles.headlineSmall?.semiBold
-                                .withSize(38 / 2)
-                                .withColor(Colors.white.withValues(alpha: 0.8)),
+                            style: context.textStyles.titleMedium?.semiBold
+                                .withColor(
+                                  colorScheme.onSurface.withValues(alpha: 0.8),
+                                ),
                           ),
                           const SizedBox(height: 14),
                           Container(
@@ -269,17 +276,19 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                   .withValues(alpha: 0.62),
                               borderRadius: BorderRadius.circular(20),
                               border: Border.all(
-                                color: Colors.white.withValues(alpha: 0.08),
+                                color: colorScheme.outline.withValues(
+                                  alpha: 0.2,
+                                ),
                               ),
                             ),
-                            padding: const EdgeInsets.all(18),
+                            padding: const EdgeInsets.all(14),
                             child: Column(
                               children: [
                                 for (int i = 0; i < _fields.length; i++) ...[
                                   if (i > 0) const SizedBox(height: 20),
-                                  StyledTextFormField(
+                                  CustomTextField(
                                     controller: _controllers[_fields[i].key]!,
-                                    labelText: _fields[i].label,
+                                    label: _fields[i].label,
                                   ),
                                 ],
                               ],
@@ -294,12 +303,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                   ? null
                                   : _saveProfile,
                               style: ElevatedButton.styleFrom(
-                                backgroundColor:
-                                    brand?.neonYellow ?? colorScheme.primary,
-                                disabledBackgroundColor:
-                                    (brand?.neonYellow ?? colorScheme.primary)
-                                        .withValues(alpha: 0.3),
-                                foregroundColor: Colors.white,
+                                backgroundColor: colorScheme.primary,
+                                disabledBackgroundColor: colorScheme.primary
+                                    .withValues(alpha: 0.3),
+                                foregroundColor: colorScheme.onPrimary,
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(16),
                                 ),
@@ -313,8 +320,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                         strokeWidth: 2,
                                         valueColor:
                                             AlwaysStoppedAnimation<Color>(
-                                              brand?.deepNavy ??
-                                                  colorScheme.primary,
+                                              colorScheme.onPrimary,
                                             ),
                                       ),
                                     )
@@ -326,10 +332,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                           ?.bold
                                           .withSize(38 / 2)
                                           .withColor(
-                                            brand?.deepNavy.withValues(
-                                                  alpha: 0.7,
-                                                ) ??
-                                                colorScheme.primary,
+                                            !_hasChanges
+                                                ? colorScheme.onPrimary
+                                                      .withValues(alpha: 0.3)
+                                                : colorScheme.onPrimary,
                                           ),
                                     ),
                             ),

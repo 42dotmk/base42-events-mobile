@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:developer' as developer;
 import 'package:base42_events_mobile/consts/api.dart';
-import 'package:base42_events_mobile/types.dart';
 import 'package:base42_events_mobile/types/user.dart';
 import 'package:flutter/widgets.dart';
 import 'package:http/http.dart' as http;
