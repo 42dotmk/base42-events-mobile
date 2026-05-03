@@ -2,9 +2,10 @@ import 'package:base42_events_mobile/nav.dart';
 import 'package:base42_events_mobile/providers/auth_provider.dart';
 import 'package:base42_events_mobile/services/user_service.dart';
 import 'package:base42_events_mobile/theme.dart';
+import 'package:base42_events_mobile/types/user.dart';
 import 'package:base42_events_mobile/widgets/discard_changes_dialog.dart';
 import 'package:base42_events_mobile/widgets/profile_picture_picker.dart';
-import 'package:base42_events_mobile/widgets/styled_text_form_field.dart';
+import 'package:base42_events_mobile/widgets/profile/styled_text_form_field.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
@@ -19,39 +20,66 @@ class EditProfileScreen extends StatefulWidget {
 
 class _EditProfileScreenState extends State<EditProfileScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _firstNameController = TextEditingController();
-  final _lastNameController = TextEditingController();
-  final _usernameController = TextEditingController();
   final ImagePicker _picker = ImagePicker();
   final UserService _userService = UserService();
+
+  late final List<UserFieldConfig> _fields;
+  late final Map<String, TextEditingController> _controllers;
 
   XFile? _selectedImage;
   bool _isLoading = false;
   bool _hasChanges = false;
+  bool _initialized = false;
 
   @override
   void initState() {
     super.initState();
-    final authProvider = context.read<AuthProvider>();
-    _firstNameController.text = authProvider.currentUser?.firstName ?? '';
-    _lastNameController.text = authProvider.currentUser?.lastName ?? '';
-    _usernameController.text = authProvider.currentUser?.username ?? '';
-    _firstNameController.addListener(_onFieldChanged);
-    _lastNameController.addListener(_onFieldChanged);
-    _usernameController.addListener(_onFieldChanged);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_initialized) return;
+    _initialized = true;
+    final user = context.read<AuthProvider>().currentUser;
+    _fields = [
+      UserFieldConfig(
+        key: 'username',
+        label: 'Username',
+        originalValue: user?.username ?? '',
+      ),
+      UserFieldConfig(
+        key: 'firstName',
+        label: 'First Name',
+        originalValue: user?.firstName ?? '',
+      ),
+      UserFieldConfig(
+        key: 'lastName',
+        label: 'Last Name',
+        originalValue: user?.lastName ?? '',
+      ),
+    ];
+    _controllers = {
+      for (final field in _fields)
+        field.key: TextEditingController(text: field.originalValue)
+          ..addListener(_onFieldChanged),
+    };
   }
 
   @override
   void dispose() {
-    _firstNameController.dispose();
-    _lastNameController.dispose();
-    _usernameController.dispose();
+    for (final c in _controllers.values) {
+      c.dispose();
+    }
     super.dispose();
   }
 
   void _onFieldChanged() {
-    if (!_hasChanges) {
-      setState(() => _hasChanges = true);
+    final hasChanges =
+        _fields.any((f) => _controllers[f.key]!.text != f.originalValue) ||
+        _selectedImage != null;
+    if (hasChanges != _hasChanges) {
+      setState(() => _hasChanges = hasChanges);
     }
   }
 
@@ -86,8 +114,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
     setState(() => _isLoading = true);
 
-    final authProvider = context.read<AuthProvider>();
-    debugPrint(authProvider.token);
     try {
       final authProvider = context.read<AuthProvider>();
       final token = authProvider.token;
@@ -96,12 +122,22 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         throw Exception('Not authenticated');
       }
 
+      String? changedValue(String key) {
+        final field = _fields.firstWhere((f) => f.key == key);
+        final newVal = _controllers[key]!.text.trim();
+        return newVal != field.originalValue ? newVal : null;
+      }
+
+      final changedFields = UpdateProfileBody(
+        username: changedValue('username'),
+        firstName: changedValue('firstName'),
+        lastName: changedValue('lastName'),
+      );
+
       await _userService.updateUserProfile(
         token: token,
         userId: authProvider.currentUser!.id,
-        username: _usernameController.text.trim(),
-        firstName: _firstNameController.text.trim(),
-        lastName: _lastNameController.text.trim(),
+        changedFields: changedFields,
         profileImage: _selectedImage,
       );
 
@@ -239,38 +275,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                             padding: const EdgeInsets.all(18),
                             child: Column(
                               children: [
-                                StyledTextFormField(
-                                  controller: _usernameController,
-                                  labelText: 'Username',
-                                  validator: (value) {
-                                    if (value == null || value.trim().isEmpty) {
-                                      return 'Please enter your username';
-                                    }
-                                    return null;
-                                  },
-                                ),
-                                const SizedBox(height: 20),
-                                StyledTextFormField(
-                                  controller: _firstNameController,
-                                  labelText: 'First Name',
-                                  validator: (value) {
-                                    if (value == null || value.trim().isEmpty) {
-                                      return 'Please enter your first name';
-                                    }
-                                    return null;
-                                  },
-                                ),
-                                const SizedBox(height: 20),
-                                StyledTextFormField(
-                                  controller: _lastNameController,
-                                  labelText: 'Last Name',
-                                  validator: (value) {
-                                    if (value == null || value.trim().isEmpty) {
-                                      return 'Please enter your last name';
-                                    }
-                                    return null;
-                                  },
-                                ),
+                                for (int i = 0; i < _fields.length; i++) ...[
+                                  if (i > 0) const SizedBox(height: 20),
+                                  StyledTextFormField(
+                                    controller: _controllers[_fields[i].key]!,
+                                    labelText: _fields[i].label,
+                                  ),
+                                ],
                               ],
                             ),
                           ),
@@ -284,9 +295,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                   : _saveProfile,
                               style: ElevatedButton.styleFrom(
                                 backgroundColor:
-                                    brand?.neonCyan ?? colorScheme.primary,
+                                    brand?.neonYellow ?? colorScheme.primary,
                                 disabledBackgroundColor:
-                                    (brand?.neonCyan ?? colorScheme.primary)
+                                    (brand?.neonYellow ?? colorScheme.primary)
                                         .withValues(alpha: 0.3),
                                 foregroundColor: Colors.white,
                                 shape: RoundedRectangleBorder(
@@ -295,14 +306,15 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                 elevation: 0,
                               ),
                               child: _isLoading
-                                  ? const SizedBox(
+                                  ? SizedBox(
                                       width: 20,
                                       height: 20,
                                       child: CircularProgressIndicator(
                                         strokeWidth: 2,
                                         valueColor:
                                             AlwaysStoppedAnimation<Color>(
-                                              Colors.white,
+                                              brand?.deepNavy ??
+                                                  colorScheme.primary,
                                             ),
                                       ),
                                     )
@@ -313,7 +325,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                           .headlineSmall
                                           ?.bold
                                           .withSize(38 / 2)
-                                          .withColor(Colors.white),
+                                          .withColor(
+                                            brand?.deepNavy.withValues(
+                                                  alpha: 0.7,
+                                                ) ??
+                                                colorScheme.primary,
+                                          ),
                                     ),
                             ),
                           ),

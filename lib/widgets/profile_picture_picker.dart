@@ -36,12 +36,12 @@ class ProfilePicturePicker extends StatelessWidget {
             width: 120,
             height: 120,
             decoration: BoxDecoration(
-              color: (brand?.neonCyan ?? colorScheme.secondary).withValues(
+              color: (brand?.neonYellow ?? colorScheme.secondary).withValues(
                 alpha: 0.18,
               ),
               borderRadius: BorderRadius.circular(60),
               border: Border.all(
-                color: (brand?.neonCyan ?? colorScheme.secondary).withValues(
+                color: (brand?.neonYellow ?? colorScheme.secondary).withValues(
                   alpha: 0.45,
                 ),
                 width: 2,
@@ -70,7 +70,7 @@ class ProfilePicturePicker extends StatelessWidget {
                 width: 36,
                 height: 36,
                 decoration: BoxDecoration(
-                  color: brand?.neonCyan ?? colorScheme.primary,
+                  color: brand?.neonYellow ?? colorScheme.primary,
                   borderRadius: BorderRadius.circular(18),
                   border: Border.all(
                     color: brand?.deepNavy ?? colorScheme.surface,
@@ -100,7 +100,7 @@ class ProfilePicturePicker extends StatelessWidget {
         initials,
         style: context.textStyles.headlineMedium?.bold
             .withSize(48)
-            .withColor(brand?.neonCyan ?? colorScheme.secondary),
+            .withColor(brand?.neonYellow ?? colorScheme.secondary),
       ),
     );
   }

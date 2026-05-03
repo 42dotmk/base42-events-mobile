@@ -6,12 +6,11 @@ class BookPlaceholderScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final brand = Theme.of(context).extension<BrandTheme>();
     final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
       body: Container(
-        decoration: BoxDecoration(gradient: brand?.backdropGradient),
+        color: Theme.of(context).scaffoldBackgroundColor,
         child: SafeArea(
           child: Center(
             child: Padding(
@@ -22,14 +21,14 @@ class BookPlaceholderScreen extends StatelessWidget {
                   Icon(
                     Icons.construction_rounded,
                     size: 48,
-                    color: brand?.neonYellow ?? colorScheme.secondary,
+                    color: colorScheme.primary,
                   ),
                   const SizedBox(height: 12),
                   Text(
                     'Booking feature is on a separate branch',
                     textAlign: TextAlign.center,
                     style: context.textStyles.titleLarge?.semiBold.withColor(
-                      Colors.white,
+                      colorScheme.onSurface,
                     ),
                   ),
                   const SizedBox(height: 8),
@@ -37,7 +36,7 @@ class BookPlaceholderScreen extends StatelessWidget {
                     'Switch to booking-feature to continue work on booking flows.',
                     textAlign: TextAlign.center,
                     style: context.textStyles.bodyMedium?.withColor(
-                      Colors.white.withValues(alpha: 0.62),
+                      colorScheme.onSurface.withValues(alpha: 0.62),
                     ),
                   ),
                 ],

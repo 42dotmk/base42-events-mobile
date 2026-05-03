@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:developer' as developer;
 import 'package:base42_events_mobile/consts/api.dart';
 import 'package:base42_events_mobile/types.dart';
+import 'package:base42_events_mobile/types/user.dart';
 import 'package:flutter/widgets.dart';
 import 'package:http/http.dart' as http;
 import 'package:base42_events_mobile/models/user.dart';
@@ -141,9 +142,7 @@ class UserService {
   Future<User> updateUserProfile({
     required String token,
     required int userId,
-    required String username,
-    required String firstName,
-    required String lastName,
+    required UpdateProfileBody changedFields,
     XFile? profileImage,
   }) async {
     try {
@@ -159,14 +158,9 @@ class UserService {
       final url = Uri.parse(updateUserApiUrl);
       final body = <String, dynamic>{
         'userId': userId,
-        'username': username,
-        'firstName': firstName,
-        'lastName': lastName,
+        ...changedFields.toJson(),
+        if (uploadedImageId != null) 'profilePicture': uploadedImageId,
       };
-
-      if (uploadedImageId != null) {
-        body['profilePicture'] = uploadedImageId;
-      }
 
       final response = await putWithAuth(url.toString(), token, body);
 
@@ -204,7 +198,7 @@ class UserService {
       final streamedResponse = await request.send();
       final response = await http.Response.fromStream(streamedResponse);
 
-      if (response.statusCode == 201) {
+      if (response.statusCode == 200 || response.statusCode == 201) {
         final data = jsonDecode(response.body);
         if (data is List && data.isNotEmpty) {
           final firstItem = data[0];

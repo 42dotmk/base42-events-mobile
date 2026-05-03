@@ -46,7 +46,7 @@ class StyledTextFormField extends StatelessWidget {
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(
-            color: (brand?.neonCyan ?? colorScheme.primary).withValues(
+            color: (brand?.neonYellow ?? colorScheme.primary).withValues(
               alpha: 0.85,
             ),
           ),

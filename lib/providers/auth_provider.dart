@@ -135,12 +135,13 @@ class AuthProvider extends ChangeNotifier {
       }
 
       final result = await _userService.loginWithKeycloak(keycloakToken);
-      _currentUser = result.user;
       _token = result.jwt;
 
       if (_token == null) {
         throw Exception('Failed to retrieve Strapi auth token');
       }
+
+      _currentUser = await _userService.getCurrentAuthenticatedUser(_token!);
 
       await _storageService.saveToken(
         SecureStorageService.jwtTokenKey,

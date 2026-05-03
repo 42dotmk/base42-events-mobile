@@ -1,17 +1,17 @@
-import 'package:base42_events_mobile/consts/api.dart';
 import 'package:base42_events_mobile/theme.dart';
 import 'package:base42_events_mobile/providers/auth_provider.dart';
 import 'package:base42_events_mobile/models/event.dart';
+import 'package:base42_events_mobile/nav.dart';
 import 'package:base42_events_mobile/services/event_service.dart';
+import 'package:base42_events_mobile/widgets/event_card.dart';
 import 'package:base42_events_mobile/widgets/no_events_placeholder.dart';
-import 'package:base42_events_mobile/widgets/booking_card.dart';
+import 'package:base42_events_mobile/widgets/booking/booking_card.dart';
 import 'package:base42_events_mobile/widgets/location_card.dart';
+import 'package:base42_events_mobile/widgets/profile/profile_initials_avatar.dart';
 import 'package:base42_events_mobile/widgets/quick_action_tile.dart';
 import 'package:base42_events_mobile/widgets/section_header_row.dart';
-import 'package:base42_events_mobile/widgets/space_availability_cards.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 class _QuickAction {
@@ -57,23 +57,27 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     final brand = Theme.of(context).extension<BrandTheme>();
     final colorScheme = Theme.of(context).colorScheme;
+    final onSurface = colorScheme.onSurface;
+    final primaryAccent = colorScheme.primary;
+    final now = DateTime.now();
+    final isOpen = now.hour >= 10 && now.hour < 22;
     final linkColor = brand?.linkTextGray ?? colorScheme.onSurfaceVariant;
     final quickActions = [
       _QuickAction(
         icon: Icons.monitor_outlined,
-        label: 'Book a Desk',
-        color: brand?.quickActionDesk ?? colorScheme.secondary,
+        label: 'Book an Event',
+        route: AppRoutes.book,
+        color: colorScheme.primary,
       ),
       _QuickAction(
-        icon: Icons.calendar_month_outlined,
-        label: 'Events',
-        route: '/events',
-        color: brand?.quickActionEvents ?? colorScheme.primary,
+        icon: Icons.volunteer_activism_outlined,
+        label: 'Volunteer',
+        color: colorScheme.primary,
       ),
       _QuickAction(
-        icon: Icons.coffee_outlined,
-        label: 'Cafe Menu',
-        color: brand?.quickActionCafe ?? colorScheme.tertiary,
+        icon: Icons.card_membership_outlined,
+        label: 'Member',
+        color: colorScheme.primary,
       ),
     ];
     final currentUser = context.watch<AuthProvider>().currentUser;
@@ -93,10 +97,9 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  //TODO: Redirect to profile page & make component
                   Container(
                     decoration: BoxDecoration(
-                      color: Colors.black.withValues(alpha: 0.08),
+                      color: Colors.transparent,
                       borderRadius: BorderRadius.circular(AppRadius.lg),
                     ),
                     child: Padding(
@@ -112,7 +115,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   'Welcome back,',
                                   style: context.textStyles.titleMedium?.medium
                                       .withColor(
-                                        Colors.white.withValues(alpha: 0.55),
+                                        onSurface.withValues(alpha: 0.62),
                                       ),
                                 ),
                                 const SizedBox(height: 2),
@@ -122,7 +125,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                             currentUser.username
                                       : "Guest User",
                                   style: context.textStyles.headlineLarge?.bold
-                                      .withColor(Colors.white),
+                                      .withColor(onSurface),
                                 ),
                                 const SizedBox(height: 20),
                                 Wrap(
@@ -135,39 +138,21 @@ class _HomeScreenState extends State<HomeScreen> {
                                         Container(
                                           width: 10,
                                           height: 10,
-                                          decoration: const BoxDecoration(
-                                            color: Color(0xFF67D769),
+                                          decoration: BoxDecoration(
+                                            color: isOpen
+                                                ? (brand?.successGreen ??
+                                                      colorScheme.secondary)
+                                                : (brand?.errorRed ??
+                                                      colorScheme.error),
                                             shape: BoxShape.circle,
                                           ),
                                         ),
                                         const SizedBox(width: 6),
                                         Text(
-                                          'Open now',
+                                          isOpen ? 'Open now' : 'Closed',
                                           style: context.textStyles.titleSmall
                                               ?.withColor(
-                                                Colors.white.withValues(
-                                                  alpha: 0.72,
-                                                ),
-                                              ),
-                                        ),
-                                      ],
-                                    ),
-                                    Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        Icon(
-                                          Icons.wifi_rounded,
-                                          size: 14,
-                                          color: Colors.white.withValues(
-                                            alpha: 0.55,
-                                          ),
-                                        ),
-                                        const SizedBox(width: 4),
-                                        Text(
-                                          'Connected',
-                                          style: context.textStyles.titleSmall
-                                              ?.withColor(
-                                                Colors.white.withValues(
+                                                onSurface.withValues(
                                                   alpha: 0.72,
                                                 ),
                                               ),
@@ -180,7 +165,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                         Icon(
                                           Icons.group_outlined,
                                           size: 14,
-                                          color: Colors.white.withValues(
+                                          color: onSurface.withValues(
                                             alpha: 0.55,
                                           ),
                                         ),
@@ -189,7 +174,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                           '33 people here',
                                           style: context.textStyles.titleSmall
                                               ?.withColor(
-                                                Colors.white.withValues(
+                                                onSurface.withValues(
                                                   alpha: 0.72,
                                                 ),
                                               ),
@@ -201,50 +186,15 @@ class _HomeScreenState extends State<HomeScreen> {
                               ],
                             ),
                           ),
-                          Container(
-                            width: 56,
-                            height: 56,
-                            decoration: BoxDecoration(
-                              color:
-                                  (brand?.neonYellow ?? colorScheme.secondary)
-                                      .withValues(alpha: 0.26),
-                              shape: BoxShape.circle,
+                          InkWell(
+                            onTap: () => context.go(AppRoutes.profile),
+                            borderRadius: BorderRadius.circular(999),
+                            child: ProfileInitialsAvatar(
+                              initials: initials,
+                              size: 56,
+                              accentColor: primaryAccent,
+                              profilePicture: profilePicture,
                             ),
-                            alignment: Alignment.center,
-                            child: profilePicture != null
-                                ? ClipRRect(
-                                    borderRadius: BorderRadius.circular(18),
-                                    child: Image.network(
-                                      profilePicture.getMediumUrl(baseUrl) ??
-                                          '',
-                                      width: 86,
-                                      height: 86,
-                                      fit: BoxFit.cover,
-                                      errorBuilder:
-                                          (context, error, stackTrace) => Text(
-                                            initials,
-                                            style: context
-                                                .textStyles
-                                                .headlineMedium
-                                                ?.bold
-                                                .withColor(
-                                                  brand?.neonYellow ??
-                                                      colorScheme.secondary,
-                                                ),
-                                          ),
-                                    ),
-                                  )
-                                : Text(
-                                    initials,
-                                    style: context
-                                        .textStyles
-                                        .headlineMedium
-                                        ?.bold
-                                        .withColor(
-                                          brand?.neonYellow ??
-                                              colorScheme.secondary,
-                                        ),
-                                  ),
                           ),
                         ],
                       ),
@@ -260,7 +210,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           crossAxisCount: 3,
                           mainAxisSpacing: 12,
                           crossAxisSpacing: 12,
-                          childAspectRatio: 1,
+                          childAspectRatio: 0.85,
                         ),
                     itemBuilder: (context, index) {
                       final action = quickActions[index];
@@ -284,26 +234,12 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   const SizedBox(height: 24),
                   SectionHeaderRow(
-                    title: "TODAY'S BOOKING",
+                    title: "AVAILABLE SPACES",
                     trailingLabel: 'All bookings',
                     trailingColor: linkColor,
                   ),
                   const SizedBox(height: 10),
                   const BookingCard(),
-                  const SizedBox(height: 26),
-                  SectionHeaderRow(
-                    title: 'SPACE AVAILABILITY',
-                    trailingLabel: 'View floors',
-                    trailingColor: linkColor,
-                  ),
-                  const SizedBox(height: 10),
-                  Row(
-                    children: [
-                      Expanded(child: AvailableDesksCard()),
-                      const SizedBox(width: 12),
-                      const Expanded(child: FloorsOpenCard()),
-                    ],
-                  ),
                   const SizedBox(height: 26),
                   SectionHeaderRow(
                     title: 'UPCOMING EVENTS',
@@ -313,7 +249,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   const SizedBox(height: 10),
                   SizedBox(
-                    height: 240,
+                    height: 220,
                     child: FutureBuilder<List<Event>>(
                       future: _eventsFuture,
                       builder: (context, snapshot) {
@@ -321,7 +257,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             ConnectionState.waiting) {
                           return Center(
                             child: CircularProgressIndicator(
-                              color: brand?.neonCyan ?? colorScheme.primary,
+                              color: colorScheme.primary,
                             ),
                           );
                         }
@@ -331,7 +267,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             child: Text(
                               'Could not load events',
                               style: context.textStyles.bodyMedium?.withColor(
-                                Colors.white.withValues(alpha: 0.58),
+                                onSurface.withValues(alpha: 0.58),
                               ),
                             ),
                           );
@@ -352,16 +288,32 @@ class _HomeScreenState extends State<HomeScreen> {
 
                         final previewEvents = upcoming.take(6).toList();
 
-                        return ListView.separated(
-                          scrollDirection: Axis.horizontal,
+                        if (previewEvents.length == 1) {
+                          final singleEvent = previewEvents.first;
+                          return EventCard(
+                            event: singleEvent,
+                            onTap: () => context.push(
+                              '/event/${singleEvent.id}',
+                              extra: singleEvent,
+                            ),
+                          );
+                        }
+
+                        return PageView.builder(
+                          controller: PageController(viewportFraction: 0.9),
                           itemCount: previewEvents.length,
-                          separatorBuilder: (_, __) =>
-                              const SizedBox(width: 14),
+                          padEnds: false,
                           itemBuilder: (context, index) {
                             final event = previewEvents[index];
-                            return SizedBox(
-                              width: 340,
-                              child: _UpcomingEventCard(event: event),
+                            return Padding(
+                              padding: const EdgeInsets.only(right: 14),
+                              child: EventCard(
+                                event: event,
+                                onTap: () => context.push(
+                                  '/event/${event.id}',
+                                  extra: event,
+                                ),
+                              ),
                             );
                           },
                         );
@@ -374,135 +326,6 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
           ),
-        ),
-      ),
-    );
-  }
-}
-
-class _UpcomingEventCard extends StatelessWidget {
-  final Event event;
-
-  const _UpcomingEventCard({required this.event});
-
-  Color _tagBackground(String tagLower) {
-    if (tagLower.contains('ai')) return const Color(0xFF5B3B97);
-    if (tagLower.contains('pydata')) return const Color(0xFF8B7A20);
-    if (tagLower.contains('machine')) return const Color(0xFF314E9A);
-    if (tagLower.contains('game')) return const Color(0xFF813771);
-    if (tagLower.contains('hack')) return const Color(0xFF8A3F38);
-    return const Color(0xFF2A3545);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final brand = Theme.of(context).extension<BrandTheme>();
-    final colorScheme = Theme.of(context).colorScheme;
-    final dateFormat = DateFormat('MMM d, yyyy');
-    final timeFormat = DateFormat('HH:mm');
-
-    return InkWell(
-      onTap: () => context.push('/event/${event.id}', extra: event),
-      borderRadius: BorderRadius.circular(20),
-      child: Container(
-        decoration: BoxDecoration(
-          color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.62),
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
-        ),
-        clipBehavior: Clip.antiAlias,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              height: 6,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    brand?.neonYellow ?? colorScheme.secondary,
-                    brand?.neonCyan ?? colorScheme.primary,
-                  ],
-                ),
-              ),
-            ),
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(18, 16, 18, 16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Text(
-                          dateFormat.format(event.start),
-                          style: context.textStyles.titleLarge?.semiBold
-                              .withColor(
-                                brand?.neonCyan ?? colorScheme.primary,
-                              ),
-                        ),
-                        const SizedBox(width: 12),
-                        Container(
-                          width: 2,
-                          height: 20,
-                          color: Colors.white.withValues(alpha: 0.12),
-                        ),
-                        const SizedBox(width: 12),
-                        Text(
-                          timeFormat.format(event.start),
-                          style: context.textStyles.titleLarge?.medium
-                              .withColor(Colors.white.withValues(alpha: 0.44)),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    Text(
-                      event.title,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: context.textStyles.headlineSmall?.semiBold
-                          .withSize(36 / 2)
-                          .withColor(Colors.white),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      event.summary,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: context.textStyles.titleLarge?.withColor(
-                        Colors.white.withValues(alpha: 0.48),
-                      ),
-                    ),
-                    const Spacer(),
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 6,
-                      children: event.tags.take(3).map((tag) {
-                        final lower = tag.tagName.toLowerCase();
-                        final background = _tagBackground(lower);
-                        return Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 5,
-                          ),
-                          decoration: BoxDecoration(
-                            color: background,
-                            borderRadius: BorderRadius.circular(999),
-                          ),
-                          child: Text(
-                            tag.tagName,
-                            style: context.textStyles.labelLarge?.semiBold
-                                .withColor(
-                                  Colors.white.withValues(alpha: 0.88),
-                                ),
-                          ),
-                        );
-                      }).toList(),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
         ),
       ),
     );

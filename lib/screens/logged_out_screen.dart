@@ -57,12 +57,13 @@ class _LoggedOutScreenState extends State<LoggedOutScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final brand = Theme.of(context).extension<BrandTheme>();
     final colorScheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final primaryAccent = isDark ? colorScheme.secondary : colorScheme.primary;
 
     return Scaffold(
       body: Container(
-        decoration: BoxDecoration(gradient: brand?.backdropGradient),
+        color: Theme.of(context).scaffoldBackgroundColor,
         child: SafeArea(
           child: Center(
             child: SingleChildScrollView(
@@ -77,7 +78,7 @@ class _LoggedOutScreenState extends State<LoggedOutScreen> {
                     ),
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(
-                      color: Colors.white.withValues(alpha: 0.08),
+                      color: colorScheme.outline.withValues(alpha: 0.2),
                     ),
                   ),
                   child: Column(
@@ -86,13 +87,13 @@ class _LoggedOutScreenState extends State<LoggedOutScreen> {
                       Text(
                         'Welcome To Base42!',
                         style: context.textStyles.headlineMedium?.bold
-                            .withColor(Colors.white),
+                            .withColor(colorScheme.onSurface),
                       ),
                       const SizedBox(height: 10),
                       Text(
                         'Sign in to access all the cool things we got in our Hackerspace!',
                         style: context.textStyles.titleMedium?.withColor(
-                          Colors.white.withValues(alpha: 0.68),
+                          colorScheme.onSurface.withValues(alpha: 0.68),
                         ),
                       ),
                       const SizedBox(height: 24),
@@ -101,9 +102,8 @@ class _LoggedOutScreenState extends State<LoggedOutScreen> {
                         child: FilledButton(
                           onPressed: _isLoading ? null : _loginWithKeycloak,
                           style: FilledButton.styleFrom(
-                            backgroundColor:
-                                brand?.neonYellow ?? colorScheme.secondary,
-                            foregroundColor: colorScheme.surface,
+                            backgroundColor: primaryAccent,
+                            foregroundColor: colorScheme.onPrimary,
                             padding: const EdgeInsets.symmetric(vertical: 14),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(14),
@@ -115,7 +115,7 @@ class _LoggedOutScreenState extends State<LoggedOutScreen> {
                                   height: 20,
                                   child: CircularProgressIndicator(
                                     strokeWidth: 2,
-                                    color: colorScheme.surface,
+                                    color: colorScheme.onPrimary,
                                   ),
                                 )
                               : Text(
@@ -131,11 +131,9 @@ class _LoggedOutScreenState extends State<LoggedOutScreen> {
                         child: OutlinedButton(
                           onPressed: _isLoading ? null : _registerWithKeycloak,
                           style: OutlinedButton.styleFrom(
-                            foregroundColor:
-                                brand?.neonCyan ?? colorScheme.primary,
+                            foregroundColor: colorScheme.primary,
                             side: BorderSide(
-                              color: (brand?.neonCyan ?? colorScheme.primary)
-                                  .withValues(alpha: 0.5),
+                              color: colorScheme.primary.withValues(alpha: 0.5),
                             ),
                             padding: const EdgeInsets.symmetric(vertical: 14),
                             shape: RoundedRectangleBorder(

@@ -9,8 +9,8 @@ class SettingsProvider extends ChangeNotifier {
   static const _keyLocale = 'settings_locale';
 
   bool _notificationsEnabled = true;
-  ThemeMode _themeMode = ThemeMode.system;
-  String _locale = 'en';
+  ThemeMode _themeMode = ThemeMode.dark;
+  String _locale = 'mk';
 
   bool get notificationsEnabled => _notificationsEnabled;
   ThemeMode get themeMode => _themeMode;
@@ -29,9 +29,9 @@ class SettingsProvider extends ChangeNotifier {
     _themeMode = switch (theme) {
       'light' => ThemeMode.light,
       'dark' => ThemeMode.dark,
-      _ => ThemeMode.system,
+      _ => ThemeMode.dark,
     };
-    _locale = locale ?? 'en';
+    _locale = locale ?? 'mk';
     notifyListeners();
   }
 
