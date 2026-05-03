@@ -6,7 +6,7 @@ import 'package:base42_events_mobile/types/user.dart';
 import 'package:base42_events_mobile/widgets/discard_changes_dialog.dart';
 import 'package:base42_events_mobile/widgets/profile/source_modal.dart';
 import 'package:base42_events_mobile/widgets/profile_picture_picker.dart';
-import 'package:base42_events_mobile/widgets/custom_text_field.dart';
+import 'package:base42_events_mobile/widgets/common/custom_text_fields.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';

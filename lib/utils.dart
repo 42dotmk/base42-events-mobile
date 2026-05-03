@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:base42_events_mobile/models/user.dart';
 
 String bookingFormatDate(DateTime date) {
   final mm = date.month.toString().padLeft(2, '0');
@@ -68,6 +69,25 @@ String projectStarsLabel(int value) {
   }
 
   return value.toString();
+}
+
+String buildUserDisplayName(User? user) {
+  final firstName = (user?.firstName ?? '').trim();
+  final lastName = (user?.lastName ?? '').trim();
+  final fullName = [
+    firstName,
+    lastName,
+  ].where((part) => part.isNotEmpty).join(' ').trim();
+  if (fullName.isNotEmpty) return fullName;
+
+  final fallback = (user?.username ?? '').trim();
+  return fallback.isNotEmpty ? fallback : 'Guest User';
+}
+
+String buildUserInitials(String displayName) {
+  final parts = displayName.split(RegExp(r'\s+')).where((p) => p.isNotEmpty);
+  final letters = parts.take(2).map((p) => p[0].toUpperCase()).join();
+  return letters.isEmpty ? 'GU' : letters;
 }
 
 String sanitizeEventDescription(String raw) {

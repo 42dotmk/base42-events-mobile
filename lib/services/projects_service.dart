@@ -1,21 +1,30 @@
 import 'dart:convert';
-
 import 'package:base42_events_mobile/consts/api.dart';
 import 'package:base42_events_mobile/models/project_details.dart';
 import 'package:base42_events_mobile/models/project_repo.dart';
-import 'package:base42_events_mobile/services/secure_storage_service.dart';
+import 'package:base42_events_mobile/providers/auth_provider.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
 
 class ProjectsService {
-  final SecureStorageService _storageService = SecureStorageService();
+  final AuthProvider _authProvider;
+
+  ProjectsService(this._authProvider);
 
   Future<List<ProjectRepo>> fetchProjects() async {
-    final token = await _storageService.getToken(SecureStorageService.jwtTokenKey);
+    final token = await _authProvider.getAuthToken();
 
-    final headers = <String, String>{'Content-Type': 'application/json'};
-    if (token != null && token.trim().isNotEmpty) {
-      headers['Authorization'] = 'Bearer $token';
+    if (token == null) {
+      debugPrint(
+        'fetchProjects: No auth token available - user not authenticated or token expired',
+      );
+      throw Exception('Not authenticated. Please login first.');
     }
+
+    final headers = <String, String>{
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer $token',
+    };
 
     final response = await http.get(
       Uri.parse(projectsApiUrl),
