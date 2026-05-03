@@ -2,6 +2,7 @@ import 'package:base42_events_mobile/consts/enum.dart';
 import 'package:base42_events_mobile/widgets/common/custom_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
+import 'package:base42_events_mobile/nav.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -10,8 +11,8 @@ import 'package:base42_events_mobile/models/event.dart';
 import 'package:base42_events_mobile/providers/attendance_provider.dart';
 import 'package:base42_events_mobile/providers/auth_provider.dart';
 import 'package:base42_events_mobile/theme.dart';
+import 'package:base42_events_mobile/utils.dart';
 import 'package:base42_events_mobile/widgets/event_info_row.dart';
-import 'package:base42_events_mobile/widgets/tag_chip.dart';
 import 'package:base42_events_mobile/widgets/event_media_hero.dart';
 
 class EventDetailsScreen extends StatefulWidget {
@@ -25,6 +26,7 @@ class EventDetailsScreen extends StatefulWidget {
 
 class _EventDetailsScreenState extends State<EventDetailsScreen> {
   bool _isUpdatingAttendance = false;
+  bool _isDescriptionExpanded = false;
 
   Future<void> _setAttendance(EventAttendanceStatus status) async {
     final authProvider = context.read<AuthProvider>();
@@ -79,202 +81,326 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
     }
   }
 
+  void _handleBackNavigation(BuildContext context) {
+    if (context.canPop()) {
+      context.pop();
+      return;
+    }
+    context.go(AppRoutes.events);
+  }
+
   @override
   Widget build(BuildContext context) {
     final dateFormat = DateFormat('EEEE, MMMM dd, yyyy • hh:mm a');
     final colorScheme = Theme.of(context).colorScheme;
     final brand = Theme.of(context).extension<BrandTheme>();
+    final primaryAccent = colorScheme.primary;
+    final descriptionPreview = buildEventDescriptionPreview(
+      widget.event.description,
+    );
+    final descriptionHtml = buildEventDescriptionHtml(widget.event.description);
     final currentStatus = context.watch<AttendanceProvider>().getStatus(
       widget.event.id,
     );
 
-    return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(gradient: brand?.backdropGradient),
-        child: CustomScrollView(
-          slivers: [
-            SliverAppBar(
-              expandedHeight: 300,
-              pinned: true,
-              leading: IconButton(
-                icon: Container(
-                  padding: const EdgeInsets.all(AppSpacing.sm),
-                  decoration: BoxDecoration(
-                    color: Colors.black.withValues(alpha: 0.5),
-                    shape: BoxShape.circle,
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, _) {
+        if (didPop) return;
+        _handleBackNavigation(context);
+      },
+      child: Scaffold(
+        body: Container(
+          decoration: BoxDecoration(gradient: brand?.backdropGradient),
+          child: CustomScrollView(
+            slivers: [
+              SliverAppBar(
+                expandedHeight: 300,
+                pinned: true,
+                leading: IconButton(
+                  icon: Container(
+                    padding: const EdgeInsets.all(AppSpacing.sm),
+                    decoration: BoxDecoration(
+                      color: colorScheme.shadow.withValues(alpha: 0.5),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(Icons.arrow_back_rounded, color: Colors.white),
                   ),
-                  child: const Icon(
-                    Icons.arrow_back_rounded,
-                    color: Colors.white,
-                  ),
+                  onPressed: () => _handleBackNavigation(context),
                 ),
-                onPressed: () => context.pop(),
-              ),
-              flexibleSpace: FlexibleSpaceBar(
-                background: Stack(
-                  fit: StackFit.expand,
-                  children: [
-                    EventMediaHero(event: widget.event),
-                    Container(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          colors: [
-                            Colors.black.withValues(alpha: 0.0),
-                            Colors.black.withValues(alpha: 0.5),
-                          ],
+                flexibleSpace: FlexibleSpaceBar(
+                  background: Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      EventMediaHero(event: widget.event),
+                      Container(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                            colors: [
+                              colorScheme.shadow.withValues(alpha: 0.0),
+                              colorScheme.shadow.withValues(alpha: 0.5),
+                            ],
+                          ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
-            ),
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: AppSpacing.paddingLg,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      widget.event.title,
-                      style: context.textStyles.headlineMedium?.bold.withColor(
-                        Colors.white,
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: AppSpacing.paddingLg,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        widget.event.title,
+                        style: context.textStyles.headlineMedium?.bold
+                            .withColor(colorScheme.onSurface),
                       ),
-                    ),
-                    const SizedBox(height: AppSpacing.md),
-                    Row(
-                      children: [
-                        CustomButton.attendance(
-                          icon: Icons.star_rounded,
-                          label: 'Interested',
-                          isActive:
-                              currentStatus ==
-                              EventAttendanceStatus.interested.name,
-                          color: brand?.neonYellow ?? colorScheme.secondary,
-                          isLoading: _isUpdatingAttendance,
-                          onTap: () =>
-                              _setAttendance(EventAttendanceStatus.interested),
-                        ),
-                        const SizedBox(width: AppSpacing.sm),
-                        CustomButton.attendance(
-                          icon: Icons.check_circle_rounded,
-                          label: 'Going',
-                          isActive:
-                              currentStatus == EventAttendanceStatus.going.name,
-                          color: brand?.neonCyan ?? colorScheme.primary,
-                          isLoading: _isUpdatingAttendance,
-                          onTap: () =>
-                              _setAttendance(EventAttendanceStatus.going),
+                      const SizedBox(height: AppSpacing.md),
+                      Row(
+                        children: [
+                          CustomButton.attendance(
+                            icon: Icons.star_rounded,
+                            label: 'Interested',
+                            isActive:
+                                currentStatus ==
+                                EventAttendanceStatus.interested.name,
+                            color: brand?.neonYellow ?? colorScheme.secondary,
+                            isLoading: _isUpdatingAttendance,
+                            onTap: () => _setAttendance(
+                              EventAttendanceStatus.interested,
+                            ),
+                          ),
+                          const SizedBox(width: AppSpacing.sm),
+                          CustomButton.attendance(
+                            icon: Icons.check_circle_rounded,
+                            label: 'Going',
+                            isActive:
+                                currentStatus ==
+                                EventAttendanceStatus.going.name,
+                            color: brand?.neonCyan ?? colorScheme.primary,
+                            isLoading: _isUpdatingAttendance,
+                            onTap: () =>
+                                _setAttendance(EventAttendanceStatus.going),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: AppSpacing.lg),
+                      EventInfoRow(
+                        icon: Icons.calendar_today_rounded,
+                        text: dateFormat.format(widget.event.start),
+                        colorScheme: colorScheme,
+                      ),
+                      if (widget.event.tags.isNotEmpty) ...[
+                        const SizedBox(height: AppSpacing.lg),
+                        Wrap(
+                          spacing: AppSpacing.sm,
+                          runSpacing: AppSpacing.sm,
+                          children: widget.event.tags
+                              .map(
+                                (tag) => _EventFilterStyleTagChip(
+                                  label: tag.tagName,
+                                ),
+                              )
+                              .toList(),
                         ),
                       ],
-                    ),
-                    const SizedBox(height: AppSpacing.lg),
-                    EventInfoRow(
-                      icon: Icons.calendar_today_rounded,
-                      text: dateFormat.format(widget.event.start),
-                      colorScheme: colorScheme,
-                    ),
-                    if (widget.event.tags.isNotEmpty) ...[
+
                       const SizedBox(height: AppSpacing.lg),
-                      Wrap(
-                        spacing: AppSpacing.sm,
-                        runSpacing: AppSpacing.sm,
-                        children: widget.event.tags
-                            .map((tag) => EventTagChip(label: tag.tagName))
-                            .toList(),
-                      ),
-                    ],
-                    const SizedBox(height: AppSpacing.xl),
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(1),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(AppRadius.md),
-                        border: Border.all(
-                          color: colorScheme.outline.withValues(alpha: 0.2),
-                          width: 1,
-                        ),
-                        color: colorScheme.surface,
-                      ),
-                      child: Html(
-                        data: widget.event.description,
-                        style: {
-                          "body": Style(
-                            margin: Margins.zero,
-                            padding: HtmlPaddings.all(AppSpacing.lg),
-                            fontSize: FontSize(FontSizes.bodyMedium),
-                            lineHeight: const LineHeight(1.6),
-                          ),
-                          "h1": Style(
-                            fontSize: FontSize(FontSizes.headlineMedium),
-                            fontWeight: FontWeight.w600,
-                            margin: Margins.only(
-                              top: AppSpacing.lg,
-                              bottom: AppSpacing.md,
-                            ),
-                          ),
-                          "h2": Style(
-                            fontSize: FontSize(FontSizes.headlineSmall),
-                            fontWeight: FontWeight.w600,
-                            margin: Margins.only(
-                              top: AppSpacing.lg,
-                              bottom: AppSpacing.md,
-                            ),
-                          ),
-                          "h3": Style(
-                            fontSize: FontSize(FontSizes.titleLarge),
-                            fontWeight: FontWeight.w600,
-                            margin: Margins.only(
-                              top: AppSpacing.md,
-                              bottom: AppSpacing.sm,
-                            ),
-                          ),
-                          "p": Style(
-                            margin: Margins.only(bottom: AppSpacing.md),
-                          ),
-                          "img": Style(
-                            width: Width(double.infinity),
-                            margin: Margins.symmetric(vertical: AppSpacing.md),
-                          ),
-                          "a": Style(
-                            color: colorScheme.primary,
-                            textDecoration: TextDecoration.underline,
-                          ),
-                        },
-                        onLinkTap: (url, _, __) {
-                          if (url != null) _launchUrl(url);
-                        },
-                      ),
-                    ),
-                    if (widget.event.registerLink != null) ...[
-                      const SizedBox(height: AppSpacing.xl),
-                      SizedBox(
+                      Container(
                         width: double.infinity,
-                        child: FilledButton.icon(
-                          onPressed: () =>
-                              _launchUrl(widget.event.registerLink!),
-                          icon: const Icon(Icons.open_in_new_rounded),
-                          label: const Text('Register for Event'),
-                          style: FilledButton.styleFrom(
-                            backgroundColor: brand?.neonCyan,
-                            foregroundColor: Colors.black,
-                            padding: const EdgeInsets.symmetric(
-                              vertical: AppSpacing.md,
+                        padding: const EdgeInsets.all(1),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(AppRadius.md),
+                          border: Border.all(
+                            color: colorScheme.outline.withValues(alpha: 0.2),
+                            width: 1,
+                          ),
+                          color: colorScheme.surface,
+                        ),
+                        child: Theme(
+                          data: Theme.of(
+                            context,
+                          ).copyWith(dividerColor: Colors.transparent),
+                          child: ExpansionTile(
+                            initiallyExpanded: false,
+                            onExpansionChanged: (expanded) {
+                              setState(() => _isDescriptionExpanded = expanded);
+                            },
+                            tilePadding: const EdgeInsets.symmetric(
                               horizontal: AppSpacing.lg,
                             ),
+                            childrenPadding: const EdgeInsets.fromLTRB(
+                              AppSpacing.lg,
+                              0,
+                              AppSpacing.lg,
+                              AppSpacing.lg,
+                            ),
+                            iconColor: colorScheme.primary,
+                            collapsedIconColor: colorScheme.onSurfaceVariant,
+                            title: Text(
+                              'Description',
+                              style: context.textStyles.titleMedium?.semiBold
+                                  .withColor(colorScheme.onSurface),
+                            ),
+                            subtitle: _isDescriptionExpanded
+                                ? null
+                                : Padding(
+                                    padding: const EdgeInsets.only(
+                                      top: AppSpacing.sm,
+                                    ),
+                                    child: Stack(
+                                      children: [
+                                        Text(
+                                          descriptionPreview,
+                                          maxLines: 4,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: context.textStyles.bodyMedium
+                                              ?.withColor(
+                                                colorScheme.onSurfaceVariant,
+                                              )
+                                              .copyWith(
+                                                fontWeight: FontWeight.w400,
+                                              ),
+                                        ),
+                                        Positioned(
+                                          left: 0,
+                                          right: 0,
+                                          bottom: 0,
+                                          child: IgnorePointer(
+                                            child: Container(
+                                              height: 24,
+                                              decoration: BoxDecoration(
+                                                gradient: LinearGradient(
+                                                  begin: Alignment.topCenter,
+                                                  end: Alignment.bottomCenter,
+                                                  colors: [
+                                                    colorScheme.surface
+                                                        .withValues(alpha: 0),
+                                                    colorScheme.surface,
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                            children: [
+                              Html(
+                                data: descriptionHtml,
+                                style: {
+                                  "body": Style(
+                                    margin: Margins.zero,
+                                    fontSize: FontSize(FontSizes.bodyMedium),
+                                    fontWeight: FontWeight.w400,
+                                    lineHeight: const LineHeight(1.6),
+                                  ),
+                                  "h1": Style(
+                                    fontSize: FontSize(
+                                      FontSizes.headlineMedium,
+                                    ),
+                                    fontWeight: FontWeight.w400,
+                                    margin: Margins.only(
+                                      top: AppSpacing.lg,
+                                      bottom: AppSpacing.md,
+                                    ),
+                                  ),
+                                  "h2": Style(
+                                    fontSize: FontSize(FontSizes.headlineSmall),
+                                    fontWeight: FontWeight.w400,
+                                    margin: Margins.only(
+                                      top: AppSpacing.lg,
+                                      bottom: AppSpacing.md,
+                                    ),
+                                  ),
+                                  "h3": Style(
+                                    fontSize: FontSize(FontSizes.titleLarge),
+                                    fontWeight: FontWeight.w400,
+                                    margin: Margins.only(
+                                      top: AppSpacing.md,
+                                      bottom: AppSpacing.sm,
+                                    ),
+                                  ),
+                                  "p": Style(
+                                    margin: Margins.only(bottom: AppSpacing.md),
+                                  ),
+                                  "img": Style(
+                                    width: Width(double.infinity),
+                                    margin: Margins.symmetric(
+                                      vertical: AppSpacing.md,
+                                    ),
+                                  ),
+                                  "a": Style(
+                                    color: colorScheme.primary,
+                                    textDecoration: TextDecoration.underline,
+                                  ),
+                                },
+                                onLinkTap: (url, _, __) {
+                                  if (url != null) _launchUrl(url);
+                                },
+                              ),
+                            ],
                           ),
                         ),
                       ),
+                      if (widget.event.registerLink != null) ...[
+                        const SizedBox(height: AppSpacing.xl),
+                        SizedBox(
+                          width: double.infinity,
+                          child: FilledButton.icon(
+                            onPressed: () =>
+                                _launchUrl(widget.event.registerLink!),
+                            icon: const Icon(Icons.open_in_new_rounded),
+                            label: const Text('Register for Event'),
+                            style: FilledButton.styleFrom(
+                              backgroundColor: primaryAccent,
+                              foregroundColor: colorScheme.onPrimary,
+                              padding: const EdgeInsets.symmetric(
+                                vertical: AppSpacing.md,
+                                horizontal: AppSpacing.lg,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                      const SizedBox(height: AppSpacing.xl),
                     ],
-                    const SizedBox(height: AppSpacing.xl),
-                  ],
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
+      ),
+    );
+  }
+}
+
+class _EventFilterStyleTagChip extends StatelessWidget {
+  final String label;
+
+  const _EventFilterStyleTagChip({required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final accent = colorScheme.primary;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+      decoration: BoxDecoration(
+        color: accent.withValues(alpha: 0.18),
+        borderRadius: BorderRadius.circular(999),
+        border: Border.all(color: accent.withValues(alpha: 0.6)),
+      ),
+      child: Text(
+        label,
+        style: context.textStyles.labelMedium?.medium.withColor(accent),
       ),
     );
   }

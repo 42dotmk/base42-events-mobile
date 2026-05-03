@@ -19,13 +19,14 @@ class LocationCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final brand = Theme.of(context).extension<BrandTheme>();
     final colorScheme = Theme.of(context).colorScheme;
+    final accent = colorScheme.primary;
 
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
         color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.62),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
+        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.2)),
       ),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
       child: Row(
@@ -34,16 +35,10 @@ class LocationCard extends StatelessWidget {
             width: 56,
             height: 56,
             decoration: BoxDecoration(
-              color: (brand?.neonYellow ?? colorScheme.secondary).withValues(
-                alpha: 0.16,
-              ),
+              color: accent.withValues(alpha: 0.16),
               borderRadius: BorderRadius.circular(16),
             ),
-            child: Icon(
-              Icons.location_on_outlined,
-              color: brand?.neonYellow ?? colorScheme.secondary,
-              size: 28,
-            ),
+            child: Icon(Icons.location_on_outlined, color: accent, size: 28),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -54,13 +49,13 @@ class LocationCard extends StatelessWidget {
                   name,
                   style: context.textStyles.headlineSmall?.bold
                       .withSize(20)
-                      .withColor(Colors.white),
+                      .withColor(colorScheme.onSurface),
                 ),
                 const SizedBox(height: 2),
                 Text(
                   address,
                   style: context.textStyles.bodySmall?.medium.withColor(
-                    Colors.white.withValues(alpha: 0.56),
+                    colorScheme.onSurface.withValues(alpha: 0.62),
                   ),
                 ),
               ],
@@ -73,14 +68,14 @@ class LocationCard extends StatelessWidget {
               Text(
                 status,
                 style: context.textStyles.labelLarge?.semiBold.withColor(
-                  const Color(0xFF69D976),
+                  brand?.successGreen ?? colorScheme.secondary,
                 ),
               ),
               const SizedBox(height: 4),
               Text(
                 hours,
                 style: context.textStyles.bodySmall?.medium.withColor(
-                  Colors.white.withValues(alpha: 0.46),
+                  colorScheme.onSurface.withValues(alpha: 0.58),
                 ),
               ),
             ],

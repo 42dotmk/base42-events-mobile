@@ -144,9 +144,9 @@ class _EventAttendanceSectionState extends State<EventAttendanceSection> {
       children: [
         Text(
           'EVENT ATTENDANCE',
-          style: context.textStyles.headlineSmall?.semiBold
-              .withSize(38 / 2)
-              .withColor(Colors.white.withValues(alpha: 0.8)),
+          style: context.textStyles.titleMedium?.semiBold.withColor(
+            colorScheme.onSurface.withValues(alpha: 0.8),
+          ),
         ),
         const SizedBox(height: 10),
         Row(
@@ -185,7 +185,7 @@ class _EventAttendanceSectionState extends State<EventAttendanceSection> {
                   ? 'No events in this attendance category yet.'
                   : 'Sign in to manage your event attendance.',
               style: context.textStyles.titleMedium?.withColor(
-                Colors.white.withValues(alpha: 0.62),
+                colorScheme.onSurface.withValues(alpha: 0.62),
               ),
             ),
           )
@@ -201,9 +201,8 @@ class _EventAttendanceSectionState extends State<EventAttendanceSection> {
               padding: const EdgeInsets.only(bottom: 10),
               child: EventAttendanceTile(
                 event: event,
-                statusLabel: eventAttendanceStatusLabel(status),
                 statusColor: _statusColor(status, brand),
-                actionLabel: eventAttendanceStatusLabel(status),
+                actionLabel: changeEventAttendanceStatus(status),
                 isActionEnabled: authProvider.isAuthenticated,
                 onActionTap: () => _showAttendanceModal(context, event, status),
               ),

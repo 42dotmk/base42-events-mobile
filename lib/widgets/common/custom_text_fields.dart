@@ -1,35 +1,32 @@
 import 'package:base42_events_mobile/theme.dart';
 import 'package:flutter/material.dart';
 
-InputDecoration bookingInputDecoration(BuildContext context, String label) {
+InputDecoration inputDecoration(BuildContext context, String label) {
   final colorScheme = Theme.of(context).colorScheme;
-  final brand = Theme.of(context).extension<BrandTheme>();
 
   return InputDecoration(
     labelText: label,
     labelStyle: context.textStyles.bodySmall?.withColor(
-      Colors.white.withValues(alpha: 0.62),
+      colorScheme.onSurface.withValues(alpha: 0.62),
     ),
     filled: true,
     fillColor: colorScheme.surfaceContainerHighest.withValues(alpha: 0.4),
     border: OutlineInputBorder(
       borderRadius: BorderRadius.circular(12),
-      borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.08)),
+      borderSide: BorderSide(color: colorScheme.outline.withValues(alpha: 0.2)),
     ),
     enabledBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(12),
-      borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.08)),
+      borderSide: BorderSide(color: colorScheme.outline.withValues(alpha: 0.2)),
     ),
     focusedBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(12),
-      borderSide: BorderSide(
-        color: (brand?.neonCyan ?? colorScheme.primary).withValues(alpha: 0.8),
-      ),
+      borderSide: BorderSide(color: colorScheme.primary.withValues(alpha: 0.8)),
     ),
   );
 }
 
-class BookingHostTextField extends StatelessWidget {
+class CustomTextField extends StatelessWidget {
   final TextEditingController controller;
   final String label;
   final String? Function(String?)? validator;
@@ -38,7 +35,7 @@ class BookingHostTextField extends StatelessWidget {
   final TextInputType? keyboardType;
   final TextCapitalization textCapitalization;
 
-  const BookingHostTextField({
+  const CustomTextField({
     super.key,
     required this.controller,
     required this.label,
@@ -51,6 +48,7 @@ class BookingHostTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
       child: TextFormField(
@@ -60,19 +58,19 @@ class BookingHostTextField extends StatelessWidget {
         maxLines: maxLines,
         keyboardType: keyboardType,
         textCapitalization: textCapitalization,
-        style: context.textStyles.bodyMedium?.withColor(Colors.white),
-        decoration: bookingInputDecoration(context, label),
+        style: context.textStyles.bodyMedium?.withColor(colorScheme.onSurface),
+        decoration: inputDecoration(context, label),
       ),
     );
   }
 }
 
-class BookingDateTimeButtonField extends StatelessWidget {
+class CustomDateTimeButtonField extends StatelessWidget {
   final String label;
   final String value;
   final VoidCallback onTap;
 
-  const BookingDateTimeButtonField({
+  const CustomDateTimeButtonField({
     super.key,
     required this.label,
     required this.value,
@@ -81,24 +79,27 @@ class BookingDateTimeButtonField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(12),
         child: InputDecorator(
-          decoration: bookingInputDecoration(context, label),
+          decoration: inputDecoration(context, label),
           child: Row(
             children: [
               Expanded(
                 child: Text(
                   value,
-                  style: context.textStyles.bodyMedium?.withColor(Colors.white),
+                  style: context.textStyles.bodyMedium?.withColor(
+                    colorScheme.onSurface,
+                  ),
                 ),
               ),
               Icon(
                 Icons.calendar_month_outlined,
-                color: Colors.white.withValues(alpha: 0.55),
+                color: colorScheme.onSurface.withValues(alpha: 0.55),
               ),
             ],
           ),

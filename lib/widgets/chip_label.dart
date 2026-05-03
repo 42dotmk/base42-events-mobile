@@ -14,12 +14,13 @@ class ChipLabel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(8),
         border: Border.all(color: color, width: 1),
-        color: backgroundColor ?? Colors.black.withValues(alpha: 0.45),
+        color: backgroundColor ?? colorScheme.shadow.withValues(alpha: 0.45),
       ),
       child: Text(
         text,

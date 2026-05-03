@@ -6,7 +6,6 @@ import 'package:intl/intl.dart';
 
 class EventAttendanceTile extends StatelessWidget {
   final Event event;
-  final String statusLabel;
   final Color statusColor;
   final String actionLabel;
   final bool isActionEnabled;
@@ -15,7 +14,6 @@ class EventAttendanceTile extends StatelessWidget {
   const EventAttendanceTile({
     super.key,
     required this.event,
-    required this.statusLabel,
     required this.statusColor,
     required this.actionLabel,
     required this.onActionTap,
@@ -25,7 +23,6 @@ class EventAttendanceTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final brand = Theme.of(context).extension<BrandTheme>();
     final dateText = DateFormat('MMM d, yyyy').format(event.start);
 
     return GestureDetector(
@@ -35,21 +32,21 @@ class EventAttendanceTile extends StatelessWidget {
         decoration: BoxDecoration(
           color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.62),
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
+          border: Border.all(color: colorScheme.outline.withValues(alpha: 0.2)),
         ),
         padding: const EdgeInsets.all(14),
         clipBehavior: Clip.antiAlias,
         child: Row(
           children: [
             Expanded(
+              flex: 2,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     event.title,
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w700,
+                    style: context.textStyles.titleMedium?.semiBold.withColor(
+                      colorScheme.onSurface.withValues(alpha: 0.8),
                     ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
@@ -57,8 +54,8 @@ class EventAttendanceTile extends StatelessWidget {
                   const SizedBox(height: 6),
                   Text(
                     dateText,
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Colors.white.withValues(alpha: 0.56),
+                    style: context.textStyles.bodySmall?.withColor(
+                      colorScheme.onSurface.withValues(alpha: 0.56),
                     ),
                   ),
                   const SizedBox(height: 10),
@@ -66,32 +63,35 @@ class EventAttendanceTile extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 12),
-            TextButton(
-              onPressed: isActionEnabled ? onActionTap : null,
-              style: TextButton.styleFrom(
-                foregroundColor: isActionEnabled
-                    ? brand?.neonCyan ?? colorScheme.primary
-                    : Colors.white.withValues(alpha: 0.45),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 12,
-                ),
-                backgroundColor: isActionEnabled
-                    ? (brand?.neonCyan ?? colorScheme.primary).withValues(
-                        alpha: 0.1,
-                      )
-                    : Colors.white.withValues(alpha: 0.08),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
-                ),
-              ),
-              child: Text(
-                actionLabel,
-                style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                  color: isActionEnabled
-                      ? brand?.neonCyan ?? colorScheme.primary
-                      : Colors.white.withValues(alpha: 0.5),
-                  fontWeight: FontWeight.w700,
+            Expanded(
+              flex: 1,
+              child: Center(
+                child: TextButton(
+                  onPressed: isActionEnabled ? onActionTap : null,
+                  style: TextButton.styleFrom(
+                    foregroundColor: isActionEnabled
+                        ? colorScheme.primary
+                        : colorScheme.onSurface.withValues(alpha: 0.45),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 12,
+                    ),
+                    backgroundColor: isActionEnabled
+                        ? (colorScheme.primary).withValues(alpha: 0.1)
+                        : colorScheme.onSurface.withValues(alpha: 0.08),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                  ),
+                  child: Text(
+                    actionLabel,
+                    style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                      color: isActionEnabled
+                          ? colorScheme.primary
+                          : colorScheme.onSurface.withValues(alpha: 0.5),
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
                 ),
               ),
             ),

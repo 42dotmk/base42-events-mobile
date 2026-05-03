@@ -1,5 +1,4 @@
 import 'package:base42_events_mobile/consts/enum.dart';
-import 'package:base42_events_mobile/theme.dart';
 import 'package:base42_events_mobile/widgets/common/custom_button.dart';
 import 'package:flutter/material.dart';
 
@@ -15,19 +14,9 @@ class AttendanceActionModal extends StatelessWidget {
     required this.onSwitch,
   });
 
-  String get _switchLabel {
-    switch (currentStatus) {
-      case EventAttendanceStatus.interested:
-        return 'Switch to Going';
-      case EventAttendanceStatus.going:
-        return 'Switch to Interested';
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final brand = Theme.of(context).extension<BrandTheme>();
 
     return Dialog(
       backgroundColor: Colors.transparent,
@@ -52,9 +41,9 @@ class AttendanceActionModal extends StatelessWidget {
             ),
             const SizedBox(height: 24),
             CustomButton.action(
-              label: _switchLabel,
+              label: changeEventAttendanceStatus(currentStatus),
               icon: Icons.swap_horiz_rounded,
-              color: brand?.neonCyan ?? colorScheme.primary,
+              color: colorScheme.primary,
               onTap: () {
                 Navigator.of(context).pop();
                 onSwitch();

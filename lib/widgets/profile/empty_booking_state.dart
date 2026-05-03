@@ -28,13 +28,15 @@ class EmptyBookingsState extends StatelessWidget {
         children: [
           Icon(
             Icons.event_busy_outlined,
-            color: Colors.white.withValues(alpha: 0.45),
+            color: Theme.of(
+              context,
+            ).colorScheme.onSurface.withValues(alpha: 0.45),
           ),
           const SizedBox(width: 10),
           Text(
             text,
             style: context.textStyles.titleMedium?.withColor(
-              Colors.white.withValues(alpha: 0.56),
+              Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
             ),
           ),
         ],

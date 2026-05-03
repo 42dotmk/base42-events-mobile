@@ -66,7 +66,6 @@ class _EventListScreenState extends State<EventListScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final brand = Theme.of(context).extension<BrandTheme>();
     final colorScheme = Theme.of(context).colorScheme;
     final eventProvider = context.watch<EventProvider>();
 
@@ -75,6 +74,7 @@ class _EventListScreenState extends State<EventListScreen> {
     final errorMessage = eventProvider.errorMessage;
 
     final allTags = _extractTags(events);
+    final primaryAccent = colorScheme.primary;
     final activeTag = _hasTag(allTags, _activeTag) ? _activeTag : 'All';
 
     final filtered = events.where((e) {
@@ -98,7 +98,7 @@ class _EventListScreenState extends State<EventListScreen> {
 
     return Scaffold(
       body: Container(
-        decoration: BoxDecoration(gradient: brand?.backdropGradient),
+        color: Theme.of(context).scaffoldBackgroundColor,
         child: SafeArea(
           child: Column(
             children: [
@@ -111,14 +111,14 @@ class _EventListScreenState extends State<EventListScreen> {
                     Text(
                       'Events',
                       style: context.textStyles.headlineSmall?.bold.withColor(
-                        Colors.white,
+                        colorScheme.onSurface,
                       ),
                     ),
                     const SizedBox(height: 6),
                     Text(
                       'Where builders and curious minds gather',
                       style: context.textStyles.bodySmall?.withColor(
-                        Colors.white.withValues(alpha: 0.6),
+                        colorScheme.onSurface.withValues(alpha: 0.6),
                       ),
                     ),
                     const SizedBox(height: 16),
@@ -126,12 +126,12 @@ class _EventListScreenState extends State<EventListScreen> {
                       controller: _searchController,
                       onChanged: (v) => setState(() => _query = v),
                       style: context.textStyles.bodyMedium?.withColor(
-                        Colors.white,
+                        colorScheme.onSurface,
                       ),
                       decoration: InputDecoration(
                         hintText: 'Search events...',
                         hintStyle: context.textStyles.bodyMedium?.withColor(
-                          Colors.white.withValues(alpha: 0.35),
+                          colorScheme.onSurface.withValues(alpha: 0.5),
                         ),
                         filled: true,
                         fillColor: colorScheme.surfaceContainerHighest
@@ -142,7 +142,7 @@ class _EventListScreenState extends State<EventListScreen> {
                         ),
                         prefixIcon: Icon(
                           Icons.search_rounded,
-                          color: Colors.white.withValues(alpha: 0.45),
+                          color: colorScheme.onSurface.withValues(alpha: 0.6),
                         ),
                         suffixIcon: _query.isEmpty
                             ? null
@@ -153,26 +153,27 @@ class _EventListScreenState extends State<EventListScreen> {
                                 },
                                 icon: Icon(
                                   Icons.close_rounded,
-                                  color: Colors.white.withValues(alpha: 0.45),
+                                  color: colorScheme.onSurface.withValues(
+                                    alpha: 0.6,
+                                  ),
                                 ),
                               ),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                           borderSide: BorderSide(
-                            color: Colors.white.withValues(alpha: 0.12),
+                            color: colorScheme.outline.withValues(alpha: 0.25),
                           ),
                         ),
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                           borderSide: BorderSide(
-                            color: Colors.white.withValues(alpha: 0.12),
+                            color: colorScheme.outline.withValues(alpha: 0.25),
                           ),
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                           borderSide: BorderSide(
-                            color: (brand?.neonCyan ?? colorScheme.primary)
-                                .withValues(alpha: 0.85),
+                            color: colorScheme.primary.withValues(alpha: 0.85),
                           ),
                         ),
                       ),
@@ -201,15 +202,15 @@ class _EventListScreenState extends State<EventListScreen> {
                           .withColor(
                             isActive
                                 ? colorScheme.surface
-                                : Colors.white.withValues(alpha: 0.75),
+                                : colorScheme.onSurface.withValues(alpha: 0.75),
                           ),
-                      selectedColor: brand?.neonYellow ?? colorScheme.secondary,
+                      selectedColor: primaryAccent,
                       backgroundColor: colorScheme.surfaceContainerHighest
                           .withValues(alpha: 0.32),
                       side: BorderSide(
                         color: isActive
                             ? Colors.transparent
-                            : Colors.white.withValues(alpha: 0.14),
+                            : colorScheme.outline.withValues(alpha: 0.25),
                       ),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(999),
@@ -242,21 +243,25 @@ class _EventListScreenState extends State<EventListScreen> {
                               Icon(
                                 Icons.calendar_month_rounded,
                                 size: 42,
-                                color: Colors.white.withValues(alpha: 0.28),
+                                color: colorScheme.onSurface.withValues(
+                                  alpha: 0.45,
+                                ),
                               ),
                               const SizedBox(height: 10),
                               Text(
                                 'No events found',
                                 style: context.textStyles.titleMedium
                                     ?.withColor(
-                                      Colors.white.withValues(alpha: 0.72),
+                                      colorScheme.onSurface.withValues(
+                                        alpha: 0.72,
+                                      ),
                                     ),
                               ),
                               const SizedBox(height: 4),
                               Text(
                                 'Try adjusting your filters',
                                 style: context.textStyles.bodySmall?.withColor(
-                                  Colors.white.withValues(alpha: 0.45),
+                                  colorScheme.onSurface.withValues(alpha: 0.52),
                                 ),
                               ),
                             ],

@@ -104,8 +104,6 @@ class AuthProvider extends ChangeNotifier {
   }
 
   Future<void> register() async {
-    developer.log('register() called', name: 'AuthProvider');
-
     try {
       final authResponse = await _appAuth.authorizeAndExchangeCode(
         AuthorizationTokenRequest(
@@ -148,12 +146,13 @@ class AuthProvider extends ChangeNotifier {
       }
 
       final result = await _userService.loginWithKeycloak(keycloakToken);
-      _currentUser = result.user;
       _token = result.jwt;
 
       if (_token == null) {
         throw Exception('Failed to retrieve Strapi auth token');
       }
+
+      _currentUser = await _userService.getCurrentAuthenticatedUser(_token!);
 
       await _storageService.saveToken(
         SecureStorageService.jwtTokenKey,
@@ -175,7 +174,15 @@ class AuthProvider extends ChangeNotifier {
       if (isUserCancelled(e)) {
         return;
       }
-      debugPrint('Strapi token exchange failed: $e');
+      await _storageService.deleteToken(SecureStorageService.jwtTokenKey);
+      await _storageService.deleteToken(SecureStorageService.jwtExpirationKey);
+      _currentUser = null;
+      _token = null;
+      developer.log(
+        'Strapi token exchange failed: $e',
+        name: 'AuthProvider',
+        error: e,
+      );
       rethrow;
     }
   }
@@ -187,7 +194,6 @@ class AuthProvider extends ChangeNotifier {
       if (isUserCancelled(e)) {
         return;
       }
-      debugPrint('Logout API call failed (non-critical): $e');
     } finally {
       await _storageService.deleteToken(SecureStorageService.jwtTokenKey);
       await _storageService.deleteToken(SecureStorageService.jwtExpirationKey);
@@ -195,8 +201,6 @@ class AuthProvider extends ChangeNotifier {
       _token = null;
 
       _attendanceProvider?.clearAll();
-
-      debugPrint('Logout successful - local session cleared');
       notifyListeners();
     }
   }
@@ -211,5 +215,27 @@ class AuthProvider extends ChangeNotifier {
 
     return _token ??
         await _storageService.getToken(SecureStorageService.jwtTokenKey);
+  }
+
+  Future<void> refreshCurrentUser() async {
+    if (_token == null) {
+      throw Exception('Not authenticated');
+    }
+
+    try {
+      _currentUser = await _userService.getCurrentAuthenticatedUser(_token!);
+      notifyListeners();
+      developer.log(
+        'User data refreshed: ${_currentUser?.username}',
+        name: 'AuthProvider',
+      );
+    } catch (e) {
+      developer.log(
+        'Failed to refresh user data: $e',
+        name: 'AuthProvider',
+        error: e,
+      );
+      rethrow;
+    }
   }
 }

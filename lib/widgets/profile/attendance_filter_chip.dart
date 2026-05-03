@@ -25,17 +25,13 @@ class AttendanceFilterChip extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         decoration: BoxDecoration(
           color: selected
-              ? (brand?.neonYellow ?? colorScheme.secondary).withValues(
-                  alpha: 0.18,
-                )
+              ? (colorScheme.primary).withValues(alpha: 0.18)
               : colorScheme.surfaceContainerHighest.withValues(alpha: 0.62),
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: selected
-                ? (brand?.neonYellow ?? colorScheme.secondary).withValues(
-                    alpha: 0.6,
-                  )
-                : Colors.white.withValues(alpha: 0.08),
+                ? (colorScheme.primary).withValues(alpha: 0.6)
+                : colorScheme.outline.withValues(alpha: 0.2),
           ),
         ),
         child: Center(
@@ -43,8 +39,8 @@ class AttendanceFilterChip extends StatelessWidget {
             label,
             style: context.textStyles.titleMedium?.semiBold.withColor(
               selected
-                  ? brand?.neonYellow ?? colorScheme.secondary
-                  : Colors.white.withValues(alpha: 0.44),
+                  ? colorScheme.primary
+                  : colorScheme.onSurface.withValues(alpha: 0.2),
             ),
           ),
         ),

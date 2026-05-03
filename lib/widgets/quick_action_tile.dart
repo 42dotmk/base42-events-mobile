@@ -18,6 +18,7 @@ class QuickActionTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final onSurface = colorScheme.onSurface;
 
     return InkWell(
       onTap: onTap,
@@ -26,7 +27,7 @@ class QuickActionTile extends StatelessWidget {
         decoration: BoxDecoration(
           color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.62),
           borderRadius: BorderRadius.circular(AppRadius.lg),
-          border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
+          border: Border.all(color: colorScheme.outline.withValues(alpha: 0.2)),
         ),
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
         child: Column(
@@ -46,7 +47,7 @@ class QuickActionTile extends StatelessWidget {
               label,
               textAlign: TextAlign.center,
               style: context.textStyles.titleSmall?.semiBold.withColor(
-                Colors.white.withValues(alpha: 0.83),
+                onSurface.withValues(alpha: 0.83),
               ),
             ),
           ],
