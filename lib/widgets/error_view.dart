@@ -2,10 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:base42_events_mobile/theme.dart';
 
 class ErrorView extends StatelessWidget {
+  final String title;
   final String message;
   final VoidCallback onRetry;
 
-  const ErrorView({super.key, required this.message, required this.onRetry});
+  const ErrorView({
+    super.key,
+    this.title = 'Failed to load events',
+    required this.message,
+    required this.onRetry,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +28,7 @@ class ErrorView extends StatelessWidget {
             ),
             const SizedBox(height: AppSpacing.lg),
             Text(
-              'Failed to load events',
+              title,
               style: context.textStyles.titleLarge?.semiBold,
               textAlign: TextAlign.center,
             ),

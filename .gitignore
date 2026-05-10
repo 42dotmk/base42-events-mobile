@@ -66,3 +66,4 @@ android/app/build/
 
 .env
 *.log
+.opencode/

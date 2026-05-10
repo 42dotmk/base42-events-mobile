@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:base42_events_mobile/consts/api.dart';
 import 'package:base42_events_mobile/models/user.dart';
+import 'package:base42_events_mobile/providers/attendance_provider.dart';
 import 'package:base42_events_mobile/services/user_service.dart';
 import 'package:base42_events_mobile/services/secure_storage_service.dart';
 import 'package:base42_events_mobile/services/fcm_service.dart';
@@ -21,9 +22,25 @@ class AuthProvider extends ChangeNotifier {
   final UserService _userService = UserService();
   final SecureStorageService _storageService = SecureStorageService();
   final FlutterAppAuth _appAuth = const FlutterAppAuth();
+  final AttendanceProvider? _attendanceProvider;
 
-  AuthProvider() {
+  AuthProvider({AttendanceProvider? attendanceProvider})
+    : _attendanceProvider = attendanceProvider {
     _checkAuthStatus();
+  }
+
+  Future<void> loadUserEvents() async {
+    if (_token == null || _currentUser == null) {
+      debugPrint('Cannot load user events: no auth token or user data');
+      return;
+    }
+
+    try {
+      await _attendanceProvider?.loadUserEvents(_token!, _currentUser!.id);
+      developer.log('User events loaded successfully', name: 'AuthProvider');
+    } catch (e) {
+      debugPrint('Failed to load user events: $e');
+    }
   }
 
   Future<void> _checkAuthStatus() async {
@@ -46,9 +63,11 @@ class AuthProvider extends ChangeNotifier {
           'User data loaded: ${_currentUser?.username}',
           name: 'AuthProvider',
         );
+
+        await loadUserEvents();
       }
     } catch (e) {
-      developer.log('Auth check failed: $e', name: 'AuthProvider', error: e);
+      debugPrint('Auth check failed: $e');
       await logout();
     } finally {
       _isLoading = false;
@@ -103,26 +122,19 @@ class AuthProvider extends ChangeNotifier {
       final accessToken = authResponse.accessToken;
 
       if (accessToken == null) {
-        developer.log(
+        debugPrint(
           'accessToken is null after authorizeAndExchangeCode — aborting',
-          name: 'AuthProvider',
         );
         return;
       }
 
       await exchangeForStrapiToken(accessToken);
-      developer.log('exchangeForStrapiToken succeeded', name: 'AuthProvider');
-    } catch (e, stackTrace) {
+    } catch (e) {
       if (hasUserCancelled(e)) {
         return;
       }
 
-      developer.log(
-        'Keycloak registration failed: $e',
-        name: 'AuthProvider',
-        error: e,
-        stackTrace: stackTrace,
-      );
+      debugPrint('Keycloak registration failed: $e');
       rethrow;
     }
   }
@@ -134,12 +146,13 @@ class AuthProvider extends ChangeNotifier {
       }
 
       final result = await _userService.loginWithKeycloak(keycloakToken);
-      _currentUser = result.user;
       _token = result.jwt;
 
       if (_token == null) {
         throw Exception('Failed to retrieve Strapi auth token');
       }
+
+      _currentUser = await _userService.getCurrentAuthenticatedUser(_token!);
 
       await _storageService.saveToken(
         SecureStorageService.jwtTokenKey,
@@ -147,6 +160,9 @@ class AuthProvider extends ChangeNotifier {
       );
 
       final expiresIn = result.expiresIn ?? 900;
+
+      await loadUserEvents();
+
       final expiration = DateTime.now().add(Duration(seconds: expiresIn));
 
       await _storageService.saveToken(
@@ -161,6 +177,10 @@ class AuthProvider extends ChangeNotifier {
       if (hasUserCancelled(e)) {
         return;
       }
+      await _storageService.deleteToken(SecureStorageService.jwtTokenKey);
+      await _storageService.deleteToken(SecureStorageService.jwtExpirationKey);
+      _currentUser = null;
+      _token = null;
       developer.log(
         'Strapi token exchange failed: $e',
         name: 'AuthProvider',
@@ -177,21 +197,13 @@ class AuthProvider extends ChangeNotifier {
       if (hasUserCancelled(e)) {
         return;
       }
-      developer.log(
-        'Logout API call failed (non-critical): $e',
-        name: 'AuthProvider',
-        error: e,
-      );
     } finally {
       await _storageService.deleteToken(SecureStorageService.jwtTokenKey);
       await _storageService.deleteToken(SecureStorageService.jwtExpirationKey);
       _currentUser = null;
       _token = null;
 
-      developer.log(
-        'Logout successful - local session cleared',
-        name: 'AuthProvider',
-      );
+      _attendanceProvider?.clearAll();
       notifyListeners();
     }
   }
@@ -206,5 +218,27 @@ class AuthProvider extends ChangeNotifier {
 
     return _token ??
         await _storageService.getToken(SecureStorageService.jwtTokenKey);
+  }
+
+  Future<void> refreshCurrentUser() async {
+    if (_token == null) {
+      throw Exception('Not authenticated');
+    }
+
+    try {
+      _currentUser = await _userService.getCurrentAuthenticatedUser(_token!);
+      notifyListeners();
+      developer.log(
+        'User data refreshed: ${_currentUser?.username}',
+        name: 'AuthProvider',
+      );
+    } catch (e) {
+      developer.log(
+        'Failed to refresh user data: $e',
+        name: 'AuthProvider',
+        error: e,
+      );
+      rethrow;
+    }
   }
 }
