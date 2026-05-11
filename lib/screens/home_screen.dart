@@ -65,11 +65,13 @@ class _HomeScreenState extends State<HomeScreen> {
       _QuickAction(
         icon: Icons.volunteer_activism_outlined,
         label: 'Volunteer',
+        route: AppRoutes.volunteer,
         color: colorScheme.primary,
       ),
       _QuickAction(
         icon: Icons.card_membership_outlined,
         label: 'Member',
+        route: AppRoutes.member,
         color: colorScheme.primary,
       ),
     ];

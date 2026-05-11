@@ -1,3 +1,5 @@
+import 'package:base42_events_mobile/screens/member_screen.dart';
+import 'package:base42_events_mobile/screens/volunteer_screen.dart';
 import 'package:base42_events_mobile/models/event.dart';
 import 'package:base42_events_mobile/providers/auth_provider.dart';
 import 'package:base42_events_mobile/screens/edit_profile_screen.dart';
@@ -151,6 +153,18 @@ class AppRouter {
         parentNavigatorKey: _rootNavigatorKey,
         builder: (context, state) => const RulesScreen(),
       ),
+      GoRoute(
+        path: AppRoutes.volunteer,
+        name: 'volunteer',
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) => const VolunteerScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.member,
+        name: 'member',
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) => const MemberScreen(),
+      ),
     ],
   );
 }
@@ -169,6 +183,8 @@ class AppRoutes {
   static const String settings = '/settings';
   static const String about = '/about';
   static const String rules = '/about/rules';
+  static const String volunteer = '/volunteer';
+  static const String member = '/member';
 
   static String projectDetailsPath(String owner, String repo) =>
       '/projects/$owner/$repo';
