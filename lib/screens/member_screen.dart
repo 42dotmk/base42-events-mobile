@@ -21,6 +21,8 @@ class MemberScreen extends StatelessWidget {
     final brand = Theme.of(context).extension<BrandTheme>();
     final colorScheme = Theme.of(context).colorScheme;
     final onSurface = colorScheme.onSurface;
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+
 
     final perks = [
       const MemberPerk(
@@ -109,8 +111,6 @@ class MemberScreen extends StatelessWidget {
                             icon: perk.icon,
                             title: perk.title,
                             description: perk.description,
-                            accentColor:
-                                brand?.neonCyan ?? colorScheme.primary,
                           ),
                         ),
                       ),
@@ -132,7 +132,10 @@ class MemberScreen extends StatelessWidget {
                               ),
                             );
                           },
-                          child: const Text('Become a Member'),
+                          child: Text('Become a Member',
+                           style: isDark ? TextStyle(color: Colors.black) :  TextStyle(color: Colors.white) ,
+                            
+                          ),
                         ),
                       ),
                     ],

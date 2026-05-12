@@ -13,8 +13,13 @@ class MembershipCard extends StatelessWidget {
     required this.onSurface,
   });
 
+
+
   @override
   Widget build(BuildContext context) {
+
+   final accentColor = Theme.of(context).colorScheme.primary;
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(AppSpacing.lg),
@@ -60,7 +65,7 @@ class MembershipCard extends StatelessWidget {
               const SizedBox(width: AppSpacing.md),
               Text(
                 'BASE42 MEMBER',
-                style: context.textStyles.titleLarge?.bold.withColor(onSurface),
+                style: context.textStyles.titleLarge?.bold.withColor(accentColor),
               ),
             ],
           ),
@@ -93,7 +98,7 @@ class MembershipCard extends StatelessWidget {
               vertical: AppSpacing.sm,
             ),
             decoration: BoxDecoration(
-              color: secondaryAccent.withValues(alpha: 0.15),
+              color: accentColor.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(AppRadius.sm),
             ),
             child: Row(
@@ -101,14 +106,14 @@ class MembershipCard extends StatelessWidget {
               children: [
                 Icon(
                   Icons.check_circle_outline_rounded,
-                  color: secondaryAccent,
+                  color: accentColor,
                   size: 18,
                 ),
                 const SizedBox(width: AppSpacing.xs),
                 Text(
                   'All perks included',
                   style: context.textStyles.bodyMedium?.semiBold.withColor(
-                    secondaryAccent,
+                    accentColor,
                   ),
                 ),
               ],

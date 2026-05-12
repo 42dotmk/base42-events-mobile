@@ -17,14 +17,12 @@ class MemberPerkCard extends StatelessWidget {
   final IconData icon;
   final String title;
   final String description;
-  final Color accentColor;
 
   const MemberPerkCard({
     super.key,
     required this.icon,
     required this.title,
     required this.description,
-    required this.accentColor,
   });
 
   @override
@@ -35,12 +33,8 @@ class MemberPerkCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(AppSpacing.md),
       decoration: BoxDecoration(
-        color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-        borderRadius: BorderRadius.circular(AppRadius.md),
-        border: Border.all(
-          color: accentColor.withValues(alpha: 0.12),
-          width: 1,
-        ),
+        color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+        borderRadius: BorderRadius.circular(AppRadius.lg),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -48,10 +42,14 @@ class MemberPerkCard extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(AppSpacing.sm),
             decoration: BoxDecoration(
-              color: accentColor.withValues(alpha: 0.12),
+              color: onSurface.withValues(alpha: 0.08),
               borderRadius: BorderRadius.circular(AppRadius.sm),
             ),
-            child: Icon(icon, color: accentColor, size: 22),
+            child: Icon(
+              icon,
+              color: onSurface.withValues(alpha: 0.6),
+              size: 24,
+            ),
           ),
           const SizedBox(width: AppSpacing.md),
           Expanded(
@@ -60,14 +58,15 @@ class MemberPerkCard extends StatelessWidget {
               children: [
                 Text(
                   title,
-                  style: context.textStyles.titleMedium?.semiBold
-                      .withColor(onSurface),
+                  style: context.textStyles.titleMedium?.bold.withColor(
+                    onSurface,
+                  ),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   description,
                   style: context.textStyles.bodyMedium?.withColor(
-                    onSurface.withValues(alpha: 0.65),
+                    onSurface.withValues(alpha: 0.55),
                   ),
                 ),
               ],

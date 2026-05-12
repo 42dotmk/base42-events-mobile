@@ -169,24 +169,33 @@ class ShopScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Padding(
-                padding: const EdgeInsets.fromLTRB(20, 18, 20, 8),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                padding: const EdgeInsets.fromLTRB(8, 8, 18, 0),
+                child: Row(
                   children: [
+                    IconButton(
+                      icon: Icon(
+                        Icons.arrow_back_ios_new_rounded,
+                        color: onSurface,
+                      ),
+                      onPressed: () => _handleBack(context),
+                    ),
                     Text(
-                      'Shop',
+                      'SHOP',
                       style: context.textStyles.headlineSmall?.bold.withColor(
                         onSurface,
                       ),
                     ),
-                    const SizedBox(height: 6),
-                    Text(
-                      'Get your Base42 gear',
-                      style: context.textStyles.bodySmall?.withColor(
-                        onSurface.withValues(alpha: 0.55),
-                      ),
-                    ),
                   ],
+                ),
+              ),
+              const SizedBox(height: 6),
+              Padding(
+                padding: const EdgeInsets.only(left: 18),
+                child: Text(
+                  'Get your Base42 gear',
+                  style: context.textStyles.bodySmall?.withColor(
+                    onSurface.withValues(alpha: 0.55),
+                  ),
                 ),
               ),
               Expanded(

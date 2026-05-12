@@ -88,7 +88,7 @@ class BottomNavigationBarWidget extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
     final brand = Theme.of(context).extension<BrandTheme>();
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final activeColor = isDark ? colorScheme.primary : colorScheme.primary;
+      final activeColor = isDark ? colorScheme.primary : colorScheme.primary;
     final inactiveColor = colorScheme.onSurface.withValues(
       alpha: isDark ? 0.35 : 0.55,
     );
