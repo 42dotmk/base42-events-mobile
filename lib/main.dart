@@ -6,6 +6,7 @@ import 'package:base42_events_mobile/providers/my_bookings_provider.dart';
 import 'package:base42_events_mobile/providers/settings_provider.dart';
 import 'package:base42_events_mobile/screens/placeholder_onboarding_screen.dart';
 import 'package:base42_events_mobile/services/secure_storage_service.dart';
+import 'package:base42_events_mobile/widgets/loading_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'theme.dart';
@@ -73,10 +74,13 @@ class _MyAppState extends State<MyApp> {
         theme: lightTheme,
         darkTheme: darkTheme,
         themeMode: themeMode,
-        home: const _SplashScreen(),
-      );
+        home: Scaffold(
+          body: Container(
+            child: CircularProgressIndicator(),
+          )
+            ),
+          );
     }
-
     if (!_onboardingDone!) {
       return MaterialApp(
         debugShowCheckedModeBanner: false,
@@ -94,20 +98,6 @@ class _MyAppState extends State<MyApp> {
       darkTheme: darkTheme,
       themeMode: themeMode,
       routerConfig: _appRouter.router,
-    );
-  }
-}
-
-class _SplashScreen extends StatelessWidget {
-  const _SplashScreen();
-
-  @override
-  Widget build(BuildContext context) {
-    final brand = Theme.of(context).extension<BrandTheme>();
-    return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(gradient: brand?.backdropGradient),
-      ),
     );
   }
 }

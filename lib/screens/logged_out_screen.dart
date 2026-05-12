@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:base42_events_mobile/nav.dart';
 import 'package:base42_events_mobile/providers/auth_provider.dart';
 import 'package:base42_events_mobile/theme.dart';
@@ -14,6 +15,32 @@ class LoggedOutScreen extends StatefulWidget {
 
 class _LoggedOutScreenState extends State<LoggedOutScreen> {
   bool _isLoading = false;
+  int _currentImageIndex = 0;
+  Timer? _imageTimer;
+
+  static const List<String> _backgroundImages = [
+    'assets/images/whole-space.jpeg',
+    'assets/images/workshop-space.jpg',
+    'assets/images/electronics.jpg',
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    _imageTimer = Timer.periodic(const Duration(seconds: 2), (timer) {
+      if (mounted) {
+        setState(() {
+          _currentImageIndex = (_currentImageIndex + 1) % _backgroundImages.length;
+        });
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _imageTimer?.cancel();
+    super.dispose();
+  }
 
   Future<void> _loginWithKeycloak() async {
     try {
@@ -62,97 +89,113 @@ class _LoggedOutScreenState extends State<LoggedOutScreen> {
     final primaryAccent = isDark ? colorScheme.secondary : colorScheme.primary;
 
     return Scaffold(
-      body: Container(
-        color: Theme.of(context).scaffoldBackgroundColor,
-        child: SafeArea(
-          child: Center(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.fromLTRB(18, 24, 18, 24),
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 520),
-                child: Container(
-                  padding: const EdgeInsets.fromLTRB(22, 24, 22, 22),
-                  decoration: BoxDecoration(
-                    color: colorScheme.surfaceContainerHighest.withValues(
-                      alpha: 0.62,
-                    ),
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(
-                      color: colorScheme.outline.withValues(alpha: 0.2),
-                    ),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Welcome To Base42!',
-                        style: context.textStyles.headlineMedium?.bold
-                            .withColor(colorScheme.onSurface),
+      body: Stack(
+        fit: StackFit.expand,
+        children: [
+          AnimatedSwitcher(
+            duration: const Duration(milliseconds: 800),
+            child: Image.asset(
+              _backgroundImages[_currentImageIndex],
+              key: ValueKey(_currentImageIndex),
+              fit: BoxFit.cover,
+              width: double.infinity,
+              height: double.infinity,
+            ),
+          ),
+          Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                stops: const [0.0, 0.35, 1.0],
+                colors: [
+                  Colors.black.withValues(alpha: 0.15),
+                  Colors.black.withValues(alpha: 0.5),
+                  Colors.black.withValues(alpha: 0.92),
+                ],
+              ),
+            ),
+          ),
+          SafeArea(
+            child: Align(
+              alignment: Alignment.bottomCenter,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(24, 0, 24, 70),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      'Welcome To Base42!',
+                      textAlign: TextAlign.center,
+                      style: context.textStyles.headlineMedium?.bold.copyWith(
+                        color: Colors.white,
+                        fontSize: 32,
                       ),
-                      const SizedBox(height: 10),
-                      Text(
-                        'Sign in to access all the cool things we got in our Hackerspace!',
-                        style: context.textStyles.titleMedium?.withColor(
-                          colorScheme.onSurface.withValues(alpha: 0.68),
-                        ),
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      'Sign in to access all the cool things we got in our Hackerspace!',
+                      textAlign: TextAlign.center,
+                      style: context.textStyles.titleMedium?.copyWith(
+                        color: Colors.white.withValues(alpha: 0.75),
+                        fontSize: 15,
                       ),
-                      const SizedBox(height: 24),
-                      SizedBox(
-                        width: double.infinity,
-                        child: FilledButton(
-                          onPressed: _isLoading ? null : _loginWithKeycloak,
-                          style: FilledButton.styleFrom(
-                            backgroundColor: primaryAccent,
-                            foregroundColor: colorScheme.onPrimary,
-                            padding: const EdgeInsets.symmetric(vertical: 14),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(14),
-                            ),
+                    ),
+                    const SizedBox(height: 32),
+                    SizedBox(
+                      width: double.infinity,
+                      child: FilledButton(
+                        onPressed: _isLoading ? null : _loginWithKeycloak,
+                        style: FilledButton.styleFrom(
+                          backgroundColor: colorScheme.primary,
+                          foregroundColor: colorScheme.onPrimary,
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
                           ),
-                          child: _isLoading
-                              ? SizedBox(
-                                  width: 20,
-                                  height: 20,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    color: colorScheme.onPrimary,
-                                  ),
-                                )
-                              : Text(
-                                  'Login',
-                                  style:
-                                      context.textStyles.titleMedium?.semiBold,
+                        ),
+                        child: _isLoading
+                            ? SizedBox(
+                                width: 22,
+                                height: 22,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2.5,
+                                  color: colorScheme.onPrimary,
                                 ),
+                              )
+                            : Text(
+                                'LOGIN',
+                                style: context.textStyles.titleMedium?.withColor(Colors.black).semiBold,
+                              ),
+                      ),
+                    ),
+                    const SizedBox(height: 14),
+                    SizedBox(
+                      width: double.infinity,
+                      child: OutlinedButton(
+                        onPressed: _isLoading ? null : _registerWithKeycloak,
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: Colors.white,
+                          side: BorderSide(
+                            color: Colors.white.withValues(alpha: 0.4),
+                          ),
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                        ),
+                        child: Text(
+                          'REGISTER',
+                          style: context.textStyles.titleMedium?.semiBold,
                         ),
                       ),
-                      const SizedBox(height: 12),
-                      SizedBox(
-                        width: double.infinity,
-                        child: OutlinedButton(
-                          onPressed: _isLoading ? null : _registerWithKeycloak,
-                          style: OutlinedButton.styleFrom(
-                            foregroundColor: colorScheme.primary,
-                            side: BorderSide(
-                              color: colorScheme.primary.withValues(alpha: 0.5),
-                            ),
-                            padding: const EdgeInsets.symmetric(vertical: 14),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(14),
-                            ),
-                          ),
-                          child: Text(
-                            'Register',
-                            style: context.textStyles.titleMedium?.semiBold,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
             ),
           ),
-        ),
+        ],
       ),
     );
   }
