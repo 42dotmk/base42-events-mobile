@@ -28,9 +28,14 @@ class FCMService {
   final SecureStorageService _storageService = SecureStorageService();
 
   void Function(String eventId)? onEventSelected;
+  void Function()? onNewEventNotification;
 
   void setOnEventSelected(void Function(String eventId) callback) {
     onEventSelected = callback;
+  }
+
+  void setOnNewEventNotification(void Function() callback) {
+    onNewEventNotification = callback;
   }
 
   Future<void> init() async {
@@ -99,6 +104,7 @@ class FCMService {
 
     try {
       final token = await _firebaseMessaging.getToken();
+
       if (token != null) {
         await _updateFcmTokenOnBackend(token);
       }
@@ -109,10 +115,16 @@ class FCMService {
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
       debugPrint("Foreground message: ${message.messageId}");
       _handleForegroundMessage(message);
+      if (message.data.containsKey('eventId')) {
+        onNewEventNotification?.call();
+      }
     });
 
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
       debugPrint("Message opened from notification: ${message.messageId}");
+      if (message.data.containsKey('eventId')) {
+        onNewEventNotification?.call();
+      }
       _handleNotificationTap(message);
     });
 
@@ -171,7 +183,6 @@ class FCMService {
         final isExpired = await _storageService.isAuthTokenExpired();
         if (!isExpired) {
           await _userService.updateFcmToken(jwtToken, fcmToken);
-          debugPrint("✓ FCM token successfully sent to backend");
         } else {
           debugPrint("JWT token expired, cannot update FCM token");
         }
@@ -187,18 +198,36 @@ class FCMService {
     _handleNotificationPayload(response.payload);
   }
 
-  void _handleNotificationTap(RemoteMessage message) {
+  void _handleNotificationTap(RemoteMessage message, {BuildContext? context}) {
     final eventId = message.data['eventId']?.toString();
     if (eventId != null && eventId.isNotEmpty) {
       debugPrint("Handling event navigation callback for ID: $eventId");
-      onEventSelected?.call(eventId);
+      _handleEventNavigation(eventId, context: context);
     } else {
+      if (context != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              'Unable to open event details: event information missing',
+            ),
+          ),
+        );
+      }
       debugPrint("FCM message data does not contain eventId");
     }
   }
 
-  void _handleNotificationPayload(String? payload) {
+  void _handleNotificationPayload(String? payload, {BuildContext? context}) {
     if (payload == null || payload.isEmpty) {
+      if (context != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              'Unable to open event details: event information missing',
+            ),
+          ),
+        );
+      }
       debugPrint("No payload to handle");
       return;
     }
@@ -209,12 +238,59 @@ class FCMService {
 
       if (eventId != null && eventId.isNotEmpty) {
         debugPrint("Handling event navigation callback for ID: $eventId");
-        onEventSelected?.call(eventId);
+        _handleEventNavigation(eventId, context: context);
       } else {
+        if (context != null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text(
+                'Unable to open event details: event information missing',
+              ),
+            ),
+          );
+        }
         debugPrint("FCM payload does not contain eventId");
       }
     } catch (e) {
+      if (context != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              'Unable to open event details: event information missing',
+            ),
+          ),
+        );
+      }
       debugPrint("Failed to parse notification payload as JSON: $e");
+    }
+  }
+
+  Future<void> _handleEventNavigation(
+    String eventId, {
+    BuildContext? context,
+  }) async {
+    try {
+      final jwtToken = await _storageService.getToken(
+        SecureStorageService.jwtTokenKey,
+      );
+      final isExpired = await _storageService.isAuthTokenExpired();
+
+      if (jwtToken == null || isExpired) {
+        await _storageService.savePendingEventId(eventId);
+      } else {
+        onEventSelected?.call(eventId);
+      }
+    } catch (e) {
+      debugPrint("Error handling event navigation: $e");
+      if (context != null && context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              'Unable to open event details: event information missing',
+            ),
+          ),
+        );
+      }
     }
   }
 

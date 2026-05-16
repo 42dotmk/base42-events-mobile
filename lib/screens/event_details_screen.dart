@@ -17,11 +17,14 @@ import 'package:base42_events_mobile/widgets/event_info_row.dart';
 import 'package:base42_events_mobile/widgets/event_media_hero.dart';
 
 class EventDetailsScreen extends StatefulWidget {
-  final Event event;
+  final Event? event;
   final String? eventId;
 
-  const EventDetailsScreen({super.key, required this.event, this.eventId})
-    : assert(eventId != null, 'Either event or eventId must be provided');
+  const EventDetailsScreen({super.key, this.event, this.eventId})
+    : assert(
+        event != null || eventId != null,
+        'Either event or eventId must be provided',
+      );
 
   @override
   State<EventDetailsScreen> createState() => _EventDetailsScreenState();
@@ -34,15 +37,15 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
   bool _isUpdatingAttendance = false;
   bool _isDescriptionExpanded = false;
 
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   if (widget.event != null) {
-  //     _event = widget.event;
-  //   } else {
-  //     _fetchEvent();
-  //   }
-  // }
+  @override
+  void initState() {
+    super.initState();
+    if (widget.event != null) {
+      _event = widget.event;
+    } else {
+      _fetchEvent();
+    }
+  }
 
   @override
   void didUpdateWidget(covariant EventDetailsScreen oldWidget) {
@@ -53,9 +56,11 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
   }
 
   Future<void> _fetchEvent() async {
-    setState(() {
-      _isLoading = true;
-    });
+    if (mounted) {
+      setState(() {
+        _isLoading = true;
+      });
+    }
     try {
       final identifier = widget.eventId!;
       final event = await _eventService.fetchEventByIdentifier(identifier);
@@ -100,13 +105,12 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
       );
       return;
     }
-
-    setState(() => _isUpdatingAttendance = true);
+    if (mounted) setState(() => _isUpdatingAttendance = true);
     try {
       await context.read<AttendanceProvider>().updateEventAttendanceStatus(
         token: authProvider.token!,
         userId: authProvider.currentUser!.id,
-        event: widget.event,
+        event: _event!,
         status: status,
       );
 
@@ -152,16 +156,18 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    if (_isLoading || _event == null) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+    final event = _event!;
     final dateFormat = DateFormat('EEEE, MMMM dd, yyyy • hh:mm a');
     final colorScheme = Theme.of(context).colorScheme;
     final brand = Theme.of(context).extension<BrandTheme>();
     final primaryAccent = colorScheme.primary;
-    final descriptionPreview = buildEventDescriptionPreview(
-      widget.event.description,
-    );
-    final descriptionHtml = buildEventDescriptionHtml(widget.event.description);
+    final descriptionPreview = buildEventDescriptionPreview(event.description);
+    final descriptionHtml = buildEventDescriptionHtml(event.description);
     final currentStatus = context.watch<AttendanceProvider>().getStatus(
-      widget.event.id,
+      event.id,
     );
 
     return PopScope(
@@ -193,7 +199,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                   background: Stack(
                     fit: StackFit.expand,
                     children: [
-                      EventMediaHero(event: widget.event),
+                      EventMediaHero(event: event),
                       Container(
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
@@ -217,7 +223,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        widget.event.title,
+                        event.title,
                         style: context.textStyles.headlineMedium?.bold
                             .withColor(colorScheme.onSurface),
                       ),
@@ -253,15 +259,15 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                       const SizedBox(height: AppSpacing.lg),
                       EventInfoRow(
                         icon: Icons.calendar_today_rounded,
-                        text: dateFormat.format(widget.event.start),
+                        text: dateFormat.format(event.start),
                         colorScheme: colorScheme,
                       ),
-                      if (widget.event.tags.isNotEmpty) ...[
+                      if (event.tags.isNotEmpty) ...[
                         const SizedBox(height: AppSpacing.lg),
                         Wrap(
                           spacing: AppSpacing.sm,
                           runSpacing: AppSpacing.sm,
-                          children: widget.event.tags
+                          children: event.tags
                               .map(
                                 (tag) => _EventFilterStyleTagChip(
                                   label: tag.tagName,
@@ -290,7 +296,11 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                           child: ExpansionTile(
                             initiallyExpanded: false,
                             onExpansionChanged: (expanded) {
-                              setState(() => _isDescriptionExpanded = expanded);
+                              if (mounted) {
+                                setState(
+                                  () => _isDescriptionExpanded = expanded,
+                                );
+                              }
                             },
                             tilePadding: const EdgeInsets.symmetric(
                               horizontal: AppSpacing.lg,
@@ -402,7 +412,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                                     textDecoration: TextDecoration.underline,
                                   ),
                                 },
-                                onLinkTap: (url, _, __) {
+                                onLinkTap: (url, _, _) {
                                   if (url != null) _launchUrl(url);
                                 },
                               ),
@@ -410,13 +420,12 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                           ),
                         ),
                       ),
-                      if (widget.event.registerLink != null) ...[
+                      if (event.registerLink != null) ...[
                         const SizedBox(height: AppSpacing.xl),
                         SizedBox(
                           width: double.infinity,
                           child: FilledButton.icon(
-                            onPressed: () =>
-                                _launchUrl(widget.event.registerLink!),
+                            onPressed: () => _launchUrl(event.registerLink!),
                             icon: const Icon(Icons.open_in_new_rounded),
                             label: const Text('Register for Event'),
                             style: FilledButton.styleFrom(

@@ -514,7 +514,7 @@ class _Page3Rules extends StatelessWidget {
               padding: const EdgeInsets.fromLTRB(24, 0, 24, 140),
               sliver: SliverList.separated(
                 itemCount: rules.length,
-                separatorBuilder: (_, __) => const SizedBox(height: 10),
+                separatorBuilder: (_, _) => const SizedBox(height: 10),
                 itemBuilder: (context, i) => _RuleItem(
                   number: s.ob3RuleNumbers[i],
                   text: rules[i],

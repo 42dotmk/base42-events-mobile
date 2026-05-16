@@ -5,6 +5,7 @@ import 'package:base42_events_mobile/providers/attendance_provider.dart';
 import 'package:base42_events_mobile/services/user_service.dart';
 import 'package:base42_events_mobile/services/secure_storage_service.dart';
 import 'package:base42_events_mobile/services/fcm_service.dart';
+import 'package:base42_events_mobile/nav.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_appauth/flutter_appauth.dart';
 import 'dart:developer' as developer;
@@ -173,6 +174,8 @@ class AuthProvider extends ChangeNotifier {
       await FCMService.instance.updateTokenOnBackend();
 
       notifyListeners();
+
+      await _handlePendingEventNavigation();
     } catch (e) {
       if (hasUserCancelled(e)) {
         return;
@@ -239,6 +242,21 @@ class AuthProvider extends ChangeNotifier {
         error: e,
       );
       rethrow;
+    }
+  }
+
+  Future<void> _handlePendingEventNavigation() async {
+    try {
+      final pendingEventId = await _storageService.getPendingEventId();
+      if (pendingEventId != null && pendingEventId.isNotEmpty) {
+        await _storageService.clearPendingEventId();
+
+        Future.delayed(const Duration(milliseconds: 500), () {
+          AppRouterHelper.goToEventDetails(pendingEventId);
+        });
+      }
+    } catch (e) {
+      debugPrint("Error handling pending event navigation: $e");
     }
   }
 }

@@ -58,6 +58,9 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     super.initState();
     _appRouter = AppRouter(context.read<AuthProvider>());
+    FCMService.instance.setOnNewEventNotification(() {
+      if (mounted) context.read<EventProvider>().refreshEvents();
+    });
     SecureStorageService().isOnboardingComplete().then((done) {
       setState(() => _onboardingDone = done);
     });

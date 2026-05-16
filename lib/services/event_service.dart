@@ -34,7 +34,7 @@ class EventService {
 
   Future<Event> getEventDetails(int eventId) async {
     try {
-      final response = await http.get(Uri.parse('$eventsApiUrl/$eventId'));
+      final response = await http.get(Uri.parse('$eventsBaseUrl/$eventId'));
 
       if (response.statusCode == 200) {
         final jsonData = json.decode(response.body) as Map<String, dynamic>;
@@ -45,7 +45,6 @@ class EventService {
         throw Exception('Failed to load event: ${response.statusCode}');
       }
     } catch (e) {
-      debugPrint('Error fetching event $eventId: $e');
       throw Exception('Error fetching event $eventId: $e');
     }
   }
@@ -53,7 +52,7 @@ class EventService {
   Future<Event> fetchEventByDocumentId(String documentId) async {
     try {
       final url =
-          '$baseUrl/api/events?filters[documentId][\$eq]=$documentId&populate=*';
+          '$eventsBaseUrl?filters[documentId][\$eq]=$documentId&populate=*';
       final response = await http.get(Uri.parse(url));
 
       if (response.statusCode == 200) {

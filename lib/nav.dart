@@ -99,7 +99,7 @@ class AppRouter {
             path: AppRoutes.eventDetails,
             name: 'eventDetails',
             pageBuilder: (context, state) {
-              final event = state.extra as Event;
+              final event = state.extra as Event?;
               final eventId = state.pathParameters['id'];
               return NoTransitionPage(
                 child: EventDetailsScreen(event: event, eventId: eventId),

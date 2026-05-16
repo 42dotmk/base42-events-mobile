@@ -255,7 +255,7 @@ class UserService {
       final body = <String, dynamic>{
         'userId': userId,
         ...changedFields.toJson(),
-        if (uploadedImageId != null) 'profilePicture': uploadedImageId,
+        'profilePicture': ?uploadedImageId,
       };
 
       final response = await putWithAuth(url.toString(), token, body);
