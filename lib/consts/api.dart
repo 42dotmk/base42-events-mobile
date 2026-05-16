@@ -1,8 +1,10 @@
 const String baseUrl = 'https://cms.42.mk';
-const String eventsApiUrl = '$baseUrl/api/events?sort=start:desc&populate=*';
+const String eventsBaseUrl = '$baseUrl/api/events';
+const String eventsApiUrl = '$eventsBaseUrl?sort=start:desc&populate=*';
 const String usersApiUrl = '$baseUrl/api/users';
 const String currentAuthenticatedUserApiUrl =
     '$baseUrl/api/users/me?populate=profilePicture';
+const String addFcmTokenApiUrl = '$baseUrl/api/auth/fcmToken';
 const String registerUserApiUrl = '$baseUrl/api/auth/local/register';
 const String loginUserApiUrl = '$baseUrl/api/auth/local';
 const String logoutUserApiUrl = '$baseUrl/api/auth/logout';

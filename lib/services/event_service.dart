@@ -34,18 +34,57 @@ class EventService {
 
   Future<Event> getEventDetails(int eventId) async {
     try {
-      final response = await http.get(Uri.parse('$eventsApiUrl/$eventId'));
+      final response = await http.get(Uri.parse('$eventsBaseUrl/$eventId'));
 
       if (response.statusCode == 200) {
         final jsonData = json.decode(response.body) as Map<String, dynamic>;
         final data = jsonData['data'] as Map<String, dynamic>;
-
         return Event.fromJson(data);
       } else {
-        throw Exception('Failed to load event details: ${response.statusCode}');
+        debugPrint('Failed to fetch event $eventId: ${response.statusCode}');
+        throw Exception('Failed to load event: ${response.statusCode}');
       }
     } catch (e) {
-      throw Exception('Error fetching event details: $e');
+      throw Exception('Error fetching event $eventId: $e');
+    }
+  }
+
+  Future<Event> fetchEventByDocumentId(String documentId) async {
+    try {
+      final url =
+          '$eventsBaseUrl?filters[documentId][\$eq]=$documentId&populate=*';
+      final response = await http.get(Uri.parse(url));
+
+      if (response.statusCode == 200) {
+        final jsonData = json.decode(response.body) as Map<String, dynamic>;
+        final data = jsonData['data'] as List;
+        if (data.isEmpty) {
+          throw Exception('Event not found for documentId $documentId');
+        }
+        return Event.fromJson(data.first as Map<String, dynamic>);
+      } else {
+        debugPrint(
+          'Failed to fetch event by documentId $documentId: ${response.statusCode}',
+        );
+        throw Exception('Failed to load event: ${response.statusCode}');
+      }
+    } catch (e) {
+      debugPrint('Error fetching event by documentId: $e');
+      throw Exception('Error fetching event: $e');
+    }
+  }
+
+  Future<Event> fetchEventByIdentifier(String identifier) async {
+    try {
+      final parsedId = int.tryParse(identifier);
+      if (parsedId != null) {
+        return await getEventDetails(parsedId);
+      }
+
+      return await fetchEventByDocumentId(identifier);
+    } catch (e) {
+      debugPrint('Failed to fetch event by identifier $identifier: $e');
+      rethrow;
     }
   }
 }

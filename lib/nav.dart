@@ -16,13 +16,31 @@ import 'package:base42_events_mobile/models/project_repo.dart';
 import 'package:base42_events_mobile/widgets/bottom_navbar.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:base42_events_mobile/services/fcm_service.dart';
 
 final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>();
+
+class AppRouterHelper {
+  static GlobalKey<NavigatorState> get rootNavigatorKey => _rootNavigatorKey;
+
+  static void goToEventDetails(String eventId) {
+    final context = _rootNavigatorKey.currentContext;
+    if (context != null) {
+      context.go('/event/$eventId');
+    } else {
+      debugPrint('Navigation failed: root context is null');
+    }
+  }
+}
 
 class AppRouter {
   final AuthProvider authProvider;
 
-  AppRouter(this.authProvider);
+  AppRouter(this.authProvider) {
+    FCMService.instance.setOnEventSelected((eventId) {
+      AppRouterHelper.goToEventDetails(eventId);
+    });
+  }
 
   late final GoRouter router = GoRouter(
     initialLocation: AppRoutes.auth,
@@ -81,8 +99,11 @@ class AppRouter {
             path: AppRoutes.eventDetails,
             name: 'eventDetails',
             pageBuilder: (context, state) {
-              final event = state.extra as Event;
-              return NoTransitionPage(child: EventDetailsScreen(event: event));
+              final event = state.extra as Event?;
+              final eventId = state.pathParameters['id'];
+              return NoTransitionPage(
+                child: EventDetailsScreen(event: event, eventId: eventId),
+              );
             },
           ),
           GoRoute(

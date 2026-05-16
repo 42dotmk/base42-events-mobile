@@ -17,7 +17,7 @@ class EventMediaHero extends StatelessWidget {
       return Image.network(
         url,
         fit: BoxFit.cover,
-        errorBuilder: (_, __, ___) => _assetFallback(colorScheme),
+        errorBuilder: (_, _, _) => _assetFallback(colorScheme),
       );
     }
     return _assetFallback(colorScheme);
@@ -26,7 +26,7 @@ class EventMediaHero extends StatelessWidget {
   Widget _assetFallback(ColorScheme colorScheme) => Image.asset(
     'assets/images/base42_placeholder.png',
     fit: BoxFit.cover,
-    errorBuilder: (_, __, ___) => Container(
+    errorBuilder: (_, _, _) => Container(
       color: colorScheme.surfaceContainerHighest,
       child: Icon(
         Icons.image_not_supported,

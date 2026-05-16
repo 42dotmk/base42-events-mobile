@@ -185,6 +185,41 @@ class UserService {
     );
   }
 
+  Future<void> updateFcmToken(String token, String fcmToken) async {
+    try {
+      var url = Uri.parse(addFcmTokenApiUrl);
+
+      var response = await postWithAuth(url.toString(), token, {
+        'fcmToken': fcmToken,
+      });
+
+      if (response.statusCode == 200) {
+        developer.log('FCM token updated successfully', name: 'UserService');
+      } else {
+        String error;
+        try {
+          var errorData = jsonDecode(response.body);
+          error =
+              errorData['error']?['message'] ?? 'Failed to update FCM token';
+        } catch (_) {
+          error = 'Failed to update FCM token (HTTP ${response.statusCode})';
+        }
+        developer.log(
+          'Failed to update FCM token: $error (Status: ${response.statusCode})',
+          name: 'UserService',
+        );
+        throw Exception(error);
+      }
+    } catch (e) {
+      developer.log(
+        'Error updating FCM token: $e',
+        name: 'UserService',
+        error: e,
+      );
+      rethrow;
+    }
+  }
+
   Future<http.Response> putWithAuth(
     String url,
     String token,
@@ -220,7 +255,7 @@ class UserService {
       final body = <String, dynamic>{
         'userId': userId,
         ...changedFields.toJson(),
-        if (uploadedImageId != null) 'profilePicture': uploadedImageId,
+        'profilePicture': ?uploadedImageId,
       };
 
       final response = await putWithAuth(url.toString(), token, body);
