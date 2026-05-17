@@ -89,7 +89,6 @@ class AttendanceProvider extends ChangeNotifier {
         try {
           event = events.firstWhere((e) => e.id == userEvent.eventId);
         } catch (_) {
-          debugPrint('AttendanceProvider: event ${userEvent.eventId} not found in local list, skipping');
           continue;
         }
 

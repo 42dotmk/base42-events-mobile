@@ -96,6 +96,10 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
 
   Future<void> _setAttendance(EventAttendanceStatus status) async {
     final authProvider = context.read<AuthProvider>();
+    final currentStatus = context.read<AttendanceProvider>().getStatus(
+      _event!.id,
+    );
+    final isAlreadySelected = currentStatus == status.name;
 
     if (!authProvider.isAuthenticated ||
         authProvider.token == null ||
@@ -105,25 +109,40 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
       );
       return;
     }
+
     if (mounted) setState(() => _isUpdatingAttendance = true);
     try {
-      await context.read<AttendanceProvider>().updateEventAttendanceStatus(
-        token: authProvider.token!,
-        userId: authProvider.currentUser!.id,
-        event: _event!,
-        status: status,
-      );
-
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              status == EventAttendanceStatus.interested
-                  ? 'Marked as Interested!'
-                  : 'Marked as Going!',
-            ),
-          ),
+      if (isAlreadySelected) {
+        await context.read<AttendanceProvider>().cancelAttendance(
+          token: authProvider.token!,
+          userId: authProvider.currentUser!.id,
+          eventId: _event!.id,
         );
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Attendance cancelled!')),
+          );
+        }
+      } else {
+        await context.read<AttendanceProvider>().updateEventAttendanceStatus(
+          token: authProvider.token!,
+          userId: authProvider.currentUser!.id,
+          event: _event!,
+          status: status,
+        );
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                status == EventAttendanceStatus.interested
+                    ? 'Marked as Interested!'
+                    : 'Marked as Going!',
+              ),
+            ),
+          );
+        }
       }
     } catch (e) {
       if (mounted) {

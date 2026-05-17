@@ -183,8 +183,6 @@ class FCMService {
         final isExpired = await _storageService.isAuthTokenExpired();
         if (!isExpired) {
           await _userService.updateFcmToken(jwtToken, fcmToken);
-        } else {
-          debugPrint("JWT token expired, cannot update FCM token");
         }
       } else {
         debugPrint("No JWT token found, user may not be logged in yet");
