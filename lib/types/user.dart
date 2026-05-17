@@ -41,3 +41,14 @@ class UpdateProfileBody {
     if (lastName != null) 'lastName': lastName,
   };
 }
+
+class OptionalProfilePicture<T> {
+  final T? _value;
+  final bool _isPresent;
+
+  const OptionalProfilePicture.value(this._value) : _isPresent = true;
+  const OptionalProfilePicture.absent() : _value = null, _isPresent = false;
+
+  bool get isPresent => _isPresent;
+  T? get value => _value;
+}

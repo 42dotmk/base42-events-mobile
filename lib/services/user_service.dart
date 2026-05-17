@@ -239,13 +239,16 @@ class UserService {
     required String token,
     required int userId,
     required UpdateProfileBody changedFields,
-    XFile? profileImage,
+    OptionalProfilePicture<XFile?>? profileImage,
   }) async {
     try {
       String? uploadedImageId;
-      if (profileImage != null) {
+      if (profileImage?.isPresent == true && profileImage!.value != null) {
         try {
-          uploadedImageId = await _uploadProfileImage(token, profileImage);
+          uploadedImageId = await _uploadProfileImage(
+            token,
+            profileImage.value!,
+          );
         } catch (e) {
           debugPrint('Warning: Profile image upload failed: $e');
         }
@@ -255,7 +258,7 @@ class UserService {
       final body = <String, dynamic>{
         'userId': userId,
         ...changedFields.toJson(),
-        'profilePicture': ?uploadedImageId,
+        if (profileImage?.isPresent == true) 'profilePicture': uploadedImageId,
       };
 
       final response = await putWithAuth(url.toString(), token, body);
