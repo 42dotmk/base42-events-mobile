@@ -1,3 +1,5 @@
+import 'package:base42_events_mobile/screens/member_screen.dart';
+import 'package:base42_events_mobile/screens/volunteer_screen.dart';
 import 'package:base42_events_mobile/models/event.dart';
 import 'package:base42_events_mobile/providers/auth_provider.dart';
 import 'package:base42_events_mobile/screens/edit_profile_screen.dart';
@@ -12,6 +14,7 @@ import 'package:base42_events_mobile/screens/project_details_screen.dart';
 import 'package:base42_events_mobile/screens/projects_screen.dart';
 import 'package:base42_events_mobile/screens/rules_screen.dart';
 import 'package:base42_events_mobile/screens/settings_screen.dart';
+import 'package:base42_events_mobile/screens/shop_screen.dart';
 import 'package:base42_events_mobile/models/project_repo.dart';
 import 'package:base42_events_mobile/widgets/bottom_navbar.dart';
 import 'package:flutter/material.dart';
@@ -119,6 +122,12 @@ class AppRouter {
                 const NoTransitionPage(child: ProjectsScreen()),
           ),
           GoRoute(
+            path: AppRoutes.shop,
+            name: 'shop',
+            pageBuilder: (context, state) =>
+                const NoTransitionPage(child: ShopScreen()),
+          ),
+          GoRoute(
             path: AppRoutes.projectDetails,
             name: 'projectDetails',
             pageBuilder: (context, state) {
@@ -165,6 +174,18 @@ class AppRouter {
         parentNavigatorKey: _rootNavigatorKey,
         builder: (context, state) => const RulesScreen(),
       ),
+      GoRoute(
+        path: AppRoutes.volunteer,
+        name: 'volunteer',
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) => const VolunteerScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.member,
+        name: 'member',
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) => const MemberScreen(),
+      ),
     ],
   );
 }
@@ -177,11 +198,14 @@ class AppRoutes {
   static const String book = '/book';
   static const String profile = '/profile';
   static const String projects = '/projects';
+  static const String shop = '/shop';
   static const String projectDetails = '/projects/:owner/:repo';
   static const String eventDetails = '/event/:id';
   static const String settings = '/settings';
   static const String about = '/about';
   static const String rules = '/about/rules';
+  static const String volunteer = '/volunteer';
+  static const String member = '/member';
 
   static String projectDetailsPath(String owner, String repo) =>
       '/projects/$owner/$repo';

@@ -54,6 +54,7 @@
     camera: ^0.12.0+1
     path_provider: ^2.1.5
     path: ^1.9.1
+    iconoir_flutter: ^7.11.0
 
   dev_dependencies:
     flutter_test:

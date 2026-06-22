@@ -29,7 +29,11 @@ class BottomNavigationBarWidget extends StatelessWidget {
       icon: Icons.workspaces_outline,
       label: 'Projects',
     ),
-    _NavItem(icon: Icons.shopping_bag_outlined, label: 'Shop'),
+    _NavItem(
+      route: AppRoutes.shop,
+      icon: Icons.shopping_bag_outlined,
+      label: 'Shop',
+    ),
   ];
 
   int _calculateCurrentIndex(BuildContext context) {
@@ -42,6 +46,9 @@ class BottomNavigationBarWidget extends StatelessWidget {
     if (location == AppRoutes.book) return 2;
     if (location == AppRoutes.projects || location.startsWith('/projects/')) {
       return 3;
+    }
+    if (location == AppRoutes.shop) {
+      return 4;
     }
     return 0;
   }
@@ -81,7 +88,7 @@ class BottomNavigationBarWidget extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
     final brand = Theme.of(context).extension<BrandTheme>();
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final activeColor = isDark ? colorScheme.primary : colorScheme.primary;
+      final activeColor = isDark ? colorScheme.primary : colorScheme.primary;
     final inactiveColor = colorScheme.onSurface.withValues(
       alpha: isDark ? 0.35 : 0.55,
     );

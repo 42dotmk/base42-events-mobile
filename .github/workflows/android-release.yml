@@ -2,6 +2,19 @@ name: Android Build
 
 on:
   workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Branch to build from'
+        required: true
+        type: string
+        default: 'main'
+      build_type:
+        description: 'Build type'
+        required: true
+        type: choice
+        options:
+          - release
+          - debug
   push:
     branches:
       - main
@@ -13,11 +26,13 @@ permissions:
 jobs:
   build-android-prod:
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
+    if: (github.ref == 'refs/heads/main' && github.event_name == 'push') || (github.event_name == 'workflow_dispatch' && github.inputs.build_type == 'release')
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          ref: ${{ (github.event_name == 'workflow_dispatch' && github.inputs.branch) || github.ref }}
 
       - name: Setup Java
         uses: actions/setup-java@v4
@@ -64,11 +79,13 @@ jobs:
           if-no-files-found: error
   build-android-dev:
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/develop'
+    if: (github.ref == 'refs/heads/develop' && github.event_name == 'push') || (github.event_name == 'workflow_dispatch' && github.inputs.build_type == 'debug')
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          ref: ${{ (github.event_name == 'workflow_dispatch' && github.inputs.branch) || github.ref }}
 
       - name: Setup Java
         uses: actions/setup-java@v4

@@ -519,73 +519,74 @@ ThemeData get darkTheme => ThemeData(
   ],
 );
 
-/// Build text theme using Inter font family
+/// Build text theme using Roboto Mono (headings/UI) + IBM Plex Sans (body)
 TextTheme _buildTextTheme(Brightness brightness) {
   return TextTheme(
-    displayLarge: GoogleFonts.inter(
+    displayLarge: GoogleFonts.jetBrainsMono(
       fontSize: FontSizes.displayLarge,
       fontWeight: FontWeight.w400,
       letterSpacing: -0.25,
     ),
-    displayMedium: GoogleFonts.inter(
+    displayMedium: GoogleFonts.jetBrainsMono(
       fontSize: FontSizes.displayMedium,
       fontWeight: FontWeight.w400,
     ),
-    displaySmall: GoogleFonts.inter(
+    displaySmall: GoogleFonts.jetBrainsMono(
       fontSize: FontSizes.displaySmall,
       fontWeight: FontWeight.w400,
     ),
-    headlineLarge: GoogleFonts.inter(
+    headlineLarge: GoogleFonts.jetBrainsMono(
       fontSize: FontSizes.headlineLarge,
       fontWeight: FontWeight.w600,
       letterSpacing: -0.5,
     ),
-    headlineMedium: GoogleFonts.inter(
+    headlineMedium: GoogleFonts.jetBrainsMono(
       fontSize: FontSizes.headlineMedium,
       fontWeight: FontWeight.w600,
     ),
-    headlineSmall: GoogleFonts.inter(
+    headlineSmall: GoogleFonts.jetBrainsMono(
       fontSize: FontSizes.headlineSmall,
       fontWeight: FontWeight.w600,
     ),
-    titleLarge: GoogleFonts.inter(
+    titleLarge: GoogleFonts.jetBrainsMono(
       fontSize: FontSizes.titleLarge,
       fontWeight: FontWeight.w600,
     ),
-    titleMedium: GoogleFonts.inter(
+    titleMedium: GoogleFonts.jetBrainsMono(
       fontSize: FontSizes.titleMedium,
       fontWeight: FontWeight.w500,
     ),
-    titleSmall: GoogleFonts.inter(
+    titleSmall: GoogleFonts.jetBrainsMono(
       fontSize: FontSizes.titleSmall,
       fontWeight: FontWeight.w500,
+      letterSpacing: -0.25,
     ),
-    labelLarge: GoogleFonts.inter(
+    labelLarge: GoogleFonts.jetBrainsMono(
       fontSize: FontSizes.labelLarge,
       fontWeight: FontWeight.w500,
       letterSpacing: 0.1,
     ),
-    labelMedium: GoogleFonts.inter(
+    labelMedium: GoogleFonts.jetBrainsMono(
       fontSize: FontSizes.labelMedium,
       fontWeight: FontWeight.w500,
       letterSpacing: 0.5,
     ),
-    labelSmall: GoogleFonts.inter(
+    labelSmall: GoogleFonts.jetBrainsMono(
       fontSize: FontSizes.labelSmall,
       fontWeight: FontWeight.w500,
       letterSpacing: 0.5,
     ),
-    bodyLarge: GoogleFonts.inter(
+    bodyLarge: GoogleFonts.ibmPlexSans(
       fontSize: FontSizes.bodyLarge,
       fontWeight: FontWeight.w400,
       letterSpacing: 0.15,
     ),
-    bodyMedium: GoogleFonts.inter(
+    bodyMedium: GoogleFonts.ibmPlexSans(
       fontSize: FontSizes.bodyMedium,
       fontWeight: FontWeight.w400,
       letterSpacing: 0.25,
     ),
-    bodySmall: GoogleFonts.inter(
+    bodySmall: GoogleFonts.ibmPlexSans(
       fontSize: FontSizes.bodySmall,
       fontWeight: FontWeight.w400,
       letterSpacing: 0.4,
