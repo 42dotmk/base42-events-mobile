@@ -85,7 +85,7 @@ class _ContributorAvatar extends StatelessWidget {
         child: Image.network(
           contributor.avatarUrl,
           fit: BoxFit.cover,
-          errorBuilder: (context, _, __) {
+          errorBuilder: (context, _, _) {
             return ColoredBox(
               color: colorScheme.surfaceContainerHighest,
               child: Icon(

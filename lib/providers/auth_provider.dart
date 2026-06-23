@@ -4,6 +4,8 @@ import 'package:base42_events_mobile/models/user.dart';
 import 'package:base42_events_mobile/providers/attendance_provider.dart';
 import 'package:base42_events_mobile/services/user_service.dart';
 import 'package:base42_events_mobile/services/secure_storage_service.dart';
+import 'package:base42_events_mobile/services/fcm_service.dart';
+import 'package:base42_events_mobile/nav.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_appauth/flutter_appauth.dart';
 import 'dart:developer' as developer;
@@ -74,7 +76,7 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  bool isUserCancelled(Object e) {
+  bool hasUserCancelled(Object e) {
     if (e is FlutterAppAuthUserCancelledException) return true;
     if (e is PlatformException && e.code == 'user_canceled') return true;
 
@@ -96,7 +98,7 @@ class AuthProvider extends ChangeNotifier {
       final accessToken = authResponse.accessToken;
       await exchangeForStrapiToken(accessToken);
     } catch (e) {
-      if (isUserCancelled(e)) {
+      if (hasUserCancelled(e)) {
         return;
       }
       rethrow;
@@ -129,8 +131,7 @@ class AuthProvider extends ChangeNotifier {
 
       await exchangeForStrapiToken(accessToken);
     } catch (e) {
-      if (isUserCancelled(e)) {
-        debugPrint('register() cancelled by user');
+      if (hasUserCancelled(e)) {
         return;
       }
 
@@ -169,9 +170,14 @@ class AuthProvider extends ChangeNotifier {
         SecureStorageService.jwtExpirationKey,
         expiration.millisecondsSinceEpoch.toString(),
       );
+
+      await FCMService.instance.updateTokenOnBackend();
+
       notifyListeners();
+
+      await _handlePendingEventNavigation();
     } catch (e) {
-      if (isUserCancelled(e)) {
+      if (hasUserCancelled(e)) {
         return;
       }
       await _storageService.deleteToken(SecureStorageService.jwtTokenKey);
@@ -191,7 +197,7 @@ class AuthProvider extends ChangeNotifier {
     try {
       await _userService.logout(_token!);
     } catch (e) {
-      if (isUserCancelled(e)) {
+      if (hasUserCancelled(e)) {
         return;
       }
     } finally {
@@ -236,6 +242,21 @@ class AuthProvider extends ChangeNotifier {
         error: e,
       );
       rethrow;
+    }
+  }
+
+  Future<void> _handlePendingEventNavigation() async {
+    try {
+      final pendingEventId = await _storageService.getPendingEventId();
+      if (pendingEventId != null && pendingEventId.isNotEmpty) {
+        await _storageService.clearPendingEventId();
+
+        Future.delayed(const Duration(milliseconds: 500), () {
+          AppRouterHelper.goToEventDetails(pendingEventId);
+        });
+      }
+    } catch (e) {
+      debugPrint("Error handling pending event navigation: $e");
     }
   }
 }

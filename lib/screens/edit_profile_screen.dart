@@ -32,6 +32,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   bool _isLoading = false;
   bool _hasChanges = false;
   bool _initialized = false;
+  bool _isDeleting = false;
 
   @override
   void initState() {
@@ -79,7 +80,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   void _onFieldChanged() {
     final hasChanges =
         _fields.any((f) => _controllers[f.key]!.text != f.originalValue) ||
-        _selectedImage != null;
+        _selectedImage != null ||
+        _isDeleting;
     if (hasChanges != _hasChanges) {
       setState(() => _hasChanges = hasChanges);
     }
@@ -100,6 +102,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       if (image != null) {
         setState(() {
           _selectedImage = image;
+          _isDeleting = false;
           _hasChanges = true;
         });
       }
@@ -112,6 +115,14 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         ),
       );
     }
+  }
+
+  void _handleDeleteProfilePicture() {
+    setState(() {
+      _selectedImage = null;
+      _isDeleting = true;
+      _hasChanges = true;
+    });
   }
 
   Future<void> _saveProfile() async {
@@ -139,11 +150,18 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         lastName: changedValue('lastName'),
       );
 
+      OptionalProfilePicture<XFile?>? profileImageChange;
+      if (_isDeleting) {
+        profileImageChange = const OptionalProfilePicture.value(null);
+      } else if (_selectedImage != null) {
+        profileImageChange = OptionalProfilePicture.value(_selectedImage);
+      }
+
       await _userService.updateUserProfile(
         token: token,
         userId: authProvider.currentUser!.id,
         changedFields: changedFields,
-        profileImage: _selectedImage,
+        profileImage: profileImageChange,
       );
 
       await authProvider.refreshCurrentUser();
@@ -242,7 +260,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                 .currentUser
                                 ?.profilePicture,
                             onTap: _pickImage,
+                            onDelete: _handleDeleteProfilePicture,
                             initials: _buildInitials(),
+                            isDeleting: _isDeleting,
                           ),
                           const SizedBox(height: 30),
                           Text(

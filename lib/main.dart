@@ -8,11 +8,16 @@ import 'package:base42_events_mobile/screens/placeholder_onboarding_screen.dart'
 import 'package:base42_events_mobile/services/secure_storage_service.dart';
 import 'package:base42_events_mobile/widgets/loading_widget.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:provider/provider.dart';
 import 'theme.dart';
 import 'nav.dart';
+import 'services/fcm_service.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await FCMService.instance.init();
+  FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
   runApp(
     MultiProvider(
       providers: [
@@ -54,6 +59,9 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     super.initState();
     _appRouter = AppRouter(context.read<AuthProvider>());
+    FCMService.instance.setOnNewEventNotification(() {
+      if (mounted) context.read<EventProvider>().refreshEvents();
+    });
     SecureStorageService().isOnboardingComplete().then((done) {
       setState(() => _onboardingDone = done);
     });

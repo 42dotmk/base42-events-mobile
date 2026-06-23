@@ -114,113 +114,114 @@ class BottomNavigationBarWidget extends StatelessWidget {
         }
       },
       child: Scaffold(
+        backgroundColor: Colors.transparent,
         body: child,
-        bottomNavigationBar: SafeArea(
-          top: false,
-          child: Container(
-            height: 84,
-            decoration: BoxDecoration(
-              color: navBackgroundColor.withValues(alpha: isDark ? 0.95 : 1),
-              borderRadius: BorderRadius.circular(0),
-            ),
-            child: Row(
-              children: _items.map((item) {
-                final isCenter = item.isCenter;
-                final isActive = _items.indexOf(item) == currentIndex;
+        bottomNavigationBar: Container(
+          color: navBackgroundColor.withValues(alpha: isDark ? 0.95 : 1),
+          child: SafeArea(
+            top: false,
+            child: SizedBox(
+              height: 84,
+              child: Row(
+                children: _items.map((item) {
+                  final isCenter = item.isCenter;
+                  final isActive = _items.indexOf(item) == currentIndex;
 
-                if (isCenter) {
-                  return Expanded(
-                    child: Center(
-                      child: Transform.translate(
-                        offset: const Offset(0, -16),
-                        child: GestureDetector(
-                          onTap: () => _onItemTap(context, item),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Container(
-                                width: 54,
-                                height: 54,
-                                decoration: BoxDecoration(
-                                  color: activeColor,
-                                  borderRadius: BorderRadius.circular(16),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: activeColor.withValues(
-                                        alpha: 0.35,
+                  if (isCenter) {
+                    return Expanded(
+                      child: Center(
+                        child: Transform.translate(
+                          offset: const Offset(0, -16),
+                          child: GestureDetector(
+                            onTap: () => _onItemTap(context, item),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Container(
+                                  width: 54,
+                                  height: 54,
+                                  decoration: BoxDecoration(
+                                    color: activeColor,
+                                    borderRadius: BorderRadius.circular(16),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: activeColor.withValues(
+                                          alpha: 0.35,
+                                        ),
+                                        blurRadius: 18,
+                                        offset: const Offset(0, 8),
                                       ),
-                                      blurRadius: 18,
-                                      offset: const Offset(0, 8),
-                                    ),
-                                  ],
+                                    ],
+                                  ),
+                                  child: Icon(
+                                    item.icon,
+                                    color: isDark
+                                        ? (brand?.deepNavy ??
+                                              colorScheme.onPrimary)
+                                        : Colors.white,
+                                    size: 30,
+                                  ),
                                 ),
-                                child: Icon(
-                                  item.icon,
-                                  color: isDark
-                                      ? (brand?.deepNavy ??
-                                            colorScheme.onPrimary)
-                                      : Colors.white,
-                                  size: 30,
+                                const SizedBox(height: 4),
+                                Text(
+                                  item.label,
+                                  style: context.textStyles.labelSmall?.medium
+                                      .withColor(activeColor),
                                 ),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                item.label,
-                                style: context.textStyles.labelSmall?.medium
-                                    .withColor(activeColor),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
+                        ),
+                      ),
+                    );
+                  }
+
+                  return Expanded(
+                    child: InkWell(
+                      onTap: () => _onItemTap(context, item),
+                      borderRadius: BorderRadius.circular(16),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 10),
+                        child: Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            if (isActive)
+                              Positioned(
+                                top: 0,
+                                child: Container(
+                                  width: 28,
+                                  height: 2,
+                                  decoration: BoxDecoration(
+                                    color: activeColor,
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                ),
+                              ),
+                            Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  item.icon,
+                                  size: isActive ? 24 : 22,
+                                  color: isActive ? activeColor : inactiveColor,
+                                ),
+                                const SizedBox(height: 3),
+                                Text(
+                                  item.label,
+                                  style: context.textStyles.labelSmall
+                                      ?.withColor(
+                                        isActive ? activeColor : inactiveColor,
+                                      ),
+                                ),
+                              ],
+                            ),
+                          ],
                         ),
                       ),
                     ),
                   );
-                }
-
-                return Expanded(
-                  child: InkWell(
-                    onTap: () => _onItemTap(context, item),
-                    borderRadius: BorderRadius.circular(16),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 10),
-                      child: Stack(
-                        alignment: Alignment.center,
-                        children: [
-                          if (isActive)
-                            Positioned(
-                              top: 0,
-                              child: Container(
-                                width: 28,
-                                height: 2,
-                                decoration: BoxDecoration(
-                                  color: activeColor,
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                              ),
-                            ),
-                          Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                item.icon,
-                                size: isActive ? 24 : 22,
-                                color: isActive ? activeColor : inactiveColor,
-                              ),
-                              const SizedBox(height: 3),
-                              Text(
-                                item.label,
-                                style: context.textStyles.labelSmall?.withColor(
-                                  isActive ? activeColor : inactiveColor,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                );
-              }).toList(),
+                }).toList(),
+              ),
             ),
           ),
         ),

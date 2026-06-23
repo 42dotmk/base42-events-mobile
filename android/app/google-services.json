@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "36822186241",
+    "project_id": "base42-mobile-app-fcm",
+    "storage_bucket": "base42-mobile-app-fcm.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:36822186241:android:068a0d686697e374d04300",
+        "android_client_info": {
+          "package_name": "mk.base42.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDMT2IkHTF6Rz1lsohKay7VLzrVAO16Vxs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

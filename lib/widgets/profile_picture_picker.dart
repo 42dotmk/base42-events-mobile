@@ -9,14 +9,18 @@ class ProfilePicturePicker extends StatelessWidget {
   final XFile? selectedImage;
   final Media? currentProfilePicture;
   final VoidCallback onTap;
+  final VoidCallback? onDelete;
   final String initials;
+  final bool isDeleting;
 
   const ProfilePicturePicker({
     super.key,
     this.selectedImage,
     this.currentProfilePicture,
     required this.onTap,
+    this.onDelete,
     required this.initials,
+    this.isDeleting = false,
   });
 
   void _showEnlarged(BuildContext context, String? imageUrl) {
@@ -67,7 +71,7 @@ class ProfilePicturePicker extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
 
     String? imageUrl;
-    if (selectedImage == null && currentProfilePicture != null) {
+    if (selectedImage == null && currentProfilePicture != null && !isDeleting) {
       imageUrl = currentProfilePicture!.getMediumUrl(baseUrl);
     }
 
@@ -104,6 +108,28 @@ class ProfilePicturePicker extends StatelessWidget {
               ),
             ),
           ),
+          if (hasImage && onDelete != null)
+            Positioned(
+              top: 0,
+              right: 0,
+              child: GestureDetector(
+                onTap: onDelete,
+                child: Container(
+                  width: 32,
+                  height: 32,
+                  decoration: BoxDecoration(
+                    color: Colors.red.shade300,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: colorScheme.surface, width: 3),
+                  ),
+                  child: const Icon(
+                    Icons.close_rounded,
+                    color: Colors.white,
+                    size: 16,
+                  ),
+                ),
+              ),
+            ),
           Positioned(
             bottom: 0,
             right: 0,

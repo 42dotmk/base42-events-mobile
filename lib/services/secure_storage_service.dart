@@ -8,6 +8,7 @@ class SecureStorageService {
   static const String jwtTokenKey = 'jwt';
   static const String jwtExpirationKey = 'jwt_token_expiration';
   static const String onboardingCompleteKey = 'onboarding_complete';
+  static const String pendingEventIdKey = 'pending_event_id';
 
   factory SecureStorageService() => _instance;
   SecureStorageService._internal();
@@ -53,5 +54,17 @@ class SecureStorageService {
     final expiration = await getAuthTokenExpiration();
     if (expiration == null) return true;
     return DateTime.now().isAfter(expiration);
+  }
+
+  Future<void> savePendingEventId(String eventId) async {
+    await _storage.write(key: pendingEventIdKey, value: eventId);
+  }
+
+  Future<String?> getPendingEventId() async {
+    return await _storage.read(key: pendingEventIdKey);
+  }
+
+  Future<void> clearPendingEventId() async {
+    await _storage.delete(key: pendingEventIdKey);
   }
 }

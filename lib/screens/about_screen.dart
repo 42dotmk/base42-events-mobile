@@ -33,7 +33,7 @@ class AboutScreen extends StatelessWidget {
       context.pop();
       return;
     }
-    context.go(AppRoutes.profile);
+    context.pop();
   }
 
   @override

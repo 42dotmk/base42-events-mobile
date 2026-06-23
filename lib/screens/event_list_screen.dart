@@ -189,7 +189,7 @@ class _EventListScreenState extends State<EventListScreen> {
                   scrollDirection: Axis.horizontal,
                   padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
                   itemCount: allTags.length,
-                  separatorBuilder: (_, __) => const SizedBox(width: 8),
+                  separatorBuilder: (_, _) => const SizedBox(width: 8),
                   itemBuilder: (context, index) {
                     final tag = allTags[index];
                     final isActive =
