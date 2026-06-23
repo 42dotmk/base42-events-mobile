@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:base42_events_mobile/models/event.dart';
 import 'package:base42_events_mobile/providers/event_provider.dart';
 import 'package:base42_events_mobile/theme.dart';
+import 'package:base42_events_mobile/widgets/common/page_header.dart';
 import 'package:base42_events_mobile/widgets/event_card.dart';
 import 'package:base42_events_mobile/widgets/error_view.dart';
 
@@ -66,6 +67,7 @@ class _EventListScreenState extends State<EventListScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final brand = Theme.of(context).extension<BrandTheme>();
     final colorScheme = Theme.of(context).colorScheme;
     final eventProvider = context.watch<EventProvider>();
 
@@ -98,7 +100,7 @@ class _EventListScreenState extends State<EventListScreen> {
 
     return Scaffold(
       body: Container(
-        color: Theme.of(context).scaffoldBackgroundColor,
+        decoration: BoxDecoration(gradient: brand?.backdropGradient),
         child: SafeArea(
           child: Column(
             children: [
@@ -179,7 +181,7 @@ class _EventListScreenState extends State<EventListScreen> {
                       ),
                     ),
                   ],
-                ),
+                    ),
               ),
               SizedBox(
                 height: 40,
@@ -268,27 +270,105 @@ class _EventListScreenState extends State<EventListScreen> {
                           ),
                         ),
                       )
-                    : RefreshIndicator(
-                        onRefresh: () =>
-                            context.read<EventProvider>().refreshEvents(),
-                        color: colorScheme.primary,
-                        child: ListView.separated(
-                          padding: const EdgeInsets.fromLTRB(20, 6, 20, 24),
-                          itemCount: filtered.length,
-                          separatorBuilder: (_, __) =>
-                              const SizedBox(height: 12),
-                          itemBuilder: (context, index) => EventCard(
-                            event: filtered[index],
-                            onTap: () => context.push(
-                              '/event/${filtered[index].id}',
-                              extra: filtered[index],
-                            ),
-                          ),
-                        ),
+                    : _EventListContent(
+                        events: filtered,
+                        colorScheme: colorScheme,
                       ),
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class _EventListContent extends StatelessWidget {
+  final List<Event> events;
+  final ColorScheme colorScheme;
+
+  const _EventListContent({
+    required this.events,
+    required this.colorScheme,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final now = DateTime.now();
+    final upcoming = events
+        .where((e) => e.start.isAfter(now))
+        .toList()
+      ..sort((a, b) => a.start.compareTo(b.start));
+    final past = events
+        .where((e) => !e.start.isAfter(now))
+        .toList()
+      ..sort((a, b) => b.start.compareTo(a.start));
+
+    final items = <Widget>[];
+    if (upcoming.isNotEmpty) {
+      items.add(_SectionHeader(title: 'UPCOMING'));
+      for (final event in upcoming) {
+        items.add(
+          Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: EventCard(
+              event: event,
+              onTap: () => context.push('/event/${event.id}', extra: event),
+            ),
+          ),
+        );
+      }
+    }
+    if (upcoming.isNotEmpty && past.isNotEmpty) {
+      items.add(Padding(
+        padding: const EdgeInsets.symmetric(vertical: 6),
+        child: Divider(
+          color: colorScheme.outline.withValues(alpha: 0.25),
+          height: 1,
+        ),
+      ));
+    }
+    if (past.isNotEmpty) {
+      items.add(_SectionHeader(title: 'PAST'));
+      for (final event in past) {
+        items.add(
+          Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: EventCard(
+              event: event,
+              isPast: true,
+              onTap: () => context.push('/event/${event.id}', extra: event),
+            ),
+          ),
+        );
+      }
+    }
+
+    return RefreshIndicator(
+      onRefresh: () => context.read<EventProvider>().refreshEvents(),
+      color: colorScheme.primary,
+      child: ListView(
+        padding: const EdgeInsets.fromLTRB(20, 6, 20, 24),
+        children: items,
+      ),
+    );
+  }
+}
+
+class _SectionHeader extends StatelessWidget {
+  final String title;
+
+  const _SectionHeader({required this.title});
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(4, 2, 0, 8),
+      child: Text(
+        title,
+        style: context.textStyles.labelMedium?.semiBold.withColor(
+          colorScheme.onSurface.withValues(alpha: 0.5),
         ),
       ),
     );

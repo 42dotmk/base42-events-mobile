@@ -2,7 +2,9 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:base42_events_mobile/consts/enum.dart';
 import 'package:base42_events_mobile/models/user.dart';
+import 'package:base42_events_mobile/providers/attendance_provider.dart';
 
 String bookingFormatDate(DateTime date) {
   final mm = date.month.toString().padLeft(2, '0');
@@ -130,4 +132,18 @@ String buildEventDescriptionHtml(String raw) {
       .map((p) => '<p>${p.replaceAll('\n', '<br/>')}</p>')
       .join();
   return paragraphs.isEmpty ? '<p></p>' : paragraphs;
+}
+
+EventAttendanceStatus? resolveAttendanceStatus(
+  AttendanceProvider provider,
+  int eventId,
+) {
+  final statusString = provider.getStatus(eventId);
+  if (statusString == EventAttendanceStatus.interested.name) {
+    return EventAttendanceStatus.interested;
+  }
+  if (statusString == EventAttendanceStatus.going.name) {
+    return EventAttendanceStatus.going;
+  }
+  return null;
 }

@@ -1,5 +1,6 @@
 import 'package:base42_events_mobile/providers/settings_provider.dart';
 import 'package:base42_events_mobile/theme.dart';
+import 'package:base42_events_mobile/widgets/common/page_header.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -8,36 +9,21 @@ class SettingsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final brand = Theme.of(context).extension<BrandTheme>();
     final colorScheme = Theme.of(context).colorScheme;
     final settings = context.watch<SettingsProvider>();
     final dividerColor = colorScheme.outline.withValues(alpha: 0.2);
 
     return Scaffold(
       body: Container(
-        color: Theme.of(context).scaffoldBackgroundColor,
+        decoration: BoxDecoration(gradient: brand?.backdropGradient),
         child: SafeArea(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(8, 8, 18, 0),
-                child: Row(
-                  children: [
-                    IconButton(
-                      icon: Icon(
-                        Icons.arrow_back_ios_new_rounded,
-                        color: colorScheme.onSurface,
-                      ),
-                      onPressed: () => Navigator.of(context).pop(),
-                    ),
-                    Text(
-                      'Settings',
-                      style: context.textStyles.headlineSmall?.bold.withColor(
-                        colorScheme.onSurface,
-                      ),
-                    ),
-                  ],
-                ),
+              PageHeader(
+                title: 'Settings',
+                onBack: () => Navigator.of(context).pop(),
               ),
               Expanded(
                 child: SingleChildScrollView(

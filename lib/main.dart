@@ -63,7 +63,7 @@ class _MyAppState extends State<MyApp> {
     await SecureStorageService().markOnboardingComplete();
     setState(() => _onboardingDone = true);
   }
-
+  
   @override
   Widget build(BuildContext context) {
     final themeMode = context.watch<SettingsProvider>().themeMode;

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:base42_events_mobile/nav.dart';
 import 'package:base42_events_mobile/theme.dart';
+import 'package:base42_events_mobile/widgets/common/page_header.dart';
 import 'package:base42_events_mobile/widgets/member/membership_card.dart';
 import 'package:base42_events_mobile/widgets/member/member_perk_card.dart';
 
@@ -64,24 +65,9 @@ class MemberScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(8, 8, 18, 0),
-                child: Row(
-                  children: [
-                    IconButton(
-                      icon: Icon(
-                        Icons.arrow_back_ios_new_rounded,
-                        color: onSurface,
-                      ),
-                      onPressed: () => _handleBack(context),
-                    ),
-                    Text(
-                      'MEMBERSHIP',
-                      style: context.textStyles.headlineSmall?.bold
-                          .withColor(onSurface),
-                    ),
-                  ],
-                ),
+              PageHeader(
+                title: 'Become Member',
+                onBack: () => _handleBack(context),
               ),
               Expanded(
                 child: SingleChildScrollView(

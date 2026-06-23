@@ -1,6 +1,7 @@
 import 'package:base42_events_mobile/nav.dart';
 import 'package:base42_events_mobile/theme.dart';
 import 'package:base42_events_mobile/widgets/about/about_location_map.dart';
+import 'package:base42_events_mobile/widgets/common/page_header.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -47,25 +48,9 @@ class AboutScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(8, 8, 18, 0),
-                child: Row(
-                  children: [
-                    IconButton(
-                      icon: Icon(
-                        Icons.arrow_back_ios_new_rounded,
-                        color: colorScheme.onSurface,
-                      ),
-                      onPressed: () => _handleBack(context),
-                    ),
-                    Text(
-                      'About Base42',
-                      style: context.textStyles.headlineSmall?.bold.withColor(
-                        colorScheme.onSurface,
-                      ),
-                    ),
-                  ],
-                ),
+              PageHeader(
+                title: 'About Base42',
+                onBack: () => _handleBack(context),
               ),
               Expanded(
                 child: SingleChildScrollView(

@@ -3,10 +3,11 @@ import 'package:base42_events_mobile/providers/auth_provider.dart';
 import 'package:base42_events_mobile/services/user_service.dart';
 import 'package:base42_events_mobile/theme.dart';
 import 'package:base42_events_mobile/types/user.dart';
+import 'package:base42_events_mobile/widgets/common/custom_text_fields.dart';
+import 'package:base42_events_mobile/widgets/common/page_header.dart';
 import 'package:base42_events_mobile/widgets/discard_changes_dialog.dart';
 import 'package:base42_events_mobile/widgets/profile/source_modal.dart';
 import 'package:base42_events_mobile/widgets/profile_picture_picker.dart';
-import 'package:base42_events_mobile/widgets/common/custom_text_fields.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
@@ -217,31 +218,14 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(8, 8, 16, 0),
-                  child: Row(
-                    children: [
-                      IconButton(
-                        icon: Icon(
-                          Icons.arrow_back_ios_new_rounded,
-                          color: colorScheme.onSurface,
-                        ),
-                        onPressed: () async {
-                          final shouldPop = await _onWillPop();
-                          if (shouldPop && context.mounted) {
-                            Navigator.of(context).pop();
-                          }
-                        },
-                      ),
-                      Text(
-                        'Edit Profile',
-                        style: context.textStyles.titleLarge?.semiBold
-                            .withColor(
-                              colorScheme.onSurface.withValues(alpha: 0.8),
-                            ),
-                      ),
-                    ],
-                  ),
+                PageHeader(
+                  title: 'Edit Profile',
+                  onBack: () async {
+                    final shouldPop = await _onWillPop();
+                    if (shouldPop && context.mounted) {
+                      Navigator.of(context).pop();
+                    }
+                  },
                 ),
                 Expanded(
                   child: SingleChildScrollView(

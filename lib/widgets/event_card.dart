@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:base42_events_mobile/consts/enum.dart';
 import 'package:base42_events_mobile/models/event.dart';
 import 'package:base42_events_mobile/theme.dart';
 import 'package:base42_events_mobile/widgets/event_media_hero.dart';
@@ -8,15 +9,23 @@ import 'package:base42_events_mobile/widgets/chip_label.dart';
 class EventCard extends StatelessWidget {
   final Event event;
   final VoidCallback onTap;
+  final EventAttendanceStatus? attendanceStatus;
+  final bool isPast;
 
-  const EventCard({super.key, required this.event, required this.onTap});
+  const EventCard({
+    super.key,
+    required this.event,
+    required this.onTap,
+    this.attendanceStatus,
+    this.isPast = false,
+  });
 
   @override
   Widget build(BuildContext context) {
     final dateFormat = DateFormat('dd.MM.yyyy');
     final timeFormat = DateFormat('HH:mm');
     final colorScheme = Theme.of(context).colorScheme;
-    return GestureDetector(
+    final card = GestureDetector(
       onTap: onTap,
       child: Container(
         decoration: BoxDecoration(
@@ -58,9 +67,18 @@ class EventCard extends StatelessWidget {
             Positioned(
               right: 10,
               top: 10,
-              child: ChipLabel(
-                text: timeFormat.format(event.start),
-                color: Colors.white,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  ChipLabel(
+                    text: timeFormat.format(event.start),
+                    color: Colors.white,
+                  ),
+                  if (attendanceStatus != null) ...[
+                    const SizedBox(width: 6),
+                    _AttendanceBadge(status: attendanceStatus!),
+                  ],
+                ],
               ),
             ),
             Positioned.fill(
@@ -84,7 +102,7 @@ class EventCard extends StatelessWidget {
               bottom: 14,
               child: Text(
                 event.title,
-                textAlign: TextAlign.center,
+                textAlign: TextAlign.left,
                 style: context.textStyles.titleLarge?.bold.withColor(
                   Colors.white,
                 ),
@@ -94,6 +112,66 @@ class EventCard extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+
+    return isPast
+        ? ColorFiltered(
+            colorFilter: const ColorFilter.matrix(<double>[
+              0.2126, 0.7152, 0.0722, 0, 0,
+              0.2126, 0.7152, 0.0722, 0, 0,
+              0.2126, 0.7152, 0.0722, 0, 0,
+              0, 0, 0, 1, 0,
+            ]),
+            child: card,
+          )
+        : card;
+  }
+}
+
+class _AttendanceBadge extends StatelessWidget {
+  final EventAttendanceStatus status;
+
+  const _AttendanceBadge({required this.status});
+
+  @override
+  Widget build(BuildContext context) {
+    final brand = Theme.of(context).extension<BrandTheme>();
+    final colorScheme = Theme.of(context).colorScheme;
+
+    final (icon, label, bgColor) = switch (status) {
+      EventAttendanceStatus.interested => (
+        Icons.star_rounded,
+        'Interested',
+        brand?.neonYellow ?? colorScheme.secondary,
+      ),
+      EventAttendanceStatus.going => (
+        Icons.check_circle_rounded,
+        'Going',
+        brand?.neonCyan ?? colorScheme.primary,
+      ),
+    };
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 12, color: Colors.black),
+          const SizedBox(width: 3),
+          Text(
+            label,
+            style: const TextStyle(
+              fontSize: 10,
+              fontWeight: FontWeight.w700,
+              color: Colors.black,
+            ),
+          ),
+        ],
       ),
     );
   }
