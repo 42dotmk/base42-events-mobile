@@ -134,6 +134,23 @@ String buildEventDescriptionHtml(String raw) {
   return paragraphs.isEmpty ? '<p></p>' : paragraphs;
 }
 
+DateTime? extractJwtExpiration(String jwt) {
+  try {
+    final parts = jwt.split('.');
+    if (parts.length != 3) return null;
+    final normalized = base64Url.normalize(parts[1]);
+    final decoded = utf8.decode(base64Url.decode(normalized));
+    final claims = jsonDecode(decoded) as Map<String, dynamic>;
+    final exp = claims['exp'];
+    if (exp is int) {
+      return DateTime.fromMillisecondsSinceEpoch(exp * 1000);
+    }
+    return null;
+  } catch (_) {
+    return null;
+  }
+}
+
 EventAttendanceStatus? resolveAttendanceStatus(
   AttendanceProvider provider,
   int eventId,

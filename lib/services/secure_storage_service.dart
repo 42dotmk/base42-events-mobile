@@ -7,6 +7,7 @@ class SecureStorageService {
 
   static const String jwtTokenKey = 'jwt';
   static const String jwtExpirationKey = 'jwt_token_expiration';
+  static const String keycloakRefreshTokenKey = 'keycloak_refresh_token';
   static const String onboardingCompleteKey = 'onboarding_complete';
   static const String pendingEventIdKey = 'pending_event_id';
 
