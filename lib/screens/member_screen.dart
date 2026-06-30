@@ -3,8 +3,8 @@ import 'package:go_router/go_router.dart';
 import 'package:base42_events_mobile/nav.dart';
 import 'package:base42_events_mobile/theme.dart';
 import 'package:base42_events_mobile/widgets/common/page_header.dart';
-import 'package:base42_events_mobile/widgets/member/membership_card.dart';
-import 'package:base42_events_mobile/widgets/member/member_perk_card.dart';
+import 'package:base42_events_mobile/widgets/membership/membership_card.dart';
+import 'package:base42_events_mobile/widgets/membership/member_perk_card.dart';
 
 class MemberScreen extends StatelessWidget {
   const MemberScreen({super.key});
