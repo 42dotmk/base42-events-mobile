@@ -12,6 +12,7 @@ import 'package:base42_events_mobile/widgets/profile/booking_filter_switch.dart'
 import 'package:base42_events_mobile/widgets/profile/membership_card.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 class _AccountMenuItem {
@@ -44,6 +45,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       icon: Icons.credit_card_outlined,
       label: 'Membership & Billing',
       description: 'Manage your plan',
+      route: AppRoutes.membershipBilling,
     ),
     _AccountMenuItem(
       icon: Icons.settings_outlined,
@@ -185,10 +187,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ],
                 ),
                 const SizedBox(height: 16),
-                const MembershipCard(
-                  title: 'Monthly Member',
-                  subtitle: 'Member since Sep 15, 2025',
-                ),
+                _MembershipStatus(authProvider: authProvider),
                 const SizedBox(height: 30),
                 Text(
                   'MY BOOKINGS',
@@ -306,5 +305,38 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ),
       ),
     );
+  }
+}
+
+class _MembershipStatus extends StatelessWidget {
+  final AuthProvider authProvider;
+
+  const _MembershipStatus({required this.authProvider});
+
+  @override
+  Widget build(BuildContext context) {
+    final user = authProvider.currentUser;
+    if (user == null) return const SizedBox.shrink();
+
+    final membership = user.activeMembership;
+
+    if (user.isMember && membership != null) {
+      final startDate = membership.startDate != null
+          ? DateFormat('MMM d, yyyy').format(membership.startDate!)
+          : null;
+      return MembershipCard(
+        title: membership.displayTier,
+        subtitle: startDate != null ? 'Member since $startDate' : 'Active Member',
+      );
+    }
+
+    if (user.isVolunteer) {
+      return MembershipCard(
+        title: 'Volunteer',
+        subtitle: 'Thank you for your contributions!',
+      );
+    }
+
+    return const SizedBox.shrink();
   }
 }

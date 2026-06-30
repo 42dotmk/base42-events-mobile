@@ -17,6 +17,8 @@ const String changeAttendanceStatusApiUrl =
     '$baseUrl/api/user-events/change-status';
 const String userEventsApiUrl = '$baseUrl/api/user-events/me';
 const String projectsApiUrl = '$baseUrl/api/projects';
+const String membershipCheckApiUrl = '$baseUrl/api/memberships/me';
+const String volunteerApplyApiUrl = '$baseUrl/api/volunteer/apply';
 
 // Keycloak / OAuth configuration
 const String keycloakIssuerUrl = 'https://id.42.mk/realms/42mk';

@@ -52,7 +52,7 @@ class WelcomeHeader extends StatelessWidget {
                       onSurface,
                     ),
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 10),
                   Wrap(
                     spacing: 14,
                     runSpacing: 8,
@@ -61,8 +61,8 @@ class WelcomeHeader extends StatelessWidget {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Container(
-                            width: 10,
-                            height: 10,
+                            width: 12,
+                            height: 12,
                             decoration: BoxDecoration(
                               color: isOpen
                                   ? (brand?.successGreen ?? colorScheme.secondary)
@@ -73,23 +73,6 @@ class WelcomeHeader extends StatelessWidget {
                           const SizedBox(width: 6),
                           Text(
                             isOpen ? 'Open now' : 'Closed',
-                            style: context.textStyles.titleSmall?.withColor(
-                              onSurface.withValues(alpha: 0.72),
-                            ),
-                          ),
-                        ],
-                      ),
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            Icons.group_outlined,
-                            size: 14,
-                            color: onSurface.withValues(alpha: 0.55),
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            '33 people here',
                             style: context.textStyles.titleSmall?.withColor(
                               onSurface.withValues(alpha: 0.72),
                             ),

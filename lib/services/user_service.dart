@@ -1,8 +1,7 @@
 import 'dart:convert';
-import 'dart:developer' as developer;
 import 'package:base42_events_mobile/consts/api.dart';
 import 'package:base42_events_mobile/types/user.dart';
-import 'package:flutter/widgets.dart';
+import 'package:base42_events_mobile/models/membership.dart';
 import 'package:http/http.dart' as http;
 import 'package:base42_events_mobile/models/user.dart';
 import 'package:base42_events_mobile/models/user_event.dart';
@@ -51,8 +50,7 @@ class UserService {
         final errorData = jsonDecode(response.body);
         error = errorData['error']?['message'] ?? 'Keycloak login failed';
       } catch (_) {
-        error =
-            'Keycloak login failed (HTTP ${response.statusCode}, ${response.reasonPhrase}, response body: ${response.body})';
+        error = 'Keycloak login failed (HTTP ${response.statusCode})';
       }
       throw Exception(error);
     }
@@ -62,19 +60,8 @@ class UserService {
     try {
       var url = Uri.parse(logoutUserApiUrl);
 
-      var response = await postWithAuth(url.toString(), token, {});
-
-      if (response.statusCode != 200 && response.statusCode != 403) {
-        var errorData = jsonDecode(response.body);
-        String error = errorData['error']?['message'] ?? 'Logout failed';
-        developer.log('Logout API warning: $error', name: 'UserService');
-      }
+      await postWithAuth(url.toString(), token, {});
     } catch (e) {
-      developer.log(
-        'Logout API call failed (non-critical): $e',
-        name: 'UserService',
-        error: e,
-      );
     }
   }
 
@@ -96,6 +83,37 @@ class UserService {
       }
     } catch (e) {
       throw Exception('Failed to fetch current authenticated user: $e');
+    }
+  }
+
+  Future<Membership?> fetchActiveMembership(String token) async {
+    try {
+      var url = Uri.parse(membershipCheckApiUrl);
+      var response = await getWithAuth(url.toString(), token);
+
+      if (response.statusCode == 200) {
+        var data = jsonDecode(response.body);
+        if (data['active'] != null) {
+          return Membership.fromJson(data['active'] as Map<String, dynamic>);
+        }
+      }
+      return null;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  Future<bool> submitVolunteerApplication(String token) async {
+    try {
+      var url = Uri.parse(volunteerApplyApiUrl);
+      var response = await postWithAuth(url.toString(), token, {});
+
+      if (response.statusCode == 200) {
+        return true;
+      }
+      return false;
+    } catch (e) {
+      return false;
     }
   }
 
@@ -194,7 +212,6 @@ class UserService {
       });
 
       if (response.statusCode == 200) {
-        developer.log('FCM token updated successfully', name: 'UserService');
       } else {
         String error;
         try {
@@ -204,18 +221,9 @@ class UserService {
         } catch (_) {
           error = 'Failed to update FCM token (HTTP ${response.statusCode})';
         }
-        developer.log(
-          'Failed to update FCM token: $error (Status: ${response.statusCode})',
-          name: 'UserService',
-        );
         throw Exception(error);
       }
     } catch (e) {
-      developer.log(
-        'Error updating FCM token: $e',
-        name: 'UserService',
-        error: e,
-      );
       rethrow;
     }
   }
@@ -250,7 +258,6 @@ class UserService {
             profileImage.value!,
           );
         } catch (e) {
-          debugPrint('Warning: Profile image upload failed: $e');
         }
       }
 
@@ -273,7 +280,6 @@ class UserService {
         throw Exception(error);
       }
     } catch (e) {
-      debugPrint('Error updating user profile: $e');
       throw Exception('Failed to update profile: $e');
     }
   }

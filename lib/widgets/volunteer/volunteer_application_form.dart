@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:base42_events_mobile/providers/auth_provider.dart';
+import 'package:base42_events_mobile/services/user_service.dart';
 import 'package:base42_events_mobile/theme.dart';
 import 'package:base42_events_mobile/widgets/common/custom_text_fields.dart';
 import 'package:base42_events_mobile/utils.dart';
@@ -30,36 +33,69 @@ class _VolunteerApplicationFormState extends State<VolunteerApplicationForm> {
     super.dispose();
   }
 
-  void _submitForm() {
+  Future<void> _submitForm() async {
     if (!_formKey.currentState!.validate()) return;
 
-    setState(() {
-      _isSubmitting = true;
-    });
+    setState(() => _isSubmitting = true);
 
-    Future.delayed(const Duration(seconds: 1), () {
+    try {
+      final authProvider = context.read<AuthProvider>();
+      final token = authProvider.token;
+      if (token == null) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('You must be logged in to apply'),
+            backgroundColor: Theme.of(context).colorScheme.inverseSurface,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+        return;
+      }
+
+      final success = await UserService().submitVolunteerApplication(token);
+
       if (!mounted) return;
-      setState(() {
-        _isSubmitting = false;
-      });
+
+      if (success) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Application submitted! We\'ll be in touch soon.',
+              style: context.textStyles.bodyMedium?.withColor(
+                Theme.of(context).colorScheme.onInverseSurface,
+              ),
+            ),
+            backgroundColor: Theme.of(context).colorScheme.inverseSurface,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+        _nameController.clear();
+        _emailController.clear();
+        _skillsController.clear();
+        _messageController.clear();
+        widget.onSubmit?.call();
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to submit. Please try again.'),
+            backgroundColor: Theme.of(context).colorScheme.error,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    } catch (_) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(
-            'Application submitted! We\'ll be in touch soon.',
-            style: context.textStyles.bodyMedium?.withColor(
-              Theme.of(context).colorScheme.onInverseSurface,
-            ),
-          ),
-          backgroundColor: Theme.of(context).colorScheme.inverseSurface,
+          content: Text('Something went wrong. Please try again.'),
+          backgroundColor: Theme.of(context).colorScheme.error,
           behavior: SnackBarBehavior.floating,
         ),
       );
-      _nameController.clear();
-      _emailController.clear();
-      _skillsController.clear();
-      _messageController.clear();
-      widget.onSubmit?.call();
-    });
+    } finally {
+      if (mounted) setState(() => _isSubmitting = false);
+    }
   }
 
   @override

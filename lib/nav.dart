@@ -1,4 +1,5 @@
 import 'package:base42_events_mobile/screens/member_screen.dart';
+import 'package:base42_events_mobile/screens/membership_billing_screen.dart';
 import 'package:base42_events_mobile/screens/volunteer_screen.dart';
 import 'package:base42_events_mobile/models/event.dart';
 import 'package:base42_events_mobile/providers/auth_provider.dart';
@@ -186,6 +187,12 @@ class AppRouter {
         parentNavigatorKey: _rootNavigatorKey,
         builder: (context, state) => const MemberScreen(),
       ),
+      GoRoute(
+        path: AppRoutes.membershipBilling,
+        name: 'membershipBilling',
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) => const MembershipBillingScreen(),
+      ),
     ],
   );
 }
@@ -206,6 +213,7 @@ class AppRoutes {
   static const String rules = '/about/rules';
   static const String volunteer = '/volunteer';
   static const String member = '/member';
+  static const String membershipBilling = '/membership-billing';
 
   static String projectDetailsPath(String owner, String repo) =>
       '/projects/$owner/$repo';

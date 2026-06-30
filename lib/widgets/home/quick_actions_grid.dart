@@ -19,13 +19,13 @@ class QuickActionsGrid extends StatelessWidget {
       ),
       _ActionItem(
         icon: Icons.volunteer_activism_outlined,
-        label: 'Volunteer',
+        label: 'Become a Volunteer',
         route: '/volunteer',
         color: colorScheme.primary,
       ),
       _ActionItem(
         icon: Icons.card_membership_outlined,
-        label: 'Member',
+        label: 'Become a Member',
         route: '/member',
         color: colorScheme.primary,
       ),
