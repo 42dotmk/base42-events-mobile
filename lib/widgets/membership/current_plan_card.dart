@@ -1,3 +1,4 @@
+import 'package:base42_events_mobile/consts/membership_pricing.dart';
 import 'package:flutter/material.dart';
 import 'package:base42_events_mobile/theme.dart';
 import 'package:base42_events_mobile/models/membership.dart';
@@ -6,6 +7,7 @@ class CurrentPlanCard extends StatelessWidget {
   final String userType;
   final Membership? activeMembership;
   final Color accentColor;
+  final Color secondaryAccent;
   final Color onSurface;
 
   const CurrentPlanCard({
@@ -13,307 +15,190 @@ class CurrentPlanCard extends StatelessWidget {
     required this.userType,
     this.activeMembership,
     required this.accentColor,
+    required this.secondaryAccent,
     required this.onSurface,
   });
 
   @override
   Widget build(BuildContext context) {
-    if (userType == 'member') {
-      return _buildMemberCard(context);
-    }
-    if (userType == 'volunteer') {
-      return _buildVolunteerCard(context);
-    }
-    return _buildFreePlanCard(context);
-  }
+    final colorScheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isMember = userType == 'member' && activeMembership != null;
+    final isVolunteer = userType == 'volunteer';
+    final primaryAccent = activeMembership?.tier == 'yearly'
+        ? secondaryAccent
+        : accentColor;
 
-  Widget _buildFreePlanCard(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(AppSpacing.lg),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            onSurface.withValues(alpha: 0.06),
-            onSurface.withValues(alpha: 0.02),
-          ],
-        ),
-        borderRadius: BorderRadius.circular(AppRadius.xl),
-        border: Border.all(
-          color: onSurface.withValues(alpha: 0.12),
-          width: 1.5,
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(AppSpacing.sm),
-                decoration: BoxDecoration(
-                  color: onSurface.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(AppRadius.md),
-                ),
-                child: Icon(
-                  Icons.person_outline_rounded,
-                  color: onSurface.withValues(alpha: 0.7),
-                  size: 28,
-                ),
-              ),
-              const SizedBox(width: AppSpacing.md),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'FREE PLAN',
-                    style: context.textStyles.titleLarge?.bold.withColor(
-                      onSurface.withValues(alpha: 0.8),
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    'Enjoying basic access',
-                    style: context.textStyles.bodyMedium?.withColor(
-                      onSurface.withValues(alpha: 0.5),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-          const SizedBox(height: AppSpacing.lg),
-          Text(
-            'Upgrade to unlock 24/7 access, 3D printers, electronics lab, and more.',
-            style: context.textStyles.bodyMedium?.withColor(
-              onSurface.withValues(alpha: 0.55),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+    final planLabel = isMember
+        ? '${(activeMembership!.tier == 'monthly' ? 'MONTHLY' : 'YEARLY')} PLAN'
+        : isVolunteer
+            ? 'VOLUNTEER'
+            : 'FREE PLAN';
 
-  Widget _buildVolunteerCard(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(AppSpacing.lg),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            accentColor.withValues(alpha: 0.12),
-            accentColor.withValues(alpha: 0.04),
-          ],
-        ),
-        borderRadius: BorderRadius.circular(AppRadius.xl),
-        border: Border.all(
-          color: accentColor.withValues(alpha: 0.25),
-          width: 1.5,
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(AppSpacing.sm),
-                decoration: BoxDecoration(
-                  color: accentColor.withValues(alpha: 0.18),
-                  borderRadius: BorderRadius.circular(AppRadius.md),
-                ),
-                child: Icon(
-                  Icons.favorite_outline_rounded,
-                  color: accentColor,
-                  size: 28,
-                ),
-              ),
-              const SizedBox(width: AppSpacing.md),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'VOLUNTEER',
-                    style: context.textStyles.titleLarge?.bold.withColor(
-                      accentColor,
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    'Thank you for contributing!',
-                    style: context.textStyles.bodyMedium?.withColor(
-                      onSurface.withValues(alpha: 0.5),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-          const SizedBox(height: AppSpacing.lg),
-          Row(
-            children: [
-              Icon(
-                Icons.check_circle_outline_rounded,
-                color: accentColor,
-                size: 18,
-              ),
-              const SizedBox(width: AppSpacing.xs),
-              Text(
-                'Community contributor',
-                style: context.textStyles.bodyMedium?.semiBold.withColor(
-                  accentColor,
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildMemberCard(BuildContext context) {
-    final membership = activeMembership;
-    final startDate = membership?.startDate;
-    final formattedDate = startDate != null
-        ? '${startDate.month}/${startDate.year}'
+    final memberSince = isMember && activeMembership!.startDate != null
+        ? 'Member since ${activeMembership!.startDate!.month}/${activeMembership!.startDate!.year}'
         : null;
 
+    final description = isMember
+        ? 'Full access to Base42'
+        : isVolunteer
+            ? 'Contributing member access'
+            : 'Basic access at Base42';
+
+    final String? price = isMember
+        ? MembershipPricing.priceForTier(activeMembership!.tier)
+        : null;
+
+    final String? interval = isMember
+        ? MembershipPricing.intervalForTier(activeMembership!.tier)
+        : null;
+
+    final String? badgeLabel = isMember
+        ? activeMembership!.status.toUpperCase()
+        : isVolunteer
+            ? 'ACTIVE'
+            : null;
+
+    final Color? badgeBg;
+    final Color? badgeText;
+    if (isMember) {
+      final status = activeMembership!.status;
+      if (status == 'active') {
+        badgeBg = primaryAccent.withValues(alpha: 0.15);
+        badgeText = primaryAccent;
+      } else if (status == 'cancelled') {
+        badgeBg = onSurface.withValues(alpha: 0.12);
+        badgeText = onSurface.withValues(alpha: 0.6);
+      } else if (status == 'pending') {
+        badgeBg = Colors.orange.withValues(alpha: 0.2);
+        badgeText = Colors.orange;
+      } else {
+        badgeBg = onSurface.withValues(alpha: 0.12);
+        badgeText = onSurface.withValues(alpha: 0.6);
+      }
+    } else if (isVolunteer) {
+      badgeBg = primaryAccent.withValues(alpha: 0.15);
+      badgeText = primaryAccent;
+    } else {
+      badgeBg = null;
+      badgeText = null;
+    }
+
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(AppSpacing.lg),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            accentColor.withValues(alpha: 0.15),
-            accentColor.withValues(alpha: 0.05),
-          ],
-        ),
+        color: isDark ? colorScheme.surfaceContainerHighest : Colors.white,
         borderRadius: BorderRadius.circular(AppRadius.xl),
         border: Border.all(
-          color: accentColor.withValues(alpha: 0.3),
-          width: 1.5,
+          color: onSurface.withValues(alpha: 0.08),
         ),
-        boxShadow: [
-          BoxShadow(
-            color: accentColor.withValues(alpha: 0.1),
-            blurRadius: 24,
-            offset: const Offset(0, 8),
-          ),
-        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
-                padding: const EdgeInsets.all(AppSpacing.sm),
+                width: 48,
+                height: 48,
                 decoration: BoxDecoration(
-                  color: accentColor.withValues(alpha: 0.2),
+                  color: primaryAccent.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(AppRadius.md),
                 ),
                 child: Icon(
-                  Icons.card_membership_rounded,
-                  color: accentColor,
-                  size: 28,
+                  isMember
+                      ? Icons.card_membership_rounded
+                      : Icons.person_outline_rounded,
+                  color: primaryAccent,
+                  size: 24,
                 ),
               ),
-              const SizedBox(width: AppSpacing.md),
+              const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      membership != null ? membership.displayTier.toUpperCase() : 'MEMBER',
-                      style: context.textStyles.titleLarge?.bold.withColor(
-                        accentColor,
+                      planLabel,
+                      style: context.textStyles.headlineSmall?.bold.withColor(
+                        onSurface,
                       ),
                     ),
-                    if (formattedDate != null) ...[
-                      const SizedBox(height: 2),
-                      Text(
-                        'Member since $formattedDate',
-                        style: context.textStyles.bodyMedium?.withColor(
-                          onSurface.withValues(alpha: 0.5),
+                    if (memberSince != null)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 2),
+                        child: Text(
+                          memberSince,
+                          style: context.textStyles.bodyMedium?.withColor(
+                            onSurface.withValues(alpha: 0.5),
+                          ),
                         ),
                       ),
-                    ],
                   ],
                 ),
               ),
-              if (membership != null) _buildStatusBadge(context, membership.status),
             ],
           ),
-          if (membership != null) ...[
-            const SizedBox(height: AppSpacing.lg),
-            Row(
-              children: [
-                Text(
-                  '\$10',
-                  style: context.textStyles.displaySmall?.bold.withColor(
-                    accentColor,
-                  ),
+          if (badgeLabel != null) ...[
+            const SizedBox(height: 10),
+            Container(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 10,
+                vertical: 4,
+              ),
+              decoration: BoxDecoration(
+                color: badgeBg,
+                borderRadius: BorderRadius.circular(AppRadius.sm),
+              ),
+              child: Text(
+                badgeLabel,
+                style: context.textStyles.labelSmall?.bold.withColor(
+                  badgeText!,
                 ),
-                const SizedBox(width: AppSpacing.xs),
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 6),
-                  child: Text(
-                    '/month',
-                    style: context.textStyles.titleMedium?.medium.withColor(
-                      onSurface.withValues(alpha: 0.6),
+              ),
+            ),
+          ],
+          const SizedBox(height: 24),
+          Align(
+            alignment: Alignment.centerRight,
+            child: Text(
+              description,
+              style: context.textStyles.bodyMedium?.withColor(
+                onSurface.withValues(alpha: 0.55),
+              ),
+            ),
+          ),
+          if (price != null) ...[
+            const SizedBox(height: 4),
+            Align(
+              alignment: Alignment.centerRight,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(
+                    price,
+                    style: context.textStyles.headlineMedium?.bold.withColor(
+                      onSurface,
                     ),
                   ),
-                ),
-              ],
+                  const SizedBox(width: 4),
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 4),
+                    child: Text(
+                      '/$interval',
+                      style: context.textStyles.titleMedium?.medium.withColor(
+                        onSurface.withValues(alpha: 0.5),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ],
         ],
-      ),
-    );
-  }
-
-  Widget _buildStatusBadge(BuildContext context, String status) {
-    final Color bgColor;
-    final Color textColor;
-    final String label;
-
-    switch (status) {
-      case 'active':
-        bgColor = accentColor.withValues(alpha: 0.2);
-        textColor = accentColor;
-        label = 'ACTIVE';
-      case 'cancelled':
-        bgColor = onSurface.withValues(alpha: 0.12);
-        textColor = onSurface.withValues(alpha: 0.6);
-        label = 'CANCELLED';
-      case 'pending':
-        bgColor = Colors.orange.withValues(alpha: 0.2);
-        textColor = Colors.orange;
-        label = 'PENDING';
-      default:
-        bgColor = onSurface.withValues(alpha: 0.12);
-        textColor = onSurface.withValues(alpha: 0.6);
-        label = status.toUpperCase();
-    }
-
-    return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.sm,
-        vertical: 4,
-      ),
-      decoration: BoxDecoration(
-        color: bgColor,
-        borderRadius: BorderRadius.circular(AppRadius.sm),
-      ),
-      child: Text(
-        label,
-        style: context.textStyles.labelSmall?.bold.withColor(textColor),
       ),
     );
   }

@@ -9,10 +9,9 @@ import 'package:base42_events_mobile/widgets/profile/event_attendance_section.da
 import 'package:base42_events_mobile/widgets/profile/my_bookings_section.dart';
 import 'package:base42_events_mobile/widgets/profile/account_menu_tile.dart';
 import 'package:base42_events_mobile/widgets/profile/booking_filter_switch.dart';
-import 'package:base42_events_mobile/widgets/profile/membership_card.dart';
+import 'package:base42_events_mobile/widgets/profile/membership_status.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 class _AccountMenuItem {
@@ -42,12 +41,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   static const List<_AccountMenuItem> _menuItems = [
     _AccountMenuItem(
-      icon: Icons.credit_card_outlined,
-      label: 'Membership & Billing',
-      description: 'Manage your plan',
-      route: AppRoutes.membershipBilling,
-    ),
-    _AccountMenuItem(
       icon: Icons.settings_outlined,
       label: 'Settings',
       description: 'App preferences',
@@ -65,16 +58,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
       description: 'FAQ, contact support',
     ),
   ];
-
-  @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-  }
 
   Future<void> _logout(BuildContext context) async {
     try {
@@ -187,7 +170,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ],
                 ),
                 const SizedBox(height: 16),
-                _MembershipStatus(authProvider: authProvider),
+                Text(
+                  'MEMBERSHIP',
+                  style: context.textStyles.titleMedium?.semiBold.withColor(
+                    colorScheme.onSurface.withValues(alpha: 0.8),
+                  ),
+                ),
+                const SizedBox(height: 14),
+                GestureDetector(
+                  onTap: () => context.push(AppRoutes.membershipBilling),
+                  child: MembershipStatus(authProvider: authProvider),
+                ),
                 const SizedBox(height: 30),
                 Text(
                   'MY BOOKINGS',
@@ -216,7 +209,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 const EventAttendanceSection(),
                 const SizedBox(height: 26),
                 Text(
-                  'ACCOUNT',
+                  'OTHER',
                   style: context.textStyles.titleMedium?.semiBold.withColor(
                     colorScheme.onSurface.withValues(alpha: 0.8),
                   ),
@@ -305,38 +298,5 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ),
       ),
     );
-  }
-}
-
-class _MembershipStatus extends StatelessWidget {
-  final AuthProvider authProvider;
-
-  const _MembershipStatus({required this.authProvider});
-
-  @override
-  Widget build(BuildContext context) {
-    final user = authProvider.currentUser;
-    if (user == null) return const SizedBox.shrink();
-
-    final membership = user.activeMembership;
-
-    if (user.isMember && membership != null) {
-      final startDate = membership.startDate != null
-          ? DateFormat('MMM d, yyyy').format(membership.startDate!)
-          : null;
-      return MembershipCard(
-        title: membership.displayTier,
-        subtitle: startDate != null ? 'Member since $startDate' : 'Active Member',
-      );
-    }
-
-    if (user.isVolunteer) {
-      return MembershipCard(
-        title: 'Volunteer',
-        subtitle: 'Thank you for your contributions!',
-      );
-    }
-
-    return const SizedBox.shrink();
   }
 }

@@ -21,76 +21,114 @@ class EventAttendanceTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final dateText = DateFormat('MMM d, yyyy').format(event.start);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final month = DateFormat('MMM').format(event.start).toUpperCase();
+    final day = event.start.day.toString();
 
     return GestureDetector(
       onTap: () => context.push('/event/${event.id}', extra: event),
       child: Container(
         width: double.infinity,
         decoration: BoxDecoration(
-          color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.62),
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: colorScheme.outline.withValues(alpha: 0.2)),
+          color: colorScheme.surface,
+          borderRadius: BorderRadius.circular(AppRadius.lg),
         ),
-        padding: const EdgeInsets.all(14),
-        clipBehavior: Clip.antiAlias,
-        child: Row(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Expanded(
-              flex: 2,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+            Padding(
+              padding: const EdgeInsets.fromLTRB(14, 14, 14, 0),
+              child: Row(
                 children: [
-                  Text(
-                    event.title,
-                    style: context.textStyles.titleMedium?.semiBold.withColor(
-                      colorScheme.onSurface.withValues(alpha: 0.8),
+                  Container(
+                    width: 64,
+                    height: 64,
+                    decoration: BoxDecoration(
+                      color: colorScheme.primary.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(12),
                     ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 6),
-                  Text(
-                    dateText,
-                    style: context.textStyles.bodySmall?.withColor(
-                      colorScheme.onSurface.withValues(alpha: 0.56),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          month,
+                          style: context.textStyles.labelSmall?.semiBold
+                              .withColor(colorScheme.primary),
+                        ),
+                        Text(
+                          day,
+                          style: context.textStyles.titleLarge?.bold
+                              .withColor(colorScheme.primary),
+                        ),
+                      ],
                     ),
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          event.title,
+                          style: context.textStyles.titleMedium?.semiBold
+                              .withColor(colorScheme.onSurface),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 4),
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.access_time_rounded,
+                              size: 14,
+                              color: colorScheme.onSurface.withValues(alpha: 0.4),
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              event.start.year.toString(),
+                              style: context.textStyles.bodySmall?.withColor(
+                                colorScheme.onSurface.withValues(alpha: 0.4),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
                 ],
               ),
             ),
-            const SizedBox(width: 12),
-            Expanded(
-              flex: 1,
-              child: Center(
-                child: TextButton(
-                  onPressed: onActionTap,
-                  style: TextButton.styleFrom(
-                    foregroundColor: colorScheme.secondary,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 12,
+            const SizedBox(height: 12),
+            InkWell(
+              onTap: onActionTap,
+              borderRadius: BorderRadius.circular(12),
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                margin: const EdgeInsets.fromLTRB(14, 0, 14, 14),
+                decoration: BoxDecoration(
+                  color: isDark
+                      ? Colors.white.withValues(alpha: 0.08)
+                      : Colors.black.withValues(alpha: 0.06),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.check_circle_outline,
+                      size: 16,
+                      color: colorScheme.onSurface.withValues(alpha: 0.6),
                     ),
-                    backgroundColor: colorScheme.secondary.withValues(
-                      alpha: 0.2,
+                    const SizedBox(width: 6),
+                    Text(
+                      actionLabel,
+                      style: context.textStyles.labelLarge?.semiBold
+                          .withColor(
+                            colorScheme.onSurface.withValues(alpha: 0.6),
+                          ),
                     ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    side: BorderSide(color: colorScheme.secondary),
-                  ),
-                  child: Text(
-                    actionLabel,
-                    textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                      color: Color.alphaBlend(
-                        Colors.black.withValues(alpha: .08),
-                        colorScheme.secondary,
-                      ),
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
+                  ],
                 ),
               ),
             ),

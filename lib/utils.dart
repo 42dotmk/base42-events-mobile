@@ -151,6 +151,23 @@ DateTime? extractJwtExpiration(String jwt) {
   }
 }
 
+String formatNextCycleDate({
+  DateTime? endDate,
+  DateTime? startDate,
+  required String tier,
+}) {
+  // If endDate exists (from Stripe's current_period_end), it IS the next cycle date.
+  // Only calculate from startDate as a fallback.
+  if (endDate != null) {
+    return DateFormat('MMM dd').format(endDate);
+  }
+  final base = startDate ?? DateTime.now();
+  final next = tier == 'yearly'
+      ? DateTime(base.year + 1, base.month, base.day)
+      : DateTime(base.year, base.month + 1, base.day);
+  return DateFormat('MMM dd').format(next);
+}
+
 EventAttendanceStatus? resolveAttendanceStatus(
   AttendanceProvider provider,
   int eventId,

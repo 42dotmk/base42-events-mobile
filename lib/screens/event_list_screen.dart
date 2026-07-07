@@ -4,7 +4,6 @@ import 'package:provider/provider.dart';
 import 'package:base42_events_mobile/models/event.dart';
 import 'package:base42_events_mobile/providers/event_provider.dart';
 import 'package:base42_events_mobile/theme.dart';
-import 'package:base42_events_mobile/widgets/common/page_header.dart';
 import 'package:base42_events_mobile/widgets/event_card.dart';
 import 'package:base42_events_mobile/widgets/error_view.dart';
 

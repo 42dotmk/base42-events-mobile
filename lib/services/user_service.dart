@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'package:base42_events_mobile/consts/api.dart';
 import 'package:base42_events_mobile/types/user.dart';
-import 'package:base42_events_mobile/models/membership.dart';
 import 'package:http/http.dart' as http;
 import 'package:base42_events_mobile/models/user.dart';
 import 'package:base42_events_mobile/models/user_event.dart';
@@ -13,7 +12,7 @@ class UserService {
     try {
       var url = Uri.parse(usersApiUrl);
 
-      var response = await http.get(url);
+      var response = await http.get(url).timeout(const Duration(seconds: 15));
       if (response.statusCode == 200) {
         List<User> model = usersFromJson(response.body);
         return model;
@@ -34,7 +33,7 @@ class UserService {
     final response = await http.get(
       url,
       headers: {'Content-Type': 'application/json'},
-    );
+    ).timeout(const Duration(seconds: 15));
 
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
@@ -62,6 +61,7 @@ class UserService {
 
       await postWithAuth(url.toString(), token, {});
     } catch (e) {
+      // Intentionally ignored — logout is fire-and-forget
     }
   }
 
@@ -86,23 +86,6 @@ class UserService {
     }
   }
 
-  Future<Membership?> fetchActiveMembership(String token) async {
-    try {
-      var url = Uri.parse(membershipCheckApiUrl);
-      var response = await getWithAuth(url.toString(), token);
-
-      if (response.statusCode == 200) {
-        var data = jsonDecode(response.body);
-        if (data['active'] != null) {
-          return Membership.fromJson(data['active'] as Map<String, dynamic>);
-        }
-      }
-      return null;
-    } catch (e) {
-      return null;
-    }
-  }
-
   Future<bool> submitVolunteerApplication(String token) async {
     try {
       var url = Uri.parse(volunteerApplyApiUrl);
@@ -114,6 +97,34 @@ class UserService {
       return false;
     } catch (e) {
       return false;
+    }
+  }
+
+  Future<String?> createCheckoutSession(String token, {String tier = 'monthly'}) async {
+    try {
+      var url = Uri.parse(createCheckoutSessionApiUrl);
+      var response = await postWithAuth(url.toString(), token, {'tier': tier});
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        return data['url'] as String?;
+      }
+      return null;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  Future<String?> createPortalSession(String token) async {
+    try {
+      var url = Uri.parse(createPortalSessionApiUrl);
+      var response = await postWithAuth(url.toString(), token, {});
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        return data['url'] as String?;
+      }
+      return null;
+    } catch (e) {
+      return null;
     }
   }
 
@@ -185,7 +196,7 @@ class UserService {
         "Content-Type": "application/json",
         "Authorization": "Bearer $token",
       },
-    );
+    ).timeout(const Duration(seconds: 15));
   }
 
   Future<http.Response> postWithAuth(
@@ -200,7 +211,7 @@ class UserService {
         "Authorization": "Bearer $token",
       },
       body: jsonEncode(body),
-    );
+    ).timeout(const Duration(seconds: 15));
   }
 
   Future<void> updateFcmToken(String token, String fcmToken) async {
@@ -240,7 +251,7 @@ class UserService {
         "Authorization": "Bearer $token",
       },
       body: jsonEncode(body),
-    );
+    ).timeout(const Duration(seconds: 15));
   }
 
   Future<User> updateUserProfile({
@@ -258,6 +269,7 @@ class UserService {
             profileImage.value!,
           );
         } catch (e) {
+          // Intentionally ignored — outer try-catch handles profile update failure
         }
       }
 

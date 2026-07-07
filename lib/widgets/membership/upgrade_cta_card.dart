@@ -1,3 +1,4 @@
+import 'package:base42_events_mobile/consts/membership_pricing.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:base42_events_mobile/theme.dart';
@@ -19,6 +20,10 @@ class UpgradeCTACard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final primaryAccent = accentColor;
+
     final perks = [
       '24/7 Base Access',
       '3D Printer Access',
@@ -28,20 +33,12 @@ class UpgradeCTACard extends StatelessWidget {
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(AppSpacing.lg),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            accentColor.withValues(alpha: 0.12),
-            secondaryAccent.withValues(alpha: 0.06),
-          ],
-        ),
+        color: isDark ? colorScheme.surfaceContainerHighest : Colors.white,
         borderRadius: BorderRadius.circular(AppRadius.xl),
         border: Border.all(
-          color: accentColor.withValues(alpha: 0.25),
-          width: 1.5,
+          color: onSurface.withValues(alpha: 0.08),
         ),
       ),
       child: Column(
@@ -50,34 +47,35 @@ class UpgradeCTACard extends StatelessWidget {
           Row(
             children: [
               Container(
-                padding: const EdgeInsets.all(AppSpacing.sm),
+                width: 48,
+                height: 48,
                 decoration: BoxDecoration(
-                  color: accentColor.withValues(alpha: 0.2),
+                  color: primaryAccent.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(AppRadius.md),
                 ),
                 child: Icon(
                   Icons.auto_awesome_rounded,
-                  color: accentColor,
+                  color: primaryAccent,
                   size: 24,
                 ),
               ),
-              const SizedBox(width: AppSpacing.md),
+              const SizedBox(width: 12),
               Text(
                 'Unlock All Perks',
-                style: context.textStyles.titleLarge?.bold.withColor(
-                  accentColor,
+                style: context.textStyles.headlineSmall?.bold.withColor(
+                  onSurface,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: AppSpacing.md),
+          const SizedBox(height: 16),
           Text(
             'Become a member and get access to everything Base42 has to offer.',
             style: context.textStyles.bodyMedium?.withColor(
               onSurface.withValues(alpha: 0.6),
             ),
           ),
-          const SizedBox(height: AppSpacing.md),
+          const SizedBox(height: 16),
           ...perks.map(
             (perk) => Padding(
               padding: const EdgeInsets.only(bottom: AppSpacing.sm),
@@ -85,7 +83,7 @@ class UpgradeCTACard extends StatelessWidget {
                 children: [
                   Icon(
                     Icons.check_rounded,
-                    color: accentColor,
+                    color: primaryAccent,
                     size: 20,
                   ),
                   const SizedBox(width: AppSpacing.sm),
@@ -99,13 +97,13 @@ class UpgradeCTACard extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(height: AppSpacing.md),
+          const SizedBox(height: 20),
           Row(
             children: [
               Text(
-                '\$10',
+                MembershipPricing.monthlyPrice,
                 style: context.textStyles.headlineMedium?.bold.withColor(
-                  accentColor,
+                  onSurface,
                 ),
               ),
               const SizedBox(width: AppSpacing.xs),
@@ -114,7 +112,7 @@ class UpgradeCTACard extends StatelessWidget {
                 child: Text(
                   '/month',
                   style: context.textStyles.titleMedium?.medium.withColor(
-                    onSurface.withValues(alpha: 0.6),
+                    onSurface.withValues(alpha: 0.5),
                   ),
                 ),
               ),

@@ -85,8 +85,6 @@ class _LoggedOutScreenState extends State<LoggedOutScreen> {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final primaryAccent = isDark ? colorScheme.secondary : colorScheme.primary;
 
     return Scaffold(
       body: Stack(
