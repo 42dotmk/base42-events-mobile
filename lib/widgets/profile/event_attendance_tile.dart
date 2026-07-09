@@ -1,5 +1,6 @@
 import 'package:base42_events_mobile/models/event.dart';
 import 'package:base42_events_mobile/theme.dart';
+import 'package:base42_events_mobile/nav.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -26,7 +27,7 @@ class EventAttendanceTile extends StatelessWidget {
     final day = event.start.day.toString();
 
     return GestureDetector(
-      onTap: () => context.push('/event/${event.id}', extra: event),
+      onTap: () => context.push(AppRoutes.eventDetailsPath(event.id), extra: event),
       child: Container(
         width: double.infinity,
         decoration: BoxDecoration(

@@ -196,9 +196,9 @@ class AuthProvider extends ChangeNotifier {
         _token!,
       );
 
-      final expiration = extractJwtExpiration(_token!) ??
-          DateTime.now().add(const Duration(days: 30));
-
+      final exp = extractJwtExpiration(_token!);
+      final expiration = exp ??
+           DateTime.now().add(Duration(seconds: result.expiresIn ?? 900));
       await loadUserEvents();
 
       await _storageService.saveToken(

@@ -86,10 +86,21 @@ class UserService {
     }
   }
 
-  Future<bool> submitVolunteerApplication(String token) async {
+  Future<bool> submitVolunteerApplication(
+    String token, {
+    required String name,
+    required String email,
+    required String skills,
+    required String message,
+  }) async {
     try {
       var url = Uri.parse(volunteerApplyApiUrl);
-      var response = await postWithAuth(url.toString(), token, {});
+      var response = await postWithAuth(url.toString(), token, {
+        'name': name,
+        'email': email,
+        'skills': skills,
+        'message': message,
+      });
 
       if (response.statusCode == 200) {
         return true;

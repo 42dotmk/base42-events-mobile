@@ -30,7 +30,7 @@ class AppRouterHelper {
   static void goToEventDetails(String eventId) {
     final context = _rootNavigatorKey.currentContext;
     if (context != null) {
-      context.go('/event/$eventId');
+      context.go(AppRoutes.eventDetailsPath(eventId));
     } else {
       debugPrint('Navigation failed: root context is null');
     }
@@ -217,4 +217,7 @@ class AppRoutes {
 
   static String projectDetailsPath(String owner, String repo) =>
       '/projects/$owner/$repo';
+
+  static String eventDetailsPath(Object id) =>
+      '/event/$id';
 }

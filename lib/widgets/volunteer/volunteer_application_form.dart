@@ -18,16 +18,12 @@ class VolunteerApplicationForm extends StatefulWidget {
 
 class _VolunteerApplicationFormState extends State<VolunteerApplicationForm> {
   final _formKey = GlobalKey<FormState>();
-  final _nameController = TextEditingController();
-  final _emailController = TextEditingController();
   final _skillsController = TextEditingController();
   final _messageController = TextEditingController();
   bool _isSubmitting = false;
 
   @override
   void dispose() {
-    _nameController.dispose();
-    _emailController.dispose();
     _skillsController.dispose();
     _messageController.dispose();
     super.dispose();
@@ -41,7 +37,8 @@ class _VolunteerApplicationFormState extends State<VolunteerApplicationForm> {
     try {
       final authProvider = context.read<AuthProvider>();
       final token = authProvider.token;
-      if (token == null) {
+      final user = authProvider.currentUser;
+      if (token == null || user == null) {
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -53,7 +50,18 @@ class _VolunteerApplicationFormState extends State<VolunteerApplicationForm> {
         return;
       }
 
-      final success = await UserService().submitVolunteerApplication(token);
+      final name = (user.firstName.isNotEmpty || user.lastName.isNotEmpty)
+          ? '${user.firstName} ${user.lastName}'.trim()
+          : user.username;
+      final email = user.email;
+
+      final success = await UserService().submitVolunteerApplication(
+        token,
+        name: name,
+        email: email,
+        skills: _skillsController.text,
+        message: _messageController.text,
+      );
 
       if (!mounted) return;
 
@@ -70,8 +78,6 @@ class _VolunteerApplicationFormState extends State<VolunteerApplicationForm> {
             behavior: SnackBarBehavior.floating,
           ),
         );
-        _nameController.clear();
-        _emailController.clear();
         _skillsController.clear();
         _messageController.clear();
         widget.onSubmit?.call();
@@ -108,18 +114,6 @@ class _VolunteerApplicationFormState extends State<VolunteerApplicationForm> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          CustomTextField(
-            controller: _nameController,
-            label: 'Full Name',
-            validator: bookingRequiredFieldValidator,
-          ),
-          CustomTextField(
-            controller: _emailController,
-            label: 'Email Address',
-            validator: bookingEmailValidator,
-            keyboardType: TextInputType.emailAddress,
-            textCapitalization: TextCapitalization.none,
-          ),
           CustomTextField(
             controller: _skillsController,
             label: 'Skills & Interests',

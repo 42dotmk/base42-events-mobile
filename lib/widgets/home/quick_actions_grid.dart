@@ -25,7 +25,7 @@ class QuickActionsGrid extends StatelessWidget {
       _ActionItem(
         icon: Icons.volunteer_activism_outlined,
         label: 'Become a Volunteer',
-        route: '/volunteer',
+        route: AppRoutes.volunteer,
         color: colorScheme.primary,
       ),
       _ActionItem(
