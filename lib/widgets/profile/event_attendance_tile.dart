@@ -3,7 +3,7 @@ import 'package:base42_events_mobile/theme.dart';
 import 'package:base42_events_mobile/nav.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+import 'package:base42_events_mobile/utils/date_formatters.dart';
 
 class EventAttendanceTile extends StatelessWidget {
   final Event event;
@@ -23,7 +23,7 @@ class EventAttendanceTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final month = DateFormat('MMM').format(event.start).toUpperCase();
+    final month = formatMonthAbbr(event.start);
     final day = event.start.day.toString();
 
     return GestureDetector(

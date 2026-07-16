@@ -1,3 +1,4 @@
+import 'package:base42_events_mobile/models/user.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:base42_events_mobile/nav.dart';
@@ -6,7 +7,7 @@ import 'package:base42_events_mobile/utils.dart';
 import 'package:base42_events_mobile/widgets/profile/profile_initials_avatar.dart';
 
 class WelcomeHeader extends StatelessWidget {
-  final dynamic currentUser;
+  final User? currentUser;
   final bool isOpen;
 
   const WelcomeHeader({

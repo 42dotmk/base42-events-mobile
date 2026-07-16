@@ -4,8 +4,8 @@ import 'package:base42_events_mobile/widgets/common/custom_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:base42_events_mobile/utils/date_formatters.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:base42_events_mobile/models/event.dart';
 import 'package:base42_events_mobile/services/event_service.dart';
@@ -179,7 +179,6 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
     final event = _event!;
-    final dateFormat = DateFormat('EEEE, MMMM dd, yyyy • hh:mm a');
     final colorScheme = Theme.of(context).colorScheme;
     final brand = Theme.of(context).extension<BrandTheme>();
     final primaryAccent = colorScheme.primary;
@@ -278,7 +277,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                       const SizedBox(height: AppSpacing.lg),
                       EventInfoRow(
                         icon: Icons.calendar_today_rounded,
-                        text: dateFormat.format(event.start),
+                        text: formatDateFull(event.start),
                         colorScheme: colorScheme,
                       ),
                       if (event.tags.isNotEmpty) ...[

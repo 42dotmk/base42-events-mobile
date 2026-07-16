@@ -56,9 +56,12 @@ class User {
   factory User.fromJson(Map<String, dynamic> json) {
     List<Membership> parseMemberships(dynamic data) {
       if (data is List) {
-        return data.map((m) => Membership.fromJson(m as Map<String, dynamic>)).toList();
-      }
-      return [];
+        return data
+             .whereType<Map<String, dynamic>>()
+             .map(Membership.fromJson)
+             .toList();
+             }
+      return const [];
     }
 
     return User(

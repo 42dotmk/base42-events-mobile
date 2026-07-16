@@ -1,6 +1,6 @@
 import 'package:base42_events_mobile/models/project_repo.dart';
 import 'package:base42_events_mobile/theme.dart';
-import 'package:base42_events_mobile/utils.dart';
+import 'package:base42_events_mobile/utils/date_formatters.dart';
 import 'package:flutter/material.dart';
 
 class ProjectListItem extends StatelessWidget {
@@ -16,7 +16,9 @@ class ProjectListItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final pushedAtText = projectListUpdatedLabel(project.pushedAt);
+    final pushedAtText = project.pushedAt == null
+        ? 'RECENT'
+        : formatMonthYear(project.pushedAt!);
 
     return InkWell(
       onTap: onTap,

@@ -104,7 +104,6 @@ class _MembershipBillingScreenState extends State<MembershipBillingScreen> with 
     final surface = colorScheme.surface;
     final onSurface = colorScheme.onSurface;
     final auth = context.watch<AuthProvider>();
-    final userType = auth.currentUser?.userType ?? 'user';
     final activeMembership = auth.activeMembership;
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final accentColor = brand?.neonCyan ?? colorScheme.primary;
@@ -141,13 +140,14 @@ class _MembershipBillingScreenState extends State<MembershipBillingScreen> with 
                       ),
                       const SizedBox(height: AppSpacing.sm),
                       CurrentPlanCard(
-                        userType: userType,
+                        isMember: auth.isMember,
+                        isVolunteer: auth.isVolunteer,
                         activeMembership: activeMembership,
                         accentColor: accentColor,
                         secondaryAccent: secondaryAccent,
                         onSurface: onSurface,
                       ),
-                      if (userType == 'member') ...[
+                      if (auth.isMember) ...[
                         const SizedBox(height: AppSpacing.lg),
                         Text(
                           'SUBSCRIPTION',
@@ -186,7 +186,7 @@ class _MembershipBillingScreenState extends State<MembershipBillingScreen> with 
                                         .withValues(alpha: 0.55),
                                   ),
                                 ),
-                                const SizedBox(width: 14),
+                              const SizedBox(width: AppSpacing.sm),
                                 Expanded(
                                   child: Text(
                                     'Manage Subscription',
@@ -211,6 +211,72 @@ class _MembershipBillingScreenState extends State<MembershipBillingScreen> with 
                                   ),
                               ],
                             ),
+                          ),
+                        ),
+                      ] else if (auth.isVolunteer) ...[
+                        const SizedBox(height: AppSpacing.lg),
+                        Text(
+                          'VOLUNTEER ACCESS',
+                          style: context.textStyles.titleSmall?.semiBold
+                              .withColor(onSurface.withValues(alpha: 0.55)),
+                        ),
+                        const SizedBox(height: AppSpacing.sm),
+                        Container(
+                          width: double.infinity,
+                          padding: EdgeInsets.all(AppSpacing.md),
+                          decoration: BoxDecoration(
+                            color: isDark
+                                ? colorScheme.surfaceContainerHighest
+                                : Colors.white,
+                            borderRadius: BorderRadius.circular(AppRadius.xl),
+                            border: Border.all(
+                              color: onSurface.withValues(alpha: 0.08),
+                            ),
+                          ),
+                          child: Row(
+                            children: [
+                              Container(
+                                width: 48,
+                                height: 48,
+                                decoration: BoxDecoration(
+                                  color: accentColor.withValues(alpha: 0.12),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Icon(
+                                  Icons.volunteer_activism_outlined,
+                                  color: accentColor,
+                                ),
+                              ),
+                              const SizedBox(width: 14),
+                              Expanded(
+                                child: Text(
+                                  'Contributing member access',
+                                  style: context.textStyles.titleMedium
+                                      ?.semiBold
+                                      .withColor(colorScheme.onSurface),
+                                ),
+                              ),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: AppSpacing.sm,
+                                  vertical: AppSpacing.xs,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: (brand?.successGreen ?? const Color(0xFF69D976))
+                                      .withValues(alpha: 0.15),
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                child: Text(
+                                  'ACTIVE',
+                                  style: TextStyle(
+                                    color: brand?.successGreen ?? const Color(0xFF69D976),
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w700,
+                                    letterSpacing: 0.5,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ] else ...[
