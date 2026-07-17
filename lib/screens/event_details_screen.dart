@@ -181,7 +181,6 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
     final event = _event!;
     final colorScheme = Theme.of(context).colorScheme;
     final brand = Theme.of(context).extension<BrandTheme>();
-    final primaryAccent = colorScheme.primary;
     final descriptionPreview = buildEventDescriptionPreview(event.description);
     final descriptionHtml = buildEventDescriptionHtml(event.description);
     final currentStatus = context.watch<AttendanceProvider>().getStatus(
@@ -440,21 +439,11 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                       ),
                       if (event.registerLink != null) ...[
                         const SizedBox(height: AppSpacing.xl),
-                        SizedBox(
-                          width: double.infinity,
-                          child: FilledButton.icon(
-                            onPressed: () => _launchUrl(event.registerLink!),
-                            icon: const Icon(Icons.open_in_new_rounded),
-                            label: const Text('Register for Event'),
-                            style: FilledButton.styleFrom(
-                              backgroundColor: primaryAccent,
-                              foregroundColor: colorScheme.onPrimary,
-                              padding: const EdgeInsets.symmetric(
-                                vertical: AppSpacing.md,
-                                horizontal: AppSpacing.lg,
-                              ),
-                            ),
-                          ),
+                        CustomButton.action(
+                          icon: Icons.open_in_new_rounded,
+                          label: 'Register for Event',
+                          variant: ButtonVariant.solid,
+                          onTap: () => _launchUrl(event.registerLink!),
                         ),
                       ],
                       const SizedBox(height: AppSpacing.xl),

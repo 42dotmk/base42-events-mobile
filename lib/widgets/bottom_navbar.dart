@@ -30,9 +30,9 @@ class BottomNavigationBarWidget extends StatelessWidget {
       label: 'Projects',
     ),
     _NavItem(
-      route: AppRoutes.shop,
-      icon: Icons.shopping_bag_outlined,
-      label: 'Shop',
+      route: AppRoutes.volunteer,
+      icon: Icons.volunteer_activism_outlined,
+      label: 'Volunteer',
     ),
   ];
 
@@ -47,7 +47,7 @@ class BottomNavigationBarWidget extends StatelessWidget {
     if (location == AppRoutes.projects || location.startsWith('/projects/')) {
       return 3;
     }
-    if (location == AppRoutes.shop) {
+    if (location == AppRoutes.volunteer) {
       return 4;
     }
     return 0;

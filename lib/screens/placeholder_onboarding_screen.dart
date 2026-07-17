@@ -1,5 +1,6 @@
 import 'package:base42_events_mobile/theme.dart';
 import 'package:flutter/material.dart';
+import 'package:base42_events_mobile/widgets/common/custom_button.dart';
 
 class PlaceholderOnboardingScreen extends StatefulWidget {
   final VoidCallback onComplete;
@@ -103,14 +104,13 @@ class _PlaceholderOnboardingScreenState
                       ),
                     ),
                     const Spacer(),
-                    FilledButton.icon(
-                      onPressed: _next,
-                      icon: Icon(
-                        isLast
-                            ? Icons.check_circle_outline_rounded
-                            : Icons.arrow_forward_rounded,
-                      ),
-                      label: Text(isLast ? 'Done' : 'Next'),
+                    CustomButton.action(
+                      icon: isLast
+                          ? Icons.check_circle_outline_rounded
+                          : Icons.arrow_forward_rounded,
+                      label: isLast ? 'Done' : 'Next',
+                      variant: ButtonVariant.solid,
+                      onTap: _next,
                     ),
                   ],
                 ),

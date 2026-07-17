@@ -12,6 +12,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
+import 'package:base42_events_mobile/widgets/common/custom_button.dart';
 
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
@@ -302,46 +303,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                           SizedBox(
                             width: double.infinity,
                             height: 54,
-                            child: ElevatedButton(
-                              onPressed: _isLoading || !_hasChanges
+                            child: CustomButton.action(
+                              label: 'Save Changes',
+                              variant: ButtonVariant.solid,
+                              onTap: _isLoading || !_hasChanges
                                   ? null
                                   : _saveProfile,
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: colorScheme.primary,
-                                disabledBackgroundColor: colorScheme.primary
-                                    .withValues(alpha: 0.3),
-                                foregroundColor: colorScheme.onPrimary,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(16),
-                                ),
-                                elevation: 0,
-                              ),
-                              child: _isLoading
-                                  ? SizedBox(
-                                      width: 20,
-                                      height: 20,
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 2,
-                                        valueColor:
-                                            AlwaysStoppedAnimation<Color>(
-                                              colorScheme.onPrimary,
-                                            ),
-                                      ),
-                                    )
-                                  : Text(
-                                      'Save Changes',
-                                      style: context
-                                          .textStyles
-                                          .headlineSmall
-                                          ?.bold
-                                          .withSize(38 / 2)
-                                          .withColor(
-                                            !_hasChanges
-                                                ? colorScheme.onPrimary
-                                                      .withValues(alpha: 0.3)
-                                                : colorScheme.onPrimary,
-                                          ),
-                                    ),
+                              isLoading: _isLoading,
                             ),
                           ),
                         ],

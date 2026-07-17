@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
-import 'package:base42_events_mobile/nav.dart';
 import 'package:base42_events_mobile/theme.dart';
 import 'package:base42_events_mobile/widgets/common/page_header.dart';
 import 'package:base42_events_mobile/widgets/volunteer/volunteer_benefit_card.dart';
@@ -10,21 +8,13 @@ import 'package:base42_events_mobile/widgets/volunteer/volunteer_application_for
 class VolunteerScreen extends StatelessWidget {
   const VolunteerScreen({super.key});
 
-  void _handleBack(BuildContext context) {
-    if (context.canPop()) {
-      context.pop();
-      return;
-    }
-    context.go(AppRoutes.home);
-  }
-
   @override
   Widget build(BuildContext context) {
     final brand = Theme.of(context).extension<BrandTheme>();
     final colorScheme = Theme.of(context).colorScheme;
     final onSurface = colorScheme.onSurface;
 
-    final images = const [
+    const images = [
       VolunteerImageItem(
         assetPath: 'assets/images/workshop-space.jpg',
         caption: 'Collaborative workshop spaces',
@@ -39,7 +29,7 @@ class VolunteerScreen extends StatelessWidget {
       ),
     ];
 
-    final benefits = [
+    const benefits = [
       VolunteerBenefitItem(
         icon: Icons.build_outlined,
         title: 'Build Real Skills',
@@ -69,30 +59,18 @@ class VolunteerScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              PageHeader(
-                title: 'VOLUNTEER',
-                onBack: () => _handleBack(context),
+              const PageHeader(
+                title: 'Volunteer',
+                subtitle: 'Shape the Future of Base42',
               ),
               Expanded(
                 child: SingleChildScrollView(
-                  padding: const EdgeInsets.fromLTRB(18, 18, 18, 28),
+                  padding: const EdgeInsets.fromLTRB(18, 0, 18, 28),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        'Shape the Future of Base42',
-                        style: context.textStyles.headlineMedium?.bold
-                            .withColor(onSurface),
-                      ),
-                      const SizedBox(height: AppSpacing.sm),
-                      Text(
-                        'Volunteering at Base42 is more than giving time — it\'s an investment in yourself and the community. Gain hands-on experience, build lasting connections, and help create a space where innovation thrives.',
-                        style: context.textStyles.bodyLarge?.withColor(
-                          onSurface.withValues(alpha: 0.72),
-                        ),
-                      ),
                       const SizedBox(height: AppSpacing.lg),
-                      VolunteerImageCarousel(images: images),
+                      const VolunteerImageCarousel(images: images),
                       const SizedBox(height: AppSpacing.lg),
                       Text(
                         'WHY VOLUNTEER?',
@@ -109,7 +87,6 @@ class VolunteerScreen extends StatelessWidget {
                             icon: b.icon,
                             title: b.title,
                             description: b.description,
-                            accentColor: brand?.neonCyan ?? colorScheme.primary,
                           ),
                         ),
                       ),

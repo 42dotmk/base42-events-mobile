@@ -10,6 +10,7 @@ import 'package:base42_events_mobile/widgets/booking/booking_result_dialog.dart'
 import 'package:base42_events_mobile/widgets/booking/selected_space_card.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:base42_events_mobile/widgets/common/custom_button.dart';
 
 class _BookingTimeSlot {
   final String value;
@@ -386,24 +387,12 @@ class _HostEventSectionState extends State<HostEventSection> {
             ),
           ),
           const SizedBox(height: 14),
-          SizedBox(
-            width: double.infinity,
-            child: FilledButton.icon(
-              onPressed: _isSubmitting ? null : _submit,
-              icon: _isSubmitting
-                  ? SizedBox(
-                      width: 16,
-                      height: 16,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: colorScheme.onPrimary,
-                      ),
-                    )
-                  : const Icon(Icons.send_outlined),
-              label: Text(
-                _isSubmitting ? 'Submitting...' : 'Submit Booking Request',
-              ),
-            ),
+          CustomButton.action(
+            icon: Icons.send_outlined,
+            label: 'Submit Booking Request',
+            variant: ButtonVariant.solid,
+            onTap: _isSubmitting ? null : _submit,
+            isLoading: _isSubmitting,
           ),
         ],
       ),

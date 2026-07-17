@@ -9,6 +9,7 @@ import 'package:base42_events_mobile/services/user_service.dart';
 import 'package:base42_events_mobile/widgets/common/page_header.dart';
 import 'package:base42_events_mobile/consts/membership_pricing.dart';
 import 'package:base42_events_mobile/widgets/membership/plan_card.dart';
+import 'package:base42_events_mobile/widgets/common/custom_button.dart';
 
 class MemberScreen extends StatefulWidget {
   const MemberScreen({super.key});
@@ -225,24 +226,11 @@ class _MemberScreenState extends State<MemberScreen> with WidgetsBindingObserver
                       const SizedBox(height: 24),
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 18),
-                        child: SizedBox(
-                          width: double.infinity,
-                          child: FilledButton(
-                            onPressed: _isLoading ? null : _handleUpgrade,
-                            child: _isLoading
-                                ? const SizedBox(
-                                    height: 20,
-                                    width: 20,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                      color: Colors.black,
-                                    ),
-                                  )
-                                : Text(
-                                    'Become a Member',
-                                    style: context.textStyles.titleMedium?.bold.withColor(Colors.black),
-                                  ),
-                          ),
+                        child: CustomButton.action(
+                          label: 'Become a Member',
+                          variant: ButtonVariant.solid,
+                          onTap: _isLoading ? null : _handleUpgrade,
+                          isLoading: _isLoading,
                         ),
                       ),
                     ],

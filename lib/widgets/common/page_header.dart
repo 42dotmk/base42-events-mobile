@@ -25,46 +25,49 @@ class PageHeader extends StatelessWidget {
     );
 
     if (onBack != null) {
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(
-              AppSpacing.sm, AppSpacing.sm, AppSpacing.md, 0,
-            ),
-            child: Row(
-              children: [
-                IconButton(
-                  icon: Icon(
-                    Icons.arrow_back_ios_new_rounded,
-                    color: colorScheme.onSurface,
-                  ),
-                  onPressed: onBack,
-                ),
-                titleWidget,
-              ],
-            ),
-          ),
-          if (subtitle != null)
+      return Padding(
+        padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
             Padding(
-              padding: const EdgeInsets.only(left: 18),
-              child: Padding(
-                padding: const EdgeInsets.only(bottom: AppSpacing.xs),
-                child: Text(
-                  subtitle!,
-                  style: context.textStyles.bodySmall?.withColor(
-                    colorScheme.onSurface.withValues(alpha: 0.6),
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.sm, AppSpacing.sm, AppSpacing.md, 0,
+              ),
+              child: Row(
+                children: [
+                  IconButton(
+                    icon: Icon(
+                      Icons.arrow_back_ios_new_rounded,
+                      color: colorScheme.onSurface,
+                    ),
+                    onPressed: onBack,
+                  ),
+                  titleWidget,
+                ],
+              ),
+            ),
+            if (subtitle != null)
+              Padding(
+                padding: const EdgeInsets.only(left: 18),
+                child: Padding(
+                  padding: const EdgeInsets.only(bottom: AppSpacing.xs),
+                  child: Text(
+                    subtitle!,
+                    style: context.textStyles.bodySmall?.withColor(
+                      colorScheme.onSurface.withValues(alpha: 0.6),
+                    ),
                   ),
                 ),
               ),
-            ),
-        ],
+          ],
+        ),
       );
     }
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(
-        AppSpacing.md, AppSpacing.md, AppSpacing.md, 0,
+        AppSpacing.md, AppSpacing.md, AppSpacing.md, AppSpacing.sm,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

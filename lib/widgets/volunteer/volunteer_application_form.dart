@@ -5,6 +5,7 @@ import 'package:base42_events_mobile/services/user_service.dart';
 import 'package:base42_events_mobile/theme.dart';
 import 'package:base42_events_mobile/widgets/common/custom_text_fields.dart';
 import 'package:base42_events_mobile/utils.dart';
+import 'package:base42_events_mobile/widgets/common/custom_button.dart';
 
 class VolunteerApplicationForm extends StatefulWidget {
   final VoidCallback? onSubmit;
@@ -130,21 +131,11 @@ class _VolunteerApplicationFormState extends State<VolunteerApplicationForm> {
               decoration: inputDecoration(context, 'Why do you want to volunteer?'),
             ),
           ),
-          SizedBox(
-            width: double.infinity,
-            child: FilledButton(
-              onPressed: _isSubmitting ? null : _submitForm,
-              child: _isSubmitting
-                  ? SizedBox(
-                      height: 20,
-                      width: 20,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: colorScheme.onPrimary,
-                      ),
-                    )
-                  : const Text('Submit Application'),
-            ),
+          CustomButton.action(
+            label: 'Submit Application',
+            variant: ButtonVariant.solid,
+            onTap: _isSubmitting ? null : _submitForm,
+            isLoading: _isSubmitting,
           ),
         ],
       ),

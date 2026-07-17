@@ -5,6 +5,7 @@ import 'package:base42_events_mobile/widgets/common/page_header.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:base42_events_mobile/widgets/common/custom_button.dart';
 
 class AboutScreen extends StatelessWidget {
   const AboutScreen({super.key});
@@ -138,13 +139,11 @@ class AboutScreen extends StatelessWidget {
                         ],
                       ),
                       const SizedBox(height: 26),
-                      SizedBox(
-                        width: double.infinity,
-                        child: FilledButton.icon(
-                          onPressed: () => context.push(AppRoutes.rules),
-                          icon: const Icon(Icons.rule_rounded),
-                          label: const Text('Rules'),
-                        ),
+                      CustomButton.action(
+                        icon: Icons.rule_rounded,
+                        label: 'Rules',
+                        variant: ButtonVariant.solid,
+                        onTap: () => context.push(AppRoutes.rules),
                       ),
                     ],
                   ),

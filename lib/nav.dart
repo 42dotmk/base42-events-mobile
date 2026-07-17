@@ -123,10 +123,10 @@ class AppRouter {
                 const NoTransitionPage(child: ProjectsScreen()),
           ),
           GoRoute(
-            path: AppRoutes.shop,
-            name: 'shop',
+            path: AppRoutes.volunteer,
+            name: 'volunteer',
             pageBuilder: (context, state) =>
-                const NoTransitionPage(child: ShopScreen()),
+                const NoTransitionPage(child: VolunteerScreen()),
           ),
           GoRoute(
             path: AppRoutes.projectDetails,
@@ -176,10 +176,10 @@ class AppRouter {
         builder: (context, state) => const RulesScreen(),
       ),
       GoRoute(
-        path: AppRoutes.volunteer,
-        name: 'volunteer',
+        path: AppRoutes.shop,
+        name: 'shop',
         parentNavigatorKey: _rootNavigatorKey,
-        builder: (context, state) => const VolunteerScreen(),
+        builder: (context, state) => const ShopScreen(),
       ),
       GoRoute(
         path: AppRoutes.member,
