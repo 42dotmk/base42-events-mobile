@@ -166,6 +166,49 @@ class _LoggedOutScreenState extends State<LoggedOutScreen> {
                         ),
                       ),
                     ),
+                    const SizedBox(height: 20),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Divider(
+                            color: Colors.white.withValues(alpha: 0.3),
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                          child: Text(
+                            'OR',
+                            style: context.textStyles.labelMedium?.withColor(
+                              Colors.white.withValues(alpha: 0.6),
+                            ),
+                          ),
+                        ),
+                        Expanded(
+                          child: Divider(
+                            color: Colors.white.withValues(alpha: 0.3),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 20),
+                    GestureDetector(
+                      onTap: _isLoading
+                          ? null
+                          : () {
+                              Provider.of<AuthProvider>(
+                                context,
+                                listen: false,
+                              ).enableGuestMode();
+                              context.go(AppRoutes.home);
+                            },
+                      child: Text(
+                        'Continue as Guest',
+                        style: context.textStyles.titleMedium?.semiBold
+                            .withColor(
+                              Colors.white.withValues(alpha: 0.75),
+                            ),
+                      ),
+                    ),
                   ],
                 ),
               ),

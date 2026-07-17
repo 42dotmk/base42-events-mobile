@@ -53,17 +53,25 @@ class AppRouter {
     redirect: (context, state) {
       final isLoading = authProvider.isLoading;
       final isAuthenticated = authProvider.isAuthenticated;
+      final isGuestMode = authProvider.isGuestMode;
       final isOnAuthGate = state.matchedLocation == AppRoutes.auth;
+      final location = state.matchedLocation;
 
       if (isLoading) {
         return null;
       }
 
-      if (!isAuthenticated && !isOnAuthGate) {
+      final canAccess = isAuthenticated || isGuestMode;
+
+      if (!canAccess && !isOnAuthGate) {
         return AppRoutes.auth;
       }
 
       if (isAuthenticated && isOnAuthGate) {
+        return AppRoutes.home;
+      }
+
+      if (isGuestMode && !AppRoutes.isPublicRoute(location)) {
         return AppRoutes.home;
       }
 
@@ -214,6 +222,31 @@ class AppRoutes {
   static const String volunteer = '/volunteer';
   static const String member = '/member';
   static const String membershipBilling = '/membership-billing';
+
+  static const List<String> _publicExactRoutes = [
+    auth,
+    home,
+    events,
+    book,
+    volunteer,
+    about,
+    rules,
+    settings,
+  ];
+
+  static const List<String> _publicRoutePrefixes = [
+    '/event/',
+  ];
+
+  static bool isPublicRoute(String location) {
+    for (final route in _publicExactRoutes) {
+      if (location == route) return true;
+    }
+    for (final prefix in _publicRoutePrefixes) {
+      if (location.startsWith(prefix)) return true;
+    }
+    return false;
+  }
 
   static String projectDetailsPath(String owner, String repo) =>
       '/projects/$owner/$repo';

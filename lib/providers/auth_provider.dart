@@ -18,11 +18,14 @@ class AuthProvider extends ChangeNotifier {
   String? _keycloakRefreshToken;
   bool _isLoading = true;
   bool _isRefreshing = false;
+  bool _isGuestMode = false;
 
   User? get currentUser => _currentUser;
   String? get token => _token;
   bool get isAuthenticated => _token != null;
   bool get isLoading => _isLoading;
+  bool get isGuestMode => _isGuestMode;
+  bool get canAccessApp => isAuthenticated || _isGuestMode;
   bool get isVolunteer => _currentUser?.isVolunteer ?? false;
   bool get isMember => _currentUser?.isMember ?? false;
   Membership? get activeMembership => _currentUser?.activeMembership;
@@ -60,6 +63,12 @@ class AuthProvider extends ChangeNotifier {
       _keycloakRefreshToken = await _storageService.getToken(
         SecureStorageService.keycloakRefreshTokenKey,
       );
+
+      if (_isGuestMode) {
+        _isLoading = false;
+        notifyListeners();
+        return;
+      }
 
       final isExpired = await _storageService.isAuthTokenExpired();
 
@@ -208,6 +217,7 @@ class AuthProvider extends ChangeNotifier {
 
       await FCMService.instance.updateTokenOnBackend();
 
+      _isGuestMode = false;
       notifyListeners();
 
       await _handlePendingEventNavigation();
@@ -267,6 +277,17 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
+  void enableGuestMode() {
+    _isGuestMode = true;
+    _isLoading = false;
+    notifyListeners();
+  }
+
+  void disableGuestMode() {
+    _isGuestMode = false;
+    notifyListeners();
+  }
+
   Future<void> logout() async {
     try {
       await _userService.logout(_token!);
@@ -283,6 +304,7 @@ class AuthProvider extends ChangeNotifier {
       _currentUser = null;
       _token = null;
       _keycloakRefreshToken = null;
+      _isGuestMode = false;
 
       _attendanceProvider?.clearAll();
       notifyListeners();

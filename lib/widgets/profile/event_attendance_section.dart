@@ -3,6 +3,7 @@ import 'package:base42_events_mobile/models/event.dart';
 import 'package:base42_events_mobile/providers/attendance_provider.dart';
 import 'package:base42_events_mobile/providers/auth_provider.dart';
 import 'package:base42_events_mobile/theme.dart';
+import 'package:base42_events_mobile/widgets/common/auth_prompt_dialog.dart';
 import 'package:base42_events_mobile/widgets/profile/attendance_action_modal.dart';
 import 'package:base42_events_mobile/widgets/profile/attendance_filter_chip.dart';
 import 'package:base42_events_mobile/widgets/profile/event_attendance_tile.dart';
@@ -63,10 +64,9 @@ class _EventAttendanceSectionState extends State<EventAttendanceSection> {
 
     if (token == null) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Sign in to update your attendance status.'),
-          ),
+        AuthPromptDialog.show(
+          context,
+          message: 'Sign in to update your attendance status',
         );
       }
       return;
@@ -98,8 +98,9 @@ class _EventAttendanceSectionState extends State<EventAttendanceSection> {
 
     if (token == null) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Sign in to manage your attendance.')),
+        AuthPromptDialog.show(
+          context,
+          message: 'Sign in to manage your attendance',
         );
       }
       return;
