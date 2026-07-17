@@ -4,6 +4,7 @@ import 'package:base42_events_mobile/services/booking_service.dart';
 import 'package:base42_events_mobile/theme.dart';
 import 'package:base42_events_mobile/types.dart';
 import 'package:base42_events_mobile/utils.dart';
+import 'package:base42_events_mobile/utils/date_formatters.dart';
 import 'package:base42_events_mobile/widgets/common/custom_text_fields.dart';
 import 'package:base42_events_mobile/widgets/booking/booking_result_dialog.dart';
 import 'package:base42_events_mobile/widgets/booking/selected_space_card.dart';
@@ -149,7 +150,7 @@ class _HostEventSectionState extends State<HostEventSection> {
       eventTheme: '',
       eventPurpose: '',
       eventAgenda: _eventDescriptionController.text.trim(),
-      eventDate: bookingFormatDateForApi(draft.eventDate!),
+      eventDate: formatDateIso(draft.eventDate!),
       eventStartTime: _selectedTimeSlot!.startTime,
       eventEndTime: _selectedTimeSlot!.endTime,
       physicalPresence: '',
@@ -218,8 +219,8 @@ class _HostEventSectionState extends State<HostEventSection> {
       return null;
     }
 
-    final startText = bookingFormatTime(startTime);
-    final endText = bookingFormatTime(endTime);
+    final startText = formatTimeOfDay(startTime);
+    final endText = formatTimeOfDay(endTime);
     for (final slot in _timeSlots) {
       if (slot.startTime == startText && slot.endTime == endText) {
         return slot;
@@ -325,7 +326,7 @@ class _HostEventSectionState extends State<HostEventSection> {
             label: 'Preferred Date *',
             value: draft.eventDate == null
                 ? 'mm/dd/yyyy'
-                : bookingFormatDate(draft.eventDate!),
+                : formatDateSlash(draft.eventDate!),
             onTap: _pickDate,
           ),
           DropdownButtonFormField<String>(

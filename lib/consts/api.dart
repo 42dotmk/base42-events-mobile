@@ -17,6 +17,10 @@ const String changeAttendanceStatusApiUrl =
     '$baseUrl/api/user-events/change-status';
 const String userEventsApiUrl = '$baseUrl/api/user-events/me';
 const String projectsApiUrl = '$baseUrl/api/projects';
+const String membershipCheckApiUrl = '$baseUrl/api/memberships/me';
+const String createCheckoutSessionApiUrl = '$baseUrl/api/memberships/create-checkout';
+const String createPortalSessionApiUrl = '$baseUrl/api/memberships/portal';
+const String volunteerApplyApiUrl = '$baseUrl/api/volunteer/apply';
 
 // Keycloak / OAuth configuration
 const String keycloakIssuerUrl = 'https://id.42.mk/realms/42mk';
@@ -26,3 +30,4 @@ const String keycloakRegisterUrl =
     'https://id.42.mk/realms/42mk/protocol/openid-connect/registrations';
 const String keycloakTokenEndpoint =
     'https://id.42.mk/realms/42mk/protocol/openid-connect/token';
+    

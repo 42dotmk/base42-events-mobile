@@ -1,3 +1,4 @@
+import 'package:base42_events_mobile/nav.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:base42_events_mobile/models/event.dart';
@@ -36,14 +37,14 @@ class UpcomingEventsSection extends StatelessWidget {
           title: 'UPCOMING EVENTS',
           trailingLabel: 'See all',
           trailingColor: linkColor,
-          onTap: () => context.go('/events'),
+          onTap: () => context.go(AppRoutes.events),
         ),
         const SizedBox(height: 10),
         SizedBox(
           height: 220,
           child: upcoming.isEmpty
               ? NoUpcomingEventsPlacehoder(
-                  onTap: () => context.go('/events'),
+          onTap: () => context.go(AppRoutes.events),
                 )
               : upcoming.length == 1
               ? EventCard(
@@ -53,7 +54,7 @@ class UpcomingEventsSection extends StatelessWidget {
                     upcoming.first.id,
                   ),
                   onTap: () => context.push(
-                    '/event/${upcoming.first.id}',
+                        AppRoutes.eventDetailsPath(upcoming.first.id),
                     extra: upcoming.first,
                   ),
                 )
@@ -72,7 +73,7 @@ class UpcomingEventsSection extends StatelessWidget {
                           event.id,
                         ),
                         onTap: () => context.push(
-                          '/event/${event.id}',
+                          AppRoutes.eventDetailsPath(event.id),
                           extra: event,
                         ),
                       ),

@@ -1,30 +1,8 @@
 import 'dart:convert';
 
-import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:base42_events_mobile/consts/enum.dart';
 import 'package:base42_events_mobile/models/user.dart';
 import 'package:base42_events_mobile/providers/attendance_provider.dart';
-
-String bookingFormatDate(DateTime date) {
-  final mm = date.month.toString().padLeft(2, '0');
-  final dd = date.day.toString().padLeft(2, '0');
-  final yyyy = date.year.toString();
-  return '$mm/$dd/$yyyy';
-}
-
-String bookingFormatDateForApi(DateTime date) {
-  final mm = date.month.toString().padLeft(2, '0');
-  final dd = date.day.toString().padLeft(2, '0');
-  final yyyy = date.year.toString();
-  return '$yyyy-$mm-$dd';
-}
-
-String bookingFormatTime(TimeOfDay time) {
-  final hh = time.hour.toString().padLeft(2, '0');
-  final mm = time.minute.toString().padLeft(2, '0');
-  return '$hh:$mm';
-}
 
 String? bookingRequiredFieldValidator(String? value) {
   if (value == null || value.trim().isEmpty) {
@@ -47,22 +25,6 @@ String? bookingEmailValidator(String? value) {
   }
 
   return null;
-}
-
-String projectListUpdatedLabel(DateTime? pushedAt) {
-  if (pushedAt == null) {
-    return 'RECENT';
-  }
-
-  return DateFormat('MMM yyyy').format(pushedAt).toUpperCase();
-}
-
-String projectLastSyncLabel(DateTime? pushedAt) {
-  if (pushedAt == null) {
-    return 'Unknown';
-  }
-
-  return DateFormat('MMM d, yyyy').format(pushedAt);
 }
 
 String projectStarsLabel(int value) {

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:base42_events_mobile/consts/api.dart';
 import 'package:base42_events_mobile/models/user.dart';
+import 'package:base42_events_mobile/models/membership.dart';
 import 'package:base42_events_mobile/providers/attendance_provider.dart';
 import 'package:base42_events_mobile/services/user_service.dart';
 import 'package:base42_events_mobile/services/secure_storage_service.dart';
@@ -22,6 +23,9 @@ class AuthProvider extends ChangeNotifier {
   String? get token => _token;
   bool get isAuthenticated => _token != null;
   bool get isLoading => _isLoading;
+  bool get isVolunteer => _currentUser?.isVolunteer ?? false;
+  bool get isMember => _currentUser?.isMember ?? false;
+  Membership? get activeMembership => _currentUser?.activeMembership;
 
   final UserService _userService = UserService();
   final SecureStorageService _storageService = SecureStorageService();
@@ -192,9 +196,9 @@ class AuthProvider extends ChangeNotifier {
         _token!,
       );
 
-      final expiration = extractJwtExpiration(_token!) ??
-          DateTime.now().add(const Duration(days: 30));
-
+      final exp = extractJwtExpiration(_token!);
+      final expiration = exp ??
+           DateTime.now().add(Duration(seconds: result.expiresIn ?? 900));
       await loadUserEvents();
 
       await _storageService.saveToken(

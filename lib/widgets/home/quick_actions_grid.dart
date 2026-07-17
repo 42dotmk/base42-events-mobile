@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
+import 'package:base42_events_mobile/providers/auth_provider.dart';
 import 'package:base42_events_mobile/widgets/quick_action_tile.dart';
 import 'package:base42_events_mobile/widgets/section_header_row.dart';
+import 'package:base42_events_mobile/nav.dart';
 
 class QuickActionsGrid extends StatelessWidget {
   const QuickActionsGrid({super.key});
@@ -9,6 +12,8 @@ class QuickActionsGrid extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final auth = context.watch<AuthProvider>();
+    final isMember = auth.currentUser?.userType == 'member';
 
     final actions = [
       _ActionItem(
@@ -19,14 +24,14 @@ class QuickActionsGrid extends StatelessWidget {
       ),
       _ActionItem(
         icon: Icons.volunteer_activism_outlined,
-        label: 'Volunteer',
-        route: '/volunteer',
+        label: 'Become a Volunteer',
+        route: AppRoutes.volunteer,
         color: colorScheme.primary,
       ),
       _ActionItem(
         icon: Icons.card_membership_outlined,
-        label: 'Member',
-        route: '/member',
+        label: isMember ? 'My Membership' : 'Become a Member',
+        route: isMember ? AppRoutes.membershipBilling : AppRoutes.member,
         color: colorScheme.primary,
       ),
     ];

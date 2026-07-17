@@ -1,8 +1,6 @@
 import 'dart:convert';
-import 'dart:developer' as developer;
 import 'package:base42_events_mobile/consts/api.dart';
 import 'package:base42_events_mobile/types/user.dart';
-import 'package:flutter/widgets.dart';
 import 'package:http/http.dart' as http;
 import 'package:base42_events_mobile/models/user.dart';
 import 'package:base42_events_mobile/models/user_event.dart';
@@ -14,7 +12,7 @@ class UserService {
     try {
       var url = Uri.parse(usersApiUrl);
 
-      var response = await http.get(url);
+      var response = await http.get(url).timeout(const Duration(seconds: 15));
       if (response.statusCode == 200) {
         List<User> model = usersFromJson(response.body);
         return model;
@@ -35,7 +33,7 @@ class UserService {
     final response = await http.get(
       url,
       headers: {'Content-Type': 'application/json'},
-    );
+    ).timeout(const Duration(seconds: 15));
 
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
@@ -51,8 +49,7 @@ class UserService {
         final errorData = jsonDecode(response.body);
         error = errorData['error']?['message'] ?? 'Keycloak login failed';
       } catch (_) {
-        error =
-            'Keycloak login failed (HTTP ${response.statusCode}, ${response.reasonPhrase}, response body: ${response.body})';
+        error = 'Keycloak login failed (HTTP ${response.statusCode})';
       }
       throw Exception(error);
     }
@@ -62,19 +59,9 @@ class UserService {
     try {
       var url = Uri.parse(logoutUserApiUrl);
 
-      var response = await postWithAuth(url.toString(), token, {});
-
-      if (response.statusCode != 200 && response.statusCode != 403) {
-        var errorData = jsonDecode(response.body);
-        String error = errorData['error']?['message'] ?? 'Logout failed';
-        developer.log('Logout API warning: $error', name: 'UserService');
-      }
+      await postWithAuth(url.toString(), token, {});
     } catch (e) {
-      developer.log(
-        'Logout API call failed (non-critical): $e',
-        name: 'UserService',
-        error: e,
-      );
+      // Intentionally ignored — logout is fire-and-forget
     }
   }
 
@@ -96,6 +83,59 @@ class UserService {
       }
     } catch (e) {
       throw Exception('Failed to fetch current authenticated user: $e');
+    }
+  }
+
+  Future<bool> submitVolunteerApplication(
+    String token, {
+    required String name,
+    required String email,
+    required String skills,
+    required String message,
+  }) async {
+    try {
+      var url = Uri.parse(volunteerApplyApiUrl);
+      var response = await postWithAuth(url.toString(), token, {
+        'name': name,
+        'email': email,
+        'skills': skills,
+        'message': message,
+      });
+
+      if (response.statusCode == 200) {
+        return true;
+      }
+      return false;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  Future<String?> createCheckoutSession(String token, {String tier = 'monthly'}) async {
+    try {
+      var url = Uri.parse(createCheckoutSessionApiUrl);
+      var response = await postWithAuth(url.toString(), token, {'tier': tier});
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        return data['url'] as String?;
+      }
+      return null;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  Future<String?> createPortalSession(String token) async {
+    try {
+      var url = Uri.parse(createPortalSessionApiUrl);
+      var response = await postWithAuth(url.toString(), token, {});
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        return data['url'] as String?;
+      }
+      return null;
+    } catch (e) {
+      return null;
     }
   }
 
@@ -167,7 +207,7 @@ class UserService {
         "Content-Type": "application/json",
         "Authorization": "Bearer $token",
       },
-    );
+    ).timeout(const Duration(seconds: 15));
   }
 
   Future<http.Response> postWithAuth(
@@ -182,7 +222,7 @@ class UserService {
         "Authorization": "Bearer $token",
       },
       body: jsonEncode(body),
-    );
+    ).timeout(const Duration(seconds: 15));
   }
 
   Future<void> updateFcmToken(String token, String fcmToken) async {
@@ -194,7 +234,6 @@ class UserService {
       });
 
       if (response.statusCode == 200) {
-        developer.log('FCM token updated successfully', name: 'UserService');
       } else {
         String error;
         try {
@@ -204,18 +243,9 @@ class UserService {
         } catch (_) {
           error = 'Failed to update FCM token (HTTP ${response.statusCode})';
         }
-        developer.log(
-          'Failed to update FCM token: $error (Status: ${response.statusCode})',
-          name: 'UserService',
-        );
         throw Exception(error);
       }
     } catch (e) {
-      developer.log(
-        'Error updating FCM token: $e',
-        name: 'UserService',
-        error: e,
-      );
       rethrow;
     }
   }
@@ -232,7 +262,7 @@ class UserService {
         "Authorization": "Bearer $token",
       },
       body: jsonEncode(body),
-    );
+    ).timeout(const Duration(seconds: 15));
   }
 
   Future<User> updateUserProfile({
@@ -250,7 +280,7 @@ class UserService {
             profileImage.value!,
           );
         } catch (e) {
-          debugPrint('Warning: Profile image upload failed: $e');
+          // Intentionally ignored — outer try-catch handles profile update failure
         }
       }
 
@@ -273,7 +303,6 @@ class UserService {
         throw Exception(error);
       }
     } catch (e) {
-      debugPrint('Error updating user profile: $e');
       throw Exception('Failed to update profile: $e');
     }
   }

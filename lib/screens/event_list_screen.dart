@@ -1,10 +1,10 @@
+import 'package:base42_events_mobile/nav.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:base42_events_mobile/models/event.dart';
 import 'package:base42_events_mobile/providers/event_provider.dart';
 import 'package:base42_events_mobile/theme.dart';
-import 'package:base42_events_mobile/widgets/common/page_header.dart';
 import 'package:base42_events_mobile/widgets/event_card.dart';
 import 'package:base42_events_mobile/widgets/error_view.dart';
 
@@ -313,7 +313,7 @@ class _EventListContent extends StatelessWidget {
             padding: const EdgeInsets.only(bottom: 12),
             child: EventCard(
               event: event,
-              onTap: () => context.push('/event/${event.id}', extra: event),
+              onTap: () => context.push(AppRoutes.eventDetailsPath(event.id), extra: event),
             ),
           ),
         );
@@ -337,7 +337,7 @@ class _EventListContent extends StatelessWidget {
             child: EventCard(
               event: event,
               isPast: true,
-              onTap: () => context.push('/event/${event.id}', extra: event),
+              onTap: () => context.push(AppRoutes.eventDetailsPath(event.id), extra: event),
             ),
           ),
         );

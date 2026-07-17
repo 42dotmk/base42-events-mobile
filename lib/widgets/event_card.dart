@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:base42_events_mobile/consts/enum.dart';
+import 'package:base42_events_mobile/utils/date_formatters.dart';
 import 'package:base42_events_mobile/models/event.dart';
 import 'package:base42_events_mobile/theme.dart';
 import 'package:base42_events_mobile/widgets/event_media_hero.dart';
@@ -22,8 +22,6 @@ class EventCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final dateFormat = DateFormat('dd.MM.yyyy');
-    final timeFormat = DateFormat('HH:mm');
     final colorScheme = Theme.of(context).colorScheme;
     final card = GestureDetector(
       onTap: onTap,
@@ -60,7 +58,7 @@ class EventCard extends StatelessWidget {
               left: 10,
               top: 10,
               child: ChipLabel(
-                text: dateFormat.format(event.start),
+                text: formatDateNumeric(event.start),
                 color: Colors.white,
               ),
             ),
@@ -71,7 +69,7 @@ class EventCard extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   ChipLabel(
-                    text: timeFormat.format(event.start),
+                    text: formatTime24(event.start),
                     color: Colors.white,
                   ),
                   if (attendanceStatus != null) ...[

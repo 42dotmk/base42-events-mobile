@@ -3,7 +3,7 @@ import 'package:base42_events_mobile/types.dart';
 import 'package:base42_events_mobile/widgets/booking/booking_card.dart';
 import 'package:base42_events_mobile/widgets/profile/empty_booking_state.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+import 'package:base42_events_mobile/utils/date_formatters.dart';
 
 class MyBookingsSection extends StatelessWidget {
   final BookingFilter filter;
@@ -30,7 +30,7 @@ class MyBookingsSection extends StatelessWidget {
                 spaceName: _resolveSpaceName(booking),
                 floor: _resolveFloorLabel(booking),
                 status: booking.statusLabel,
-                date: DateFormat('MMM d, yyyy').format(booking.startDateTime),
+                date: formatDateMedium(booking.startDateTime),
                 timeRange: _formatTimeRange(
                   booking.startDateTime,
                   booking.endDateTime,
@@ -77,8 +77,7 @@ class MyBookingsSection extends StatelessWidget {
   }
 
   String _formatTimeRange(DateTime start, DateTime end) {
-    final formatter = DateFormat('HH:mm');
-    return '${formatter.format(start)} - ${formatter.format(end)}';
+    return '${formatTime24(start)} - ${formatTime24(end)}';
   }
 
   Color _statusBackgroundColor(BuildContext context, MyBooking booking) {
