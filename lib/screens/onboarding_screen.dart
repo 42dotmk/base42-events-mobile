@@ -26,31 +26,25 @@ final List<_OnboardingSlideData> _slides = [
     assetPath: 'assets/onboarding/speaker.jpeg',
     title: 'Welcome to Base42',
     description:
-        'Your hackerspace for building, learning, and connecting with curious minds in Skopje.',
+        'A community-driven hackerspace for tech enthusiasts, makers, and developers.\nLearn, build, and collaborate.',
   ),
   _OnboardingSlideData(
-    assetPath: 'assets/onboarding/stage.jpg',
-    title: 'Talks & Conferences',
+    assetPath: 'assets/onboarding/lounge.jpg',
+    title: 'Open to Everyone',
     description:
-        'Professional A/V setup, stage lighting, and seating for up to 120 people. Host or attend world-class events.',
-  ),
-  _OnboardingSlideData(
-    assetPath: 'assets/onboarding/audience.jpeg',
-    title: 'Vibrant Community',
-    description:
-        'Join 1000+ Discord members, weekly meetups, workshops, and game nights with partner organizations.',
+        'Explore technology, work on open-source projects, attend meetups and workshops, or just hang out with friendly, geeky people.',
   ),
   _OnboardingSlideData(
     assetPath: 'assets/onboarding/workshop-area.jpg',
-    title: 'Workshop & Tools',
+    title: 'Tools & Equipment',
     description:
-        'Electronics benches, soldering stations, 3D printers, and a server rack you can actually tinker with.',
+        'Full access to the server rack, 3D printer, microcontrollers, and maker tools.\nEverything you need to build.',
   ),
   _OnboardingSlideData(
     assetPath: 'assets/onboarding/hottub.jpg',
-    title: "You're Ready",
+    title: 'More Than Just Tech',
     description:
-        "Grab a controller, fire up the jacuzzi, and dive into the community. Let's build something together.",
+        'Use the kitchen, grab coffee, play board games, or relax with PlayStation. Work hard, unwind harder.',
   ),
 ];
 
