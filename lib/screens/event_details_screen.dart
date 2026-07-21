@@ -1,5 +1,6 @@
 import 'package:base42_events_mobile/nav.dart';
 import 'package:base42_events_mobile/consts/enum.dart';
+import 'package:base42_events_mobile/widgets/common/auth_prompt_dialog.dart';
 import 'package:base42_events_mobile/widgets/common/custom_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
@@ -104,8 +105,9 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
     if (!authProvider.isAuthenticated ||
         authProvider.token == null ||
         authProvider.currentUser == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Sign in to mark your attendance.')),
+      AuthPromptDialog.show(
+        context,
+        message: 'Sign in to mark your attendance',
       );
       return;
     }

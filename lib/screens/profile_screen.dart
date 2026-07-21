@@ -83,6 +83,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final brand = Theme.of(context).extension<BrandTheme>();
     final colorScheme = Theme.of(context).colorScheme;
     final authProvider = context.watch<AuthProvider>();
+
     final myBookingsProvider = context.watch<MyBookingsProvider>();
     final filteredBookings = _bookingFilter == BookingFilter.upcoming
         ? myBookingsProvider.upcomingBookings

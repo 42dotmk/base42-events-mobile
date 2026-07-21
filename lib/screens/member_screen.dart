@@ -9,6 +9,7 @@ import 'package:base42_events_mobile/services/user_service.dart';
 import 'package:base42_events_mobile/widgets/common/page_header.dart';
 import 'package:base42_events_mobile/consts/membership_pricing.dart';
 import 'package:base42_events_mobile/widgets/membership/plan_card.dart';
+import 'package:base42_events_mobile/widgets/common/auth_prompt_dialog.dart';
 import 'package:base42_events_mobile/widgets/common/custom_button.dart';
 
 class MemberScreen extends StatefulWidget {
@@ -60,11 +61,9 @@ class _MemberScreenState extends State<MemberScreen> with WidgetsBindingObserver
 
       if (token == null) {
         if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Please log in first'),
-            backgroundColor: Theme.of(context).colorScheme.error,
-          ),
+        AuthPromptDialog.show(
+          context,
+          message: 'Sign in to become a member',
         );
         return;
       }

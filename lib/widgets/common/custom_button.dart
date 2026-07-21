@@ -51,6 +51,7 @@ class CustomButton extends StatelessWidget {
     required VoidCallback? onTap,
     required ButtonVariant variant,
     bool isLoading = false,
+    bool fullWidth = true,
   }) {
     return CustomButton(
       icon: icon,
@@ -58,7 +59,7 @@ class CustomButton extends StatelessWidget {
       color: color,
       onTap: onTap,
       variant: variant,
-      fullWidth: true,
+      fullWidth: fullWidth,
       isLoading: isLoading,
     );
   }
@@ -119,7 +120,7 @@ class CustomButton extends StatelessWidget {
               const SizedBox(width: AppSpacing.xs),
             ],
             Text(
-              label,
+              label.toUpperCase(),
               style: TextStyle(
                 fontSize: FontSizes.bodySmall,
                 fontWeight: isActive ? FontWeight.w600 : FontWeight.normal,
@@ -164,7 +165,7 @@ class CustomButton extends StatelessWidget {
                 if (fullWidth)
                   Expanded(
                     child: Text(
-                      label,
+                      label.toUpperCase(),
                       textAlign: TextAlign.center,
                       style:
                           Theme.of(context).textTheme.titleMedium?.copyWith(
@@ -175,7 +176,7 @@ class CustomButton extends StatelessWidget {
                   )
                 else
                   Text(
-                    label,
+                    label.toUpperCase(),
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
                       color: effectiveColor,
                       fontWeight: FontWeight.w600,
@@ -222,7 +223,7 @@ class CustomButton extends StatelessWidget {
                 if (fullWidth)
                   Expanded(
                     child: Text(
-                      label,
+                      label.toUpperCase(),
                       textAlign: TextAlign.center,
                       style:
                           Theme.of(context).textTheme.titleMedium?.copyWith(
@@ -233,7 +234,7 @@ class CustomButton extends StatelessWidget {
                   )
                 else
                   Text(
-                    label,
+                    label.toUpperCase(),
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
                       color: textColor,
                       fontWeight: FontWeight.w600,

@@ -7,6 +7,7 @@ import 'package:base42_events_mobile/services/user_service.dart';
 import 'package:base42_events_mobile/theme.dart';
 import 'package:base42_events_mobile/nav.dart';
 import 'package:base42_events_mobile/widgets/common/page_header.dart';
+import 'package:base42_events_mobile/widgets/common/auth_prompt_dialog.dart';
 import 'package:base42_events_mobile/widgets/membership/current_plan_card.dart';
 import 'package:base42_events_mobile/widgets/membership/upgrade_cta_card.dart';
 
@@ -60,8 +61,9 @@ class _MembershipBillingScreenState extends State<MembershipBillingScreen> with 
 
       if (token == null) {
         if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Please log in first')),
+        AuthPromptDialog.show(
+          context,
+          message: 'Sign in to manage your membership',
         );
         return;
       }
