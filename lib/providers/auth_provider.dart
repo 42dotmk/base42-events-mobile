@@ -278,6 +278,8 @@ class AuthProvider extends ChangeNotifier {
   }
 
   void enableGuestMode() {
+    _token = null;
+    _currentUser = null;
     _isGuestMode = true;
     _isLoading = false;
     notifyListeners();

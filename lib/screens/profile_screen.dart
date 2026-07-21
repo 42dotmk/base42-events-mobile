@@ -10,7 +10,6 @@ import 'package:base42_events_mobile/widgets/profile/my_bookings_section.dart';
 import 'package:base42_events_mobile/widgets/profile/account_menu_tile.dart';
 import 'package:base42_events_mobile/widgets/profile/booking_filter_switch.dart';
 import 'package:base42_events_mobile/widgets/profile/membership_status.dart';
-import 'package:base42_events_mobile/widgets/common/custom_button.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -84,62 +83,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final brand = Theme.of(context).extension<BrandTheme>();
     final colorScheme = Theme.of(context).colorScheme;
     final authProvider = context.watch<AuthProvider>();
-    final isGuest = authProvider.isGuestMode;
-
-    if (isGuest) {
-      return Scaffold(
-        body: Container(
-          decoration: BoxDecoration(gradient: brand?.backdropGradient),
-          child: SafeArea(
-            child: Center(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Container(
-                      width: 86,
-                      height: 86,
-                      decoration: BoxDecoration(
-                        color: colorScheme.surfaceContainerHighest
-                            .withValues(alpha: 0.62),
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      alignment: Alignment.center,
-                      child: Icon(
-                        Icons.person_outline_rounded,
-                        size: 40,
-                        color: colorScheme.onSurface.withValues(alpha: 0.55),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      'Guest',
-                      style: context.textStyles.headlineSmall?.semiBold
-                          .withColor(colorScheme.onSurface),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Sign in to access your profile, bookings, and membership',
-                      textAlign: TextAlign.center,
-                      style: context.textStyles.bodyMedium?.withColor(
-                        colorScheme.onSurface.withValues(alpha: 0.72),
-                      ),
-                    ),
-                    const SizedBox(height: 24),
-                    CustomButton.action(
-                      label: 'Sign In',
-                      variant: ButtonVariant.solid,
-                      onTap: () => context.go(AppRoutes.auth),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ),
-      );
-    }
 
     final myBookingsProvider = context.watch<MyBookingsProvider>();
     final filteredBookings = _bookingFilter == BookingFilter.upcoming

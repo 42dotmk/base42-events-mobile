@@ -3,7 +3,6 @@ import 'package:base42_events_mobile/models/project_repo.dart';
 import 'package:base42_events_mobile/providers/auth_provider.dart';
 import 'package:base42_events_mobile/services/projects_service.dart';
 import 'package:base42_events_mobile/theme.dart';
-import 'package:base42_events_mobile/widgets/common/custom_button.dart';
 import 'package:base42_events_mobile/widgets/common/page_header.dart';
 import 'package:base42_events_mobile/widgets/error_view.dart';
 import 'package:base42_events_mobile/widgets/projects/projects_list.dart';
@@ -80,8 +79,6 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
   Widget build(BuildContext context) {
     final brand = Theme.of(context).extension<BrandTheme>();
     final colorScheme = Theme.of(context).colorScheme;
-    final authProvider = context.watch<AuthProvider>();
-    final isGuest = authProvider.isGuestMode;
 
     return Scaffold(
       body: Container(
@@ -101,8 +98,6 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
                           color: colorScheme.primary,
                         ),
                       )
-                    : isGuest
-                    ? _GuestProjectsView()
                     : _errorMessage != null
                     ? ErrorView(
                         message: _errorMessage!,
@@ -122,42 +117,6 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
               ),
             ],
           ),
-        ),
-      ),
-    );
-  }
-}
-
-class _GuestProjectsView extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              Icons.workspaces_outline,
-              size: 42,
-              color: colorScheme.onSurface.withValues(alpha: 0.45),
-            ),
-            const SizedBox(height: 10),
-            Text(
-              'Sign in to view projects',
-              style: context.textStyles.titleMedium?.withColor(
-                colorScheme.onSurface.withValues(alpha: 0.72),
-              ),
-            ),
-            const SizedBox(height: 12),
-            CustomButton.action(
-              label: 'Sign In',
-              variant: ButtonVariant.solid,
-              onTap: () => context.go(AppRoutes.auth),
-            ),
-          ],
         ),
       ),
     );

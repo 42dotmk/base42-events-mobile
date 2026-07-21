@@ -111,6 +111,7 @@ class _PlaceholderOnboardingScreenState
                       label: isLast ? 'Done' : 'Next',
                       variant: ButtonVariant.solid,
                       onTap: _next,
+                      fullWidth: false,
                     ),
                   ],
                 ),
