@@ -1,12 +1,14 @@
+import 'package:base42_events_mobile/models/user.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:base42_events_mobile/nav.dart';
 import 'package:base42_events_mobile/theme.dart';
 import 'package:base42_events_mobile/utils.dart';
+import 'package:base42_events_mobile/widgets/common/auth_prompt_dialog.dart';
 import 'package:base42_events_mobile/widgets/profile/profile_initials_avatar.dart';
 
 class WelcomeHeader extends StatelessWidget {
-  final dynamic currentUser;
+  final User? currentUser;
   final bool isOpen;
 
   const WelcomeHeader({
@@ -21,6 +23,7 @@ class WelcomeHeader extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
     final onSurface = colorScheme.onSurface;
     final primaryAccent = colorScheme.primary;
+    final isGuest = currentUser == null;
     final displayName = buildUserDisplayName(currentUser);
     final initials = buildUserInitials(displayName);
     final profilePicture = currentUser?.profilePicture;
@@ -47,7 +50,7 @@ class WelcomeHeader extends StatelessWidget {
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    currentUser?.firstName ?? "User",
+                    isGuest ? 'Guest' : (currentUser?.firstName ?? 'User'),
                     style: context.textStyles.headlineLarge?.bold.withColor(
                       onSurface,
                     ),
@@ -85,10 +88,19 @@ class WelcomeHeader extends StatelessWidget {
               ),
             ),
             InkWell(
-              onTap: () => context.go(AppRoutes.profile),
+              onTap: () {
+                if (isGuest) {
+                  AuthPromptDialog.show(
+                    context,
+                    message: 'Sign in to view your profile',
+                  );
+                  return;
+                }
+                context.go(AppRoutes.profile);
+              },
               borderRadius: BorderRadius.circular(999),
               child: ProfileInitialsAvatar(
-                initials: initials,
+                initials: isGuest ? '?' : initials,
                 size: 56,
                 accentColor: primaryAccent,
                 profilePicture: profilePicture,

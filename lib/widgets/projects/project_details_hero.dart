@@ -2,6 +2,7 @@ import 'package:base42_events_mobile/models/project_details.dart';
 import 'package:base42_events_mobile/theme.dart';
 import 'package:base42_events_mobile/widgets/projects/project_details_contributors.dart';
 import 'package:flutter/material.dart';
+import 'package:base42_events_mobile/widgets/common/custom_button.dart';
 
 class ProjectDetailsHero extends StatelessWidget {
   final ProjectDetails details;
@@ -53,23 +54,10 @@ class ProjectDetailsHero extends StatelessWidget {
           overflow: TextOverflow.ellipsis,
         ),
         const SizedBox(height: AppSpacing.lg),
-        SizedBox(
-          width: double.infinity,
-          child: FilledButton(
-            onPressed: onJoinTap,
-            style: FilledButton.styleFrom(
-              backgroundColor: colorScheme.primary,
-              foregroundColor: colorScheme.onPrimary,
-              minimumSize: const Size.fromHeight(52),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(AppRadius.md),
-              ),
-            ),
-            child: Text(
-              'JOIN & CONTRIBUTE',
-              style: context.textStyles.titleSmall?.semiBold,
-            ),
-          ),
+        CustomButton.action(
+          label: 'JOIN & CONTRIBUTE',
+          variant: ButtonVariant.solid,
+          onTap: onJoinTap,
         ),
         const SizedBox(height: AppSpacing.md),
         ProjectDetailsContributors(contributors: details.contributors),

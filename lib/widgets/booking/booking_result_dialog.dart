@@ -1,5 +1,6 @@
 import 'package:base42_events_mobile/theme.dart';
 import 'package:flutter/material.dart';
+import 'package:base42_events_mobile/widgets/common/custom_button.dart';
 
 enum BookingResultType { success, error }
 
@@ -64,14 +65,10 @@ class BookingResultDialog extends StatelessWidget {
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: AppSpacing.xxl),
-            SizedBox(
-              width: double.infinity,
-              child: FilledButton(
-                onPressed: () => Navigator.pop(context),
-                child: Text(
-                  type == BookingResultType.success ? 'Done' : 'Try Again',
-                ),
-              ),
+            CustomButton.action(
+              label: type == BookingResultType.success ? 'Done' : 'Try Again',
+              variant: ButtonVariant.solid,
+              onTap: () => Navigator.pop(context),
             ),
           ],
         ),

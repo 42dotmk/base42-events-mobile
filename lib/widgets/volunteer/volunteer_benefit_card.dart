@@ -17,14 +17,12 @@ class VolunteerBenefitCard extends StatelessWidget {
   final IconData icon;
   final String title;
   final String description;
-  final Color accentColor;
 
   const VolunteerBenefitCard({
     super.key,
     required this.icon,
     required this.title,
     required this.description,
-    required this.accentColor,
   });
 
   @override
@@ -32,28 +30,26 @@ class VolunteerBenefitCard extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
     final onSurface = colorScheme.onSurface;
 
-    return Container(
-      padding: const EdgeInsets.all(AppSpacing.md),
-      decoration: BoxDecoration(
-        color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-        borderRadius: BorderRadius.circular(AppRadius.md),
-        border: Border.all(
-          color: accentColor.withValues(alpha: 0.15),
-          width: 1,
-        ),
-      ),
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            padding: const EdgeInsets.all(AppSpacing.sm),
+            width: 54,
+            height: 54,
             decoration: BoxDecoration(
-              color: accentColor.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(AppRadius.sm),
+              color: colorScheme.surfaceContainerHighest.withValues(
+                alpha: 0.62,
+              ),
+              borderRadius: BorderRadius.circular(16),
             ),
-            child: Icon(icon, color: accentColor, size: 22),
+            child: Icon(
+              icon,
+              color: onSurface.withValues(alpha: 0.55),
+            ),
           ),
-          const SizedBox(width: AppSpacing.md),
+          const SizedBox(width: 14),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -63,11 +59,11 @@ class VolunteerBenefitCard extends StatelessWidget {
                   style: context.textStyles.titleMedium?.semiBold
                       .withColor(onSurface),
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: 2),
                 Text(
                   description,
-                  style: context.textStyles.bodyMedium?.withColor(
-                    onSurface.withValues(alpha: 0.65),
+                  style: context.textStyles.titleSmall?.withColor(
+                    onSurface.withValues(alpha: 0.58),
                   ),
                 ),
               ],

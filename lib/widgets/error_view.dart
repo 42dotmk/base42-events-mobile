@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:base42_events_mobile/theme.dart';
+import 'package:base42_events_mobile/widgets/common/custom_button.dart';
 
 class ErrorView extends StatelessWidget {
   final String title;
@@ -41,10 +42,11 @@ class ErrorView extends StatelessWidget {
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: AppSpacing.xl),
-            FilledButton.icon(
-              onPressed: onRetry,
-              icon: const Icon(Icons.refresh_rounded),
-              label: const Text('Retry'),
+            CustomButton.action(
+              icon: Icons.refresh_rounded,
+              label: 'Retry',
+              variant: ButtonVariant.solid,
+              onTap: onRetry,
             ),
           ],
         ),

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:base42_events_mobile/theme.dart';
 import 'package:base42_events_mobile/nav.dart';
+import 'package:base42_events_mobile/widgets/common/custom_button.dart';
 
 class UpgradeCTACard extends StatelessWidget {
   final Color accentColor;
@@ -119,21 +120,11 @@ class UpgradeCTACard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: AppSpacing.lg),
-          SizedBox(
-            width: double.infinity,
-            child: FilledButton(
-              onPressed: () => context.push(AppRoutes.member),
-              style: FilledButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(AppRadius.md),
-                ),
-              ),
-              child: Text(
-                'Become a Member',
-                style: context.textStyles.titleMedium?.bold,
-              ),
-            ),
+          CustomButton.action(
+            label: 'Become a Member',
+            color: secondaryAccent,
+            variant: ButtonVariant.solid,
+            onTap: () => context.push(AppRoutes.member),
           ),
         ],
       ),

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:base42_events_mobile/providers/auth_provider.dart';
-import 'package:base42_events_mobile/utils.dart';
+import 'package:base42_events_mobile/utils/date_formatters.dart';
 import 'package:base42_events_mobile/widgets/profile/membership_card.dart';
 
 class MembershipStatus extends StatelessWidget {
@@ -18,14 +17,19 @@ class MembershipStatus extends StatelessWidget {
 
     if (user.isMember && membership != null) {
       final startDate = membership.startDate != null
-          ? DateFormat('MMM d, yyyy').format(membership.startDate!)
+          ? formatDateMedium(membership.startDate!)
           : null;
       final tierLabel = membership.tier == 'monthly' ? 'Monthly' : 'Yearly';
-      final nextCycle = formatNextCycleDate(
-        endDate: membership.endDate,
-        startDate: membership.startDate,
-        tier: membership.tier,
-      );
+      final String nextCycle;
+      if (membership.endDate != null) {
+        nextCycle = formatMonthDay(membership.endDate!);
+      } else {
+        final base = membership.startDate ?? DateTime.now();
+        final next = membership.tier == 'yearly'
+            ? DateTime(base.year + 1, base.month, base.day)
+            : DateTime(base.year, base.month + 1, base.day);
+        nextCycle = formatMonthDay(next);
+      }
       return MembershipCard(
         title: tierLabel,
         subtitle: startDate != null ? 'Member since $startDate' : tierLabel,

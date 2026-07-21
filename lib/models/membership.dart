@@ -1,9 +1,18 @@
+import 'dart:developer' as developer;
+
 class Membership {
   final String tier;
   final String status;
   final DateTime? startDate;
   final DateTime? endDate;
   final String? stripeSubscriptionId;
+
+  static const _activeStatuses = [
+    'active',
+    'trialing',
+    'past_due',
+    'unpaid',
+  ];
 
   const Membership({
     required this.tier,
@@ -13,7 +22,7 @@ class Membership {
     this.stripeSubscriptionId,
   });
 
-  bool get isActive => status == 'active';
+  bool get isActive => _activeStatuses.contains(status);
 
   bool get isCancelled => status == 'cancelled';
 
@@ -28,12 +37,12 @@ class Membership {
   factory Membership.fromJson(Map<String, dynamic> json) {
     return Membership(
       tier: json['tier'] as String? ?? 'monthly',
-      status: json['status'] as String? ?? 'pending',
+      status: (json['status'] as String? ?? 'pending').toLowerCase().trim(),
       startDate: json['startDate'] != null
-          ? DateTime.tryParse(json['startDate'] as String)
+          ? _parseDate(json['startDate'] as String, field: 'startDate')
           : null,
       endDate: json['endDate'] != null
-          ? DateTime.tryParse(json['endDate'] as String)
+          ? _parseDate(json['endDate'] as String, field: 'endDate')
           : null,
       stripeSubscriptionId: json['stripeSubscriptionId'] as String?,
     );
@@ -46,4 +55,15 @@ class Membership {
     'endDate': endDate?.toIso8601String(),
     'stripeSubscriptionId': stripeSubscriptionId,
   };
+
+  static DateTime? _parseDate(String value, {required String field}) {
+    final result = DateTime.tryParse(value);
+    if (result == null) {
+      developer.log(
+        'Failed to parse $field: "$value"',
+        name: 'Membership',
+      );
+    }
+    return result;
+  }
 }

@@ -4,7 +4,8 @@ import 'package:base42_events_mobile/theme.dart';
 import 'package:base42_events_mobile/models/membership.dart';
 
 class CurrentPlanCard extends StatelessWidget {
-  final String userType;
+  final bool isMember;
+  final bool isVolunteer;
   final Membership? activeMembership;
   final Color accentColor;
   final Color secondaryAccent;
@@ -12,7 +13,8 @@ class CurrentPlanCard extends StatelessWidget {
 
   const CurrentPlanCard({
     super.key,
-    required this.userType,
+    required this.isMember,
+    required this.isVolunteer,
     this.activeMembership,
     required this.accentColor,
     required this.secondaryAccent,
@@ -23,37 +25,36 @@ class CurrentPlanCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final isMember = userType == 'member' && activeMembership != null;
-    final isVolunteer = userType == 'volunteer';
-    final primaryAccent = activeMembership?.tier == 'yearly'
+    final hasActiveMembership = isMember && activeMembership != null;
+    final primaryAccent = hasActiveMembership && activeMembership?.tier == 'yearly'
         ? secondaryAccent
         : accentColor;
 
-    final planLabel = isMember
+    final planLabel = hasActiveMembership
         ? '${(activeMembership!.tier == 'monthly' ? 'MONTHLY' : 'YEARLY')} PLAN'
         : isVolunteer
             ? 'VOLUNTEER'
             : 'FREE PLAN';
 
-    final memberSince = isMember && activeMembership!.startDate != null
+    final memberSince = hasActiveMembership && activeMembership!.startDate != null
         ? 'Member since ${activeMembership!.startDate!.month}/${activeMembership!.startDate!.year}'
         : null;
 
-    final description = isMember
+    final description = hasActiveMembership
         ? 'Full access to Base42'
         : isVolunteer
             ? 'Contributing member access'
             : 'Basic access at Base42';
 
-    final String? price = isMember
+    final String? price = hasActiveMembership
         ? MembershipPricing.priceForTier(activeMembership!.tier)
         : null;
 
-    final String? interval = isMember
+    final String? interval = hasActiveMembership
         ? MembershipPricing.intervalForTier(activeMembership!.tier)
         : null;
 
-    final String? badgeLabel = isMember
+    final String? badgeLabel = hasActiveMembership
         ? activeMembership!.status.toUpperCase()
         : isVolunteer
             ? 'ACTIVE'
@@ -61,7 +62,7 @@ class CurrentPlanCard extends StatelessWidget {
 
     final Color? badgeBg;
     final Color? badgeText;
-    if (isMember) {
+    if (hasActiveMembership) {
       final status = activeMembership!.status;
       if (status == 'active') {
         badgeBg = primaryAccent.withValues(alpha: 0.15);
@@ -108,7 +109,7 @@ class CurrentPlanCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(AppRadius.md),
                 ),
                 child: Icon(
-                  isMember
+                  hasActiveMembership
                       ? Icons.card_membership_rounded
                       : Icons.person_outline_rounded,
                   color: primaryAccent,

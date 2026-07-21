@@ -27,8 +27,8 @@ class _VolunteerImageCarouselState extends State<VolunteerImageCarousel> {
 
     return Column(
       children: [
-        SizedBox(
-          height: 200,
+        AspectRatio(
+          aspectRatio: 4 / 3,
           child: PageView.builder(
             controller: PageController(viewportFraction: 0.92),
             padEnds: false,

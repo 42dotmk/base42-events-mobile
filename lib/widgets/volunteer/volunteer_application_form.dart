@@ -3,8 +3,10 @@ import 'package:provider/provider.dart';
 import 'package:base42_events_mobile/providers/auth_provider.dart';
 import 'package:base42_events_mobile/services/user_service.dart';
 import 'package:base42_events_mobile/theme.dart';
+import 'package:base42_events_mobile/widgets/common/auth_prompt_dialog.dart';
 import 'package:base42_events_mobile/widgets/common/custom_text_fields.dart';
 import 'package:base42_events_mobile/utils.dart';
+import 'package:base42_events_mobile/widgets/common/custom_button.dart';
 
 class VolunteerApplicationForm extends StatefulWidget {
   final VoidCallback? onSubmit;
@@ -40,12 +42,9 @@ class _VolunteerApplicationFormState extends State<VolunteerApplicationForm> {
       final user = authProvider.currentUser;
       if (token == null || user == null) {
         if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('You must be logged in to apply'),
-            backgroundColor: Theme.of(context).colorScheme.inverseSurface,
-            behavior: SnackBarBehavior.floating,
-          ),
+        AuthPromptDialog.show(
+          context,
+          message: 'Sign in to submit your volunteer application',
         );
         return;
       }
@@ -130,21 +129,11 @@ class _VolunteerApplicationFormState extends State<VolunteerApplicationForm> {
               decoration: inputDecoration(context, 'Why do you want to volunteer?'),
             ),
           ),
-          SizedBox(
-            width: double.infinity,
-            child: FilledButton(
-              onPressed: _isSubmitting ? null : _submitForm,
-              child: _isSubmitting
-                  ? SizedBox(
-                      height: 20,
-                      width: 20,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: colorScheme.onPrimary,
-                      ),
-                    )
-                  : const Text('Submit Application'),
-            ),
+          CustomButton.action(
+            label: 'Submit Application',
+            variant: ButtonVariant.solid,
+            onTap: _isSubmitting ? null : _submitForm,
+            isLoading: _isSubmitting,
           ),
         ],
       ),

@@ -5,6 +5,7 @@ import 'package:base42_events_mobile/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:base42_events_mobile/widgets/common/custom_button.dart';
 
 class LoggedOutScreen extends StatefulWidget {
   const LoggedOutScreen({super.key});
@@ -84,8 +85,6 @@ class _LoggedOutScreenState extends State<LoggedOutScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-
     return Scaffold(
       body: Stack(
         fit: StackFit.expand,
@@ -140,32 +139,11 @@ class _LoggedOutScreenState extends State<LoggedOutScreen> {
                       ),
                     ),
                     const SizedBox(height: 32),
-                    SizedBox(
-                      width: double.infinity,
-                      child: FilledButton(
-                        onPressed: _isLoading ? null : _loginWithKeycloak,
-                        style: FilledButton.styleFrom(
-                          backgroundColor: colorScheme.primary,
-                          foregroundColor: colorScheme.onPrimary,
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                        ),
-                        child: _isLoading
-                            ? SizedBox(
-                                width: 22,
-                                height: 22,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2.5,
-                                  color: colorScheme.onPrimary,
-                                ),
-                              )
-                            : Text(
-                                'LOGIN',
-                                style: context.textStyles.titleMedium?.withColor(Colors.black).semiBold,
-                              ),
-                      ),
+                    CustomButton.action(
+                      label: 'LOGIN',
+                      variant: ButtonVariant.solid,
+                      onTap: _isLoading ? null : _loginWithKeycloak,
+                      isLoading: _isLoading,
                     ),
                     const SizedBox(height: 14),
                     SizedBox(
@@ -186,6 +164,49 @@ class _LoggedOutScreenState extends State<LoggedOutScreen> {
                           'REGISTER',
                           style: context.textStyles.titleMedium?.semiBold,
                         ),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Divider(
+                            color: Colors.white.withValues(alpha: 0.3),
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                          child: Text(
+                            'OR',
+                            style: context.textStyles.labelMedium?.withColor(
+                              Colors.white.withValues(alpha: 0.6),
+                            ),
+                          ),
+                        ),
+                        Expanded(
+                          child: Divider(
+                            color: Colors.white.withValues(alpha: 0.3),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 20),
+                    GestureDetector(
+                      onTap: _isLoading
+                          ? null
+                          : () {
+                              Provider.of<AuthProvider>(
+                                context,
+                                listen: false,
+                              ).enableGuestMode();
+                              context.go(AppRoutes.home);
+                            },
+                      child: Text(
+                        'Continue as Guest',
+                        style: context.textStyles.titleMedium?.semiBold
+                            .withColor(
+                              Colors.white.withValues(alpha: 0.75),
+                            ),
                       ),
                     ),
                   ],

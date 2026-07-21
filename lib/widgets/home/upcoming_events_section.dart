@@ -43,8 +43,8 @@ class UpcomingEventsSection extends StatelessWidget {
         SizedBox(
           height: 220,
           child: upcoming.isEmpty
-              ? NoUpcomingEventsPlacehoder(
-          onTap: () => context.go(AppRoutes.events),
+              ? NoUpcomingEventsPlaceholder(
+                  onTap: () => context.go(AppRoutes.events),
                 )
               : upcoming.length == 1
               ? EventCard(

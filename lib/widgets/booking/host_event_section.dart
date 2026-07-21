@@ -4,11 +4,13 @@ import 'package:base42_events_mobile/services/booking_service.dart';
 import 'package:base42_events_mobile/theme.dart';
 import 'package:base42_events_mobile/types.dart';
 import 'package:base42_events_mobile/utils.dart';
+import 'package:base42_events_mobile/utils/date_formatters.dart';
 import 'package:base42_events_mobile/widgets/common/custom_text_fields.dart';
 import 'package:base42_events_mobile/widgets/booking/booking_result_dialog.dart';
 import 'package:base42_events_mobile/widgets/booking/selected_space_card.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:base42_events_mobile/widgets/common/custom_button.dart';
 
 class _BookingTimeSlot {
   final String value;
@@ -149,7 +151,7 @@ class _HostEventSectionState extends State<HostEventSection> {
       eventTheme: '',
       eventPurpose: '',
       eventAgenda: _eventDescriptionController.text.trim(),
-      eventDate: bookingFormatDateForApi(draft.eventDate!),
+      eventDate: formatDateIso(draft.eventDate!),
       eventStartTime: _selectedTimeSlot!.startTime,
       eventEndTime: _selectedTimeSlot!.endTime,
       physicalPresence: '',
@@ -218,8 +220,8 @@ class _HostEventSectionState extends State<HostEventSection> {
       return null;
     }
 
-    final startText = bookingFormatTime(startTime);
-    final endText = bookingFormatTime(endTime);
+    final startText = formatTimeOfDay(startTime);
+    final endText = formatTimeOfDay(endTime);
     for (final slot in _timeSlots) {
       if (slot.startTime == startText && slot.endTime == endText) {
         return slot;
@@ -325,7 +327,7 @@ class _HostEventSectionState extends State<HostEventSection> {
             label: 'Preferred Date *',
             value: draft.eventDate == null
                 ? 'mm/dd/yyyy'
-                : bookingFormatDate(draft.eventDate!),
+                : formatDateSlash(draft.eventDate!),
             onTap: _pickDate,
           ),
           DropdownButtonFormField<String>(
@@ -385,24 +387,12 @@ class _HostEventSectionState extends State<HostEventSection> {
             ),
           ),
           const SizedBox(height: 14),
-          SizedBox(
-            width: double.infinity,
-            child: FilledButton.icon(
-              onPressed: _isSubmitting ? null : _submit,
-              icon: _isSubmitting
-                  ? SizedBox(
-                      width: 16,
-                      height: 16,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: colorScheme.onPrimary,
-                      ),
-                    )
-                  : const Icon(Icons.send_outlined),
-              label: Text(
-                _isSubmitting ? 'Submitting...' : 'Submit Booking Request',
-              ),
-            ),
+          CustomButton.action(
+            icon: Icons.send_outlined,
+            label: 'Submit Booking Request',
+            variant: ButtonVariant.solid,
+            onTap: _isSubmitting ? null : _submit,
+            isLoading: _isSubmitting,
           ),
         ],
       ),

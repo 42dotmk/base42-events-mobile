@@ -1,6 +1,8 @@
 import 'package:base42_events_mobile/theme.dart';
+import 'package:base42_events_mobile/providers/auth_provider.dart';
 import 'package:base42_events_mobile/providers/booking_draft_provider.dart';
 import 'package:base42_events_mobile/widgets/booking/booking_draft_dialog.dart';
+import 'package:base42_events_mobile/widgets/common/auth_prompt_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:base42_events_mobile/nav.dart';
@@ -12,17 +14,24 @@ class BottomNavigationBarWidget extends StatelessWidget {
   final Widget child;
 
   static const List<_NavItem> _items = [
-    _NavItem(route: AppRoutes.home, icon: Icons.home_outlined, label: 'Home'),
+    _NavItem(
+      route: AppRoutes.home,
+      icon: Icons.home_outlined,
+      label: 'Home',
+      isPublic: true,
+    ),
     _NavItem(
       route: AppRoutes.events,
       icon: Icons.calendar_month_outlined,
       label: 'Events',
+      isPublic: true,
     ),
     _NavItem(
       route: AppRoutes.book,
       icon: Icons.add_rounded,
       label: 'Book',
       isCenter: true,
+      isPublic: true,
     ),
     _NavItem(
       route: AppRoutes.projects,
@@ -30,9 +39,10 @@ class BottomNavigationBarWidget extends StatelessWidget {
       label: 'Projects',
     ),
     _NavItem(
-      route: AppRoutes.shop,
-      icon: Icons.shopping_bag_outlined,
-      label: 'Shop',
+      route: AppRoutes.volunteer,
+      icon: Icons.volunteer_activism_outlined,
+      label: 'Volunteer',
+      isPublic: true,
     ),
   ];
 
@@ -47,7 +57,7 @@ class BottomNavigationBarWidget extends StatelessWidget {
     if (location == AppRoutes.projects || location.startsWith('/projects/')) {
       return 3;
     }
-    if (location == AppRoutes.shop) {
+    if (location == AppRoutes.volunteer) {
       return 4;
     }
     return 0;
@@ -55,6 +65,17 @@ class BottomNavigationBarWidget extends StatelessWidget {
 
   Future<void> _onItemTap(BuildContext context, _NavItem item) async {
     if (item.route != null) {
+      final authProvider = context.read<AuthProvider>();
+      final isGuest = authProvider.isGuestMode;
+
+      if (isGuest && !item.isPublic) {
+        AuthPromptDialog.show(
+          context,
+          message: 'Sign in to access ${item.label}',
+        );
+        return;
+      }
+
       final String location = GoRouterState.of(context).matchedLocation;
       final leavingBookPage =
           location == AppRoutes.book && item.route != AppRoutes.book;
@@ -235,11 +256,13 @@ class _NavItem {
   final IconData icon;
   final String label;
   final bool isCenter;
+  final bool isPublic;
 
   const _NavItem({
     this.route,
     required this.icon,
     required this.label,
     this.isCenter = false,
+    this.isPublic = false,
   });
 }

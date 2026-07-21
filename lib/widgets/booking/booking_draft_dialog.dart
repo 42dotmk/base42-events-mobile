@@ -1,5 +1,6 @@
 import 'package:base42_events_mobile/theme.dart';
 import 'package:flutter/material.dart';
+import 'package:base42_events_mobile/widgets/common/custom_button.dart';
 
 enum BookingDraftDecision { saveDraft, discardDraft }
 
@@ -35,13 +36,11 @@ class BookingDraftDialog extends StatelessWidget {
               ),
             ),
             const SizedBox(height: AppSpacing.xl),
-            SizedBox(
-              width: double.infinity,
-              child: FilledButton(
-                onPressed: () =>
-                    Navigator.pop(context, BookingDraftDecision.saveDraft),
-                child: const Text('Save Draft'),
-              ),
+            CustomButton.action(
+              label: 'Save Draft',
+              variant: ButtonVariant.solid,
+              onTap: () =>
+                  Navigator.pop(context, BookingDraftDecision.saveDraft),
             ),
             const SizedBox(height: AppSpacing.sm),
             SizedBox(

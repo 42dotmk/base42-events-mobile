@@ -42,7 +42,7 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
     if (!authProvider.isAuthenticated) {
       if (!mounted) return;
       setState(() {
-        _errorMessage = 'Please login to view projects';
+        _errorMessage = null;
         _isLoading = false;
       });
       return;
