@@ -8,13 +8,15 @@ import 'package:base42_events_mobile/screens/onboarding_screen.dart';
 import 'package:base42_events_mobile/services/secure_storage_service.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:provider/provider.dart';
 import 'theme.dart';
 import 'nav.dart';
 import 'services/fcm_service.dart';
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
+  final binding = WidgetsFlutterBinding.ensureInitialized();
+  FlutterNativeSplash.preserve(widgetsBinding: binding);
   await FCMService.instance.init();
   FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
   runApp(
@@ -63,6 +65,7 @@ class _MyAppState extends State<MyApp> {
     });
     SecureStorageService().isOnboardingComplete().then((done) {
       setState(() => _onboardingDone = done);
+      FlutterNativeSplash.remove();
     });
   }
 
