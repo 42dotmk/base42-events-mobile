@@ -55,6 +55,7 @@
     path_provider: ^2.1.5
     path: ^1.9.1
     iconoir_flutter: ^7.11.0
+    flutter_native_splash: ^2.4.0
 
   dev_dependencies:
     flutter_test:
@@ -88,7 +89,7 @@
   flutter_launcher_icons:
     android: true
     ios: true
-    image_path: assets/icons/robot42.png
+    image_path: assets/icons/base42-logo-short.png
     remove_alpha_ios: true
 
     # An image asset can refer to one or more resolution-specific "variants", see
