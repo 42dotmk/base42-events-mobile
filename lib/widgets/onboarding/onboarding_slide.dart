@@ -30,6 +30,7 @@ class OnboardingSlide extends StatelessWidget {
               child: Image.asset(
                 assetPath,
                 fit: BoxFit.cover,
+                excludeFromSemantics: true,
                 errorBuilder: (context, error, stackTrace) {
                   return Container(
                     color: colorScheme.surfaceContainerHighest,

@@ -76,6 +76,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   @override
   Widget build(BuildContext context) {
     final brand = Theme.of(context).extension<BrandTheme>();
+    final colorScheme = Theme.of(context).colorScheme;
     final isLast = _currentPage == _slides.length - 1;
 
     return Scaffold(
@@ -84,7 +85,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         child: SafeArea(
           child: Column(
             children: [
-              if (widget.showSkip)
+              if (widget.showSkip && !isLast)
                 Padding(
                   padding: const EdgeInsets.only(
                     top: AppSpacing.sm,
@@ -97,7 +98,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       child: Text(
                         'Skip',
                         style: TextStyle(
-                          color: Colors.white.withValues(alpha: 0.38),
+                          color: colorScheme.onSurface.withValues(alpha: 0.6),
                           fontSize: 14,
                           fontWeight: FontWeight.w500,
                         ),

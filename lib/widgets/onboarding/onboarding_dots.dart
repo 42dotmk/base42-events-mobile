@@ -30,7 +30,7 @@ class OnboardingDots extends StatelessWidget {
           decoration: BoxDecoration(
             color: isActive
                 ? activeColor
-                : Colors.white.withValues(alpha: 0.22),
+                : colorScheme.onSurface.withValues(alpha: 0.35),
             borderRadius: BorderRadius.circular(3),
             boxShadow: isActive
                 ? [

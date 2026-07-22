@@ -64,9 +64,8 @@ class _MyAppState extends State<MyApp> {
       if (mounted) context.read<EventProvider>().refreshEvents();
     });
     SecureStorageService().isOnboardingComplete().then((done) {
-      setState(() => _onboardingDone = done);
-      FlutterNativeSplash.remove();
-    });
+      if (mounted) setState(() => _onboardingDone = done);
+    }).whenComplete(() => FlutterNativeSplash.remove());
   }
 
   Future<void> _completeOnboarding() async {
