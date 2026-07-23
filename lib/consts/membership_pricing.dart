@@ -1,5 +1,6 @@
 /// Centralized membership pricing constants.
-/// Update these when Stripe prices change.
+/// TODO: fetch these from the backend API so price changes propagate
+/// without requiring users to update the app.
 class MembershipPricing {
   static const String monthlyPrice = '€10';
   static const String yearlyPrice = '€99';

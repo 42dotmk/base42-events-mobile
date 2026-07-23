@@ -1,12 +1,10 @@
-import 'package:base42_events_mobile/nav.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:base42_events_mobile/models/event.dart';
 import 'package:base42_events_mobile/providers/event_provider.dart';
 import 'package:base42_events_mobile/theme.dart';
-import 'package:base42_events_mobile/widgets/event_card.dart';
 import 'package:base42_events_mobile/widgets/error_view.dart';
+import 'package:base42_events_mobile/widgets/event_list_content.dart';
 
 class EventListScreen extends StatefulWidget {
   const EventListScreen({super.key});
@@ -223,152 +221,59 @@ class _EventListScreenState extends State<EventListScreen> {
                 ),
               ),
               Expanded(
-                child: isLoading
-                    ? Center(
-                        child: CircularProgressIndicator(
-                          color: colorScheme.primary,
-                        ),
-                      )
-                    : errorMessage != null
-                    ? ErrorView(
-                        message: errorMessage,
-                        onRetry: () =>
-                            context.read<EventProvider>().loadEvents(),
-                      )
-                    : filtered.isEmpty
-                    ? Center(
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 24),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(
-                                Icons.calendar_month_rounded,
-                                size: 42,
-                                color: colorScheme.onSurface.withValues(
-                                  alpha: 0.45,
-                                ),
-                              ),
-                              const SizedBox(height: 10),
-                              Text(
-                                'No events found',
-                                style: context.textStyles.titleMedium
-                                    ?.withColor(
-                                      colorScheme.onSurface.withValues(
-                                        alpha: 0.72,
-                                      ),
-                                    ),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                'Try adjusting your filters',
-                                style: context.textStyles.bodySmall?.withColor(
-                                  colorScheme.onSurface.withValues(alpha: 0.52),
-                                ),
-                              ),
-                            ],
+child: isLoading
+                      ? Center(
+                          child: CircularProgressIndicator(
+                            color: colorScheme.primary,
                           ),
+                        )
+                      : errorMessage != null
+                      ? ErrorView(
+                          message: errorMessage,
+                          onRetry: () =>
+                              context.read<EventProvider>().loadEvents(),
+                        )
+                      : filtered.isEmpty
+                      ? Center(
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 24),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.calendar_month_rounded,
+                                  size: 42,
+                                  color: colorScheme.onSurface.withValues(
+                                    alpha: 0.45,
+                                  ),
+                                ),
+                                const SizedBox(height: 10),
+                                Text(
+                                  'No events found',
+                                  style: context.textStyles.titleMedium
+                                      ?.withColor(
+                                        colorScheme.onSurface.withValues(
+                                          alpha: 0.72,
+                                        ),
+                                      ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  'Try adjusting your filters',
+                                  style: context.textStyles.bodySmall?.withColor(
+                                    colorScheme.onSurface.withValues(alpha: 0.52),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        )
+                      : EventListContent(
+                          events: filtered,
                         ),
-                      )
-                    : _EventListContent(
-                        events: filtered,
-                        colorScheme: colorScheme,
-                      ),
               ),
             ],
           ),
-        ),
-      ),
-    );
-  }
-}
-
-class _EventListContent extends StatelessWidget {
-  final List<Event> events;
-  final ColorScheme colorScheme;
-
-  const _EventListContent({
-    required this.events,
-    required this.colorScheme,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final now = DateTime.now();
-    final upcoming = events
-        .where((e) => e.start.isAfter(now))
-        .toList()
-      ..sort((a, b) => a.start.compareTo(b.start));
-    final past = events
-        .where((e) => !e.start.isAfter(now))
-        .toList()
-      ..sort((a, b) => b.start.compareTo(a.start));
-
-    final items = <Widget>[];
-    if (upcoming.isNotEmpty) {
-      items.add(_SectionHeader(title: 'UPCOMING'));
-      for (final event in upcoming) {
-        items.add(
-          Padding(
-            padding: const EdgeInsets.only(bottom: 12),
-            child: EventCard(
-              event: event,
-              onTap: () => context.push(AppRoutes.eventDetailsPath(event.id), extra: event),
-            ),
-          ),
-        );
-      }
-    }
-    if (upcoming.isNotEmpty && past.isNotEmpty) {
-      items.add(Padding(
-        padding: const EdgeInsets.symmetric(vertical: 6),
-        child: Divider(
-          color: colorScheme.outline.withValues(alpha: 0.25),
-          height: 1,
-        ),
-      ));
-    }
-    if (past.isNotEmpty) {
-      items.add(_SectionHeader(title: 'PAST'));
-      for (final event in past) {
-        items.add(
-          Padding(
-            padding: const EdgeInsets.only(bottom: 12),
-            child: EventCard(
-              event: event,
-              isPast: true,
-              onTap: () => context.push(AppRoutes.eventDetailsPath(event.id), extra: event),
-            ),
-          ),
-        );
-      }
-    }
-
-    return RefreshIndicator(
-      onRefresh: () => context.read<EventProvider>().refreshEvents(),
-      color: colorScheme.primary,
-      child: ListView(
-        padding: const EdgeInsets.fromLTRB(20, 6, 20, 24),
-        children: items,
-      ),
-    );
-  }
-}
-
-class _SectionHeader extends StatelessWidget {
-  final String title;
-
-  const _SectionHeader({required this.title});
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(4, 2, 0, 8),
-      child: Text(
-        title,
-        style: context.textStyles.labelMedium?.semiBold.withColor(
-          colorScheme.onSurface.withValues(alpha: 0.5),
         ),
       ),
     );

@@ -1,11 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:base42_events_mobile/nav.dart';
 import 'package:base42_events_mobile/providers/auth_provider.dart';
+import 'package:base42_events_mobile/widgets/common/auth_prompt_dialog.dart';
 import 'package:base42_events_mobile/widgets/quick_action_tile.dart';
 import 'package:base42_events_mobile/widgets/section_header_row.dart';
-import 'package:base42_events_mobile/widgets/common/auth_prompt_dialog.dart';
-import 'package:base42_events_mobile/nav.dart';
+
+class _ActionItem {
+  final IconData icon;
+  final String label;
+  final String? route;
+  final Color color;
+  final bool isPublic;
+
+  const _ActionItem({
+    required this.icon,
+    required this.label,
+    this.route,
+    required this.color,
+    this.isPublic = false,
+  });
+}
 
 class QuickActionsGrid extends StatelessWidget {
   const QuickActionsGrid({super.key});
@@ -21,7 +37,7 @@ class QuickActionsGrid extends StatelessWidget {
       _ActionItem(
         icon: Icons.monitor_outlined,
         label: 'Book Event',
-        route: '/book',
+        route: AppRoutes.book,
         color: colorScheme.primary,
         isPublic: true,
       ),
@@ -75,7 +91,7 @@ class QuickActionsGrid extends StatelessWidget {
                 }
 
                 if (action.route != null) {
-                  context.push(action.route!);
+                  context.go(action.route!);
                   return;
                 }
                 ScaffoldMessenger.of(context).showSnackBar(
@@ -90,20 +106,4 @@ class QuickActionsGrid extends StatelessWidget {
       ],
     );
   }
-}
-
-class _ActionItem {
-  final IconData icon;
-  final String label;
-  final String? route;
-  final Color color;
-  final bool isPublic;
-
-  const _ActionItem({
-    required this.icon,
-    required this.label,
-    this.route,
-    required this.color,
-    this.isPublic = false,
-  });
 }

@@ -9,7 +9,7 @@ import 'package:base42_events_mobile/widgets/event_card.dart';
 import 'package:base42_events_mobile/widgets/no_events_placeholder.dart';
 import 'package:base42_events_mobile/widgets/section_header_row.dart';
 
-class UpcomingEventsSection extends StatelessWidget {
+class UpcomingEventsSection extends StatefulWidget {
   final List<Event> events;
   final AttendanceProvider attendanceProvider;
 
@@ -20,12 +20,31 @@ class UpcomingEventsSection extends StatelessWidget {
   });
 
   @override
+  State<UpcomingEventsSection> createState() => _UpcomingEventsSectionState();
+}
+
+class _UpcomingEventsSectionState extends State<UpcomingEventsSection> {
+  late final PageController _pageController;
+
+  @override
+  void initState() {
+    super.initState();
+    _pageController = PageController(viewportFraction: 0.9);
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final brand = Theme.of(context).extension<BrandTheme>();
     final linkColor = brand?.linkTextGray ?? colorScheme.onSurfaceVariant;
     final now = DateTime.now();
-    final upcoming = events
+    final upcoming = widget.events
         .where((event) => event.start.isAfter(now))
         .toList()
       ..sort((a, b) => a.start.compareTo(b.start));
@@ -50,7 +69,7 @@ class UpcomingEventsSection extends StatelessWidget {
               ? EventCard(
                   event: upcoming.first,
                   attendanceStatus: resolveAttendanceStatus(
-                    attendanceProvider,
+                    widget.attendanceProvider,
                     upcoming.first.id,
                   ),
                   onTap: () => context.push(
@@ -59,7 +78,7 @@ class UpcomingEventsSection extends StatelessWidget {
                   ),
                 )
               : PageView.builder(
-                  controller: PageController(viewportFraction: 0.9),
+                  controller: _pageController,
                   itemCount: upcoming.length > 3 ? 3 : upcoming.length,
                   padEnds: false,
                   itemBuilder: (context, index) {
@@ -69,7 +88,7 @@ class UpcomingEventsSection extends StatelessWidget {
                       child: EventCard(
                         event: event,
                         attendanceStatus: resolveAttendanceStatus(
-                          attendanceProvider,
+                          widget.attendanceProvider,
                           event.id,
                         ),
                         onTap: () => context.push(

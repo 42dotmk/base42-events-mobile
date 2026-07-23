@@ -205,7 +205,7 @@ class AuthProvider extends ChangeNotifier {
         _token!,
       );
 
-      final exp = extractJwtExpiration(_token!);
+      final exp = parseJwtExpiration(_token!);
       final expiration = exp ??
            DateTime.now().add(Duration(seconds: result.expiresIn ?? 900));
       await loadUserEvents();
@@ -215,7 +215,9 @@ class AuthProvider extends ChangeNotifier {
         expiration.millisecondsSinceEpoch.toString(),
       );
 
-      await FCMService.instance.updateTokenOnBackend();
+      await FCMService.instance.updateTokenOnBackend().catchError((e) {
+        developer.log('FCM token update failed (ignored): $e', name: 'AuthProvider');
+      });
 
       _isGuestMode = false;
       notifyListeners();
@@ -239,8 +241,7 @@ class AuthProvider extends ChangeNotifier {
   }
 
   Future<bool> refreshStrapiToken() async {
-    if (_isRefreshing) return false;
-    if (_keycloakRefreshToken == null) return false;
+    if (_isRefreshing || _keycloakRefreshToken == null) return false;
 
     _isRefreshing = true;
     try {

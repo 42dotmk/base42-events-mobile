@@ -216,6 +216,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     return await DiscardChangesDialog.show(context);
   }
 
+  Future<void> _handleBack() async {
+    final shouldPop = await _onWillPop();
+    if (shouldPop && mounted) {
+      Navigator.of(context).pop();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final brand = Theme.of(context).extension<BrandTheme>();
@@ -239,12 +246,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               children: [
                 PageHeader(
                   title: 'Edit Profile',
-                  onBack: () async {
-                    final shouldPop = await _onWillPop();
-                    if (shouldPop && context.mounted) {
-                      Navigator.of(context).pop();
-                    }
-                  },
+                  onBack: _handleBack,
                 ),
                 Expanded(
                   child: SingleChildScrollView(

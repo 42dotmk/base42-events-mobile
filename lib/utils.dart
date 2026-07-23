@@ -96,7 +96,7 @@ String buildEventDescriptionHtml(String raw) {
   return paragraphs.isEmpty ? '<p></p>' : paragraphs;
 }
 
-DateTime? extractJwtExpiration(String jwt) {
+DateTime? parseJwtExpiration(String jwt) {
   try {
     final parts = jwt.split('.');
     if (parts.length != 3) return null;
@@ -104,13 +104,13 @@ DateTime? extractJwtExpiration(String jwt) {
     final decoded = utf8.decode(base64Url.decode(normalized));
     final claims = jsonDecode(decoded) as Map<String, dynamic>;
     final exp = claims['exp'];
-    if (exp is int) {
-      return DateTime.fromMillisecondsSinceEpoch(exp * 1000);
+    if (exp is num) {
+      return DateTime.fromMillisecondsSinceEpoch(exp.toInt() * 1000);
     }
-    return null;
   } catch (_) {
     return null;
   }
+  return null;
 }
 
 EventAttendanceStatus? resolveAttendanceStatus(
@@ -118,11 +118,10 @@ EventAttendanceStatus? resolveAttendanceStatus(
   int eventId,
 ) {
   final statusString = provider.getStatus(eventId);
-  if (statusString == EventAttendanceStatus.interested.name) {
-    return EventAttendanceStatus.interested;
+  if (statusString == null) return null;
+  try {
+    return EventAttendanceStatus.values.byName(statusString);
+  } catch (_) {
+    return null;
   }
-  if (statusString == EventAttendanceStatus.going.name) {
-    return EventAttendanceStatus.going;
-  }
-  return null;
 }

@@ -3,6 +3,7 @@ import 'package:base42_events_mobile/consts/enum.dart';
 import 'package:base42_events_mobile/utils/date_formatters.dart';
 import 'package:base42_events_mobile/models/event.dart';
 import 'package:base42_events_mobile/theme.dart';
+import 'package:base42_events_mobile/widgets/attendance_badge.dart';
 import 'package:base42_events_mobile/widgets/event_media_hero.dart';
 import 'package:base42_events_mobile/widgets/chip_label.dart';
 
@@ -74,7 +75,7 @@ class EventCard extends StatelessWidget {
                   ),
                   if (attendanceStatus != null) ...[
                     const SizedBox(width: 6),
-                    _AttendanceBadge(status: attendanceStatus!),
+                    AttendanceBadge(status: attendanceStatus!),
                   ],
                 ],
               ),
@@ -124,53 +125,5 @@ class EventCard extends StatelessWidget {
             child: card,
           )
         : card;
-  }
-}
-
-class _AttendanceBadge extends StatelessWidget {
-  final EventAttendanceStatus status;
-
-  const _AttendanceBadge({required this.status});
-
-  @override
-  Widget build(BuildContext context) {
-    final brand = Theme.of(context).extension<BrandTheme>();
-    final colorScheme = Theme.of(context).colorScheme;
-
-    final (icon, label, bgColor) = switch (status) {
-      EventAttendanceStatus.interested => (
-        Icons.star_rounded,
-        'Interested',
-        brand?.neonYellow ?? colorScheme.secondary,
-      ),
-      EventAttendanceStatus.going => (
-        Icons.check_circle_rounded,
-        'Going',
-        brand?.neonCyan ?? colorScheme.primary,
-      ),
-    };
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: bgColor,
-        borderRadius: BorderRadius.circular(999),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 12, color: Colors.black),
-          const SizedBox(width: 3),
-          Text(
-            label,
-            style: const TextStyle(
-              fontSize: 10,
-              fontWeight: FontWeight.w700,
-              color: Colors.black,
-            ),
-          ),
-        ],
-      ),
-    );
   }
 }
