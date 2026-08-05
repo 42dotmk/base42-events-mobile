@@ -1,22 +1,30 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+import 'package:base42_events_mobile/consts/enum.dart';
+import 'package:base42_events_mobile/utils/date_formatters.dart';
 import 'package:base42_events_mobile/models/event.dart';
 import 'package:base42_events_mobile/theme.dart';
+import 'package:base42_events_mobile/widgets/attendance_badge.dart';
 import 'package:base42_events_mobile/widgets/event_media_hero.dart';
 import 'package:base42_events_mobile/widgets/chip_label.dart';
 
 class EventCard extends StatelessWidget {
   final Event event;
   final VoidCallback onTap;
+  final EventAttendanceStatus? attendanceStatus;
+  final bool isPast;
 
-  const EventCard({super.key, required this.event, required this.onTap});
+  const EventCard({
+    super.key,
+    required this.event,
+    required this.onTap,
+    this.attendanceStatus,
+    this.isPast = false,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final dateFormat = DateFormat('dd.MM.yyyy');
-    final timeFormat = DateFormat('HH:mm');
     final colorScheme = Theme.of(context).colorScheme;
-    return GestureDetector(
+    final card = GestureDetector(
       onTap: onTap,
       child: Container(
         decoration: BoxDecoration(
@@ -51,16 +59,25 @@ class EventCard extends StatelessWidget {
               left: 10,
               top: 10,
               child: ChipLabel(
-                text: dateFormat.format(event.start),
+                text: formatDateNumeric(event.start),
                 color: Colors.white,
               ),
             ),
             Positioned(
               right: 10,
               top: 10,
-              child: ChipLabel(
-                text: timeFormat.format(event.start),
-                color: Colors.white,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  ChipLabel(
+                    text: formatTime24(event.start),
+                    color: Colors.white,
+                  ),
+                  if (attendanceStatus != null) ...[
+                    const SizedBox(width: 6),
+                    AttendanceBadge(status: attendanceStatus!),
+                  ],
+                ],
               ),
             ),
             Positioned.fill(
@@ -84,7 +101,7 @@ class EventCard extends StatelessWidget {
               bottom: 14,
               child: Text(
                 event.title,
-                textAlign: TextAlign.center,
+                textAlign: TextAlign.left,
                 style: context.textStyles.titleLarge?.bold.withColor(
                   Colors.white,
                 ),
@@ -96,5 +113,17 @@ class EventCard extends StatelessWidget {
         ),
       ),
     );
+
+    return isPast
+        ? ColorFiltered(
+            colorFilter: const ColorFilter.matrix(<double>[
+              0.2126, 0.7152, 0.0722, 0, 0,
+              0.2126, 0.7152, 0.0722, 0, 0,
+              0.2126, 0.7152, 0.0722, 0, 0,
+              0, 0, 0, 1, 0,
+            ]),
+            child: card,
+          )
+        : card;
   }
 }

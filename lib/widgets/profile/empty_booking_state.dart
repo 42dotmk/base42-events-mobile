@@ -10,33 +10,34 @@ class EmptyBookingsState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     final text = filter == BookingFilter.upcoming
-        ? 'No upcoming bookings'
-        : 'No past bookings';
+        ? 'No upcoming bookings detected'
+        : 'No past bookings detected';
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 18),
+      padding: const EdgeInsets.symmetric(vertical: AppSpacing.xxl, horizontal: AppSpacing.md),
       decoration: BoxDecoration(
-        color: Theme.of(
-          context,
-        ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.55),
+        color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
+        border: Border.all(
+          color: colorScheme.onSurface.withValues(alpha: 0.08),
+        ),
       ),
-      child: Row(
+      child: Column(
         children: [
           Icon(
-            Icons.event_busy_outlined,
-            color: Theme.of(
-              context,
-            ).colorScheme.onSurface.withValues(alpha: 0.45),
+            Icons.calendar_month_outlined,
+            size: 32,
+            color: colorScheme.onSurface.withValues(alpha: 0.3),
           ),
-          const SizedBox(width: 10),
+          const SizedBox(height: 10),
           Text(
             text,
+            textAlign: TextAlign.center,
             style: context.textStyles.titleMedium?.withColor(
-              Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
+              colorScheme.onSurface.withValues(alpha: 0.5),
             ),
           ),
         ],

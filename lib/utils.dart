@@ -1,28 +1,8 @@
 import 'dart:convert';
 
-import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+import 'package:base42_events_mobile/consts/enum.dart';
 import 'package:base42_events_mobile/models/user.dart';
-
-String bookingFormatDate(DateTime date) {
-  final mm = date.month.toString().padLeft(2, '0');
-  final dd = date.day.toString().padLeft(2, '0');
-  final yyyy = date.year.toString();
-  return '$mm/$dd/$yyyy';
-}
-
-String bookingFormatDateForApi(DateTime date) {
-  final mm = date.month.toString().padLeft(2, '0');
-  final dd = date.day.toString().padLeft(2, '0');
-  final yyyy = date.year.toString();
-  return '$yyyy-$mm-$dd';
-}
-
-String bookingFormatTime(TimeOfDay time) {
-  final hh = time.hour.toString().padLeft(2, '0');
-  final mm = time.minute.toString().padLeft(2, '0');
-  return '$hh:$mm';
-}
+import 'package:base42_events_mobile/providers/attendance_provider.dart';
 
 String? bookingRequiredFieldValidator(String? value) {
   if (value == null || value.trim().isEmpty) {
@@ -45,22 +25,6 @@ String? bookingEmailValidator(String? value) {
   }
 
   return null;
-}
-
-String projectListUpdatedLabel(DateTime? pushedAt) {
-  if (pushedAt == null) {
-    return 'RECENT';
-  }
-
-  return DateFormat('MMM yyyy').format(pushedAt).toUpperCase();
-}
-
-String projectLastSyncLabel(DateTime? pushedAt) {
-  if (pushedAt == null) {
-    return 'Unknown';
-  }
-
-  return DateFormat('MMM d, yyyy').format(pushedAt);
 }
 
 String projectStarsLabel(int value) {
@@ -130,4 +94,34 @@ String buildEventDescriptionHtml(String raw) {
       .map((p) => '<p>${p.replaceAll('\n', '<br/>')}</p>')
       .join();
   return paragraphs.isEmpty ? '<p></p>' : paragraphs;
+}
+
+DateTime? parseJwtExpiration(String jwt) {
+  try {
+    final parts = jwt.split('.');
+    if (parts.length != 3) return null;
+    final normalized = base64Url.normalize(parts[1]);
+    final decoded = utf8.decode(base64Url.decode(normalized));
+    final claims = jsonDecode(decoded) as Map<String, dynamic>;
+    final exp = claims['exp'];
+    if (exp is num) {
+      return DateTime.fromMillisecondsSinceEpoch(exp.toInt() * 1000);
+    }
+  } catch (_) {
+    return null;
+  }
+  return null;
+}
+
+EventAttendanceStatus? resolveAttendanceStatus(
+  AttendanceProvider provider,
+  int eventId,
+) {
+  final statusString = provider.getStatus(eventId);
+  if (statusString == null) return null;
+  try {
+    return EventAttendanceStatus.values.byName(statusString);
+  } catch (_) {
+    return null;
+  }
 }

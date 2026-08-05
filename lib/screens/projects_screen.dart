@@ -3,6 +3,7 @@ import 'package:base42_events_mobile/models/project_repo.dart';
 import 'package:base42_events_mobile/providers/auth_provider.dart';
 import 'package:base42_events_mobile/services/projects_service.dart';
 import 'package:base42_events_mobile/theme.dart';
+import 'package:base42_events_mobile/widgets/common/page_header.dart';
 import 'package:base42_events_mobile/widgets/error_view.dart';
 import 'package:base42_events_mobile/widgets/projects/projects_list.dart';
 import 'package:flutter/material.dart';
@@ -41,7 +42,7 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
     if (!authProvider.isAuthenticated) {
       if (!mounted) return;
       setState(() {
-        _errorMessage = 'Please login to view projects';
+        _errorMessage = null;
         _isLoading = false;
       });
       return;
@@ -76,35 +77,19 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final brand = Theme.of(context).extension<BrandTheme>();
     final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
       body: Container(
-        color: Theme.of(context).scaffoldBackgroundColor,
+        decoration: BoxDecoration(gradient: brand?.backdropGradient),
         child: SafeArea(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(20, 18, 20, 8),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Projects',
-                      style: context.textStyles.headlineSmall?.bold.withColor(
-                        colorScheme.onSurface,
-                      ),
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
-                      'Active repositories from 42dotmk',
-                      style: context.textStyles.bodySmall?.withColor(
-                        colorScheme.onSurface.withValues(alpha: 0.6),
-                      ),
-                    ),
-                  ],
-                ),
+              const PageHeader(
+                title: 'Projects',
+                subtitle: 'Active repositories from 42dotmk',
               ),
               Expanded(
                 child: _isLoading

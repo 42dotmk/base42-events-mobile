@@ -33,6 +33,7 @@ class ProjectsService {
 
     if (response.statusCode != 200) {
       if (response.statusCode == 403 || response.statusCode == 401) {
+        await _authProvider.logout();
         throw Exception(
           'Projects API returned ${response.statusCode}. Check auth token and Strapi permissions.',
         );

@@ -1,12 +1,12 @@
 import 'package:base42_events_mobile/theme.dart';
 import 'package:flutter/material.dart';
 
-enum ButtonVariant { outlined, filled }
+enum ButtonVariant { outlined, filled, solid }
 
 class CustomButton extends StatelessWidget {
-  final IconData icon;
+  final IconData? icon;
   final String label;
-  final Color color;
+  final Color? color;
   final VoidCallback? onTap;
   final ButtonVariant variant;
   final bool isActive;
@@ -15,9 +15,9 @@ class CustomButton extends StatelessWidget {
 
   const CustomButton({
     super.key,
-    required this.icon,
+    this.icon,
     required this.label,
-    required this.color,
+    this.color,
     this.onTap,
     this.variant = ButtonVariant.outlined,
     this.isActive = false,
@@ -45,11 +45,13 @@ class CustomButton extends StatelessWidget {
   }
 
   factory CustomButton.action({
-    required IconData icon,
+    IconData? icon,
     required String label,
-    required Color color,
-    required VoidCallback onTap,
+    Color? color,
+    required VoidCallback? onTap,
     required ButtonVariant variant,
+    bool isLoading = false,
+    bool fullWidth = true,
   }) {
     return CustomButton(
       icon: icon,
@@ -57,20 +59,34 @@ class CustomButton extends StatelessWidget {
       color: color,
       onTap: onTap,
       variant: variant,
-      fullWidth: true,
+      fullWidth: fullWidth,
+      isLoading: isLoading,
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    if (variant == ButtonVariant.outlined) {
-      return _buildOutlinedButton(context);
-    } else {
-      return _buildFilledButton(context);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final brand = Theme.of(context).extension<BrandTheme>();
+    final colorScheme = Theme.of(context).colorScheme;
+
+    final effectiveColor = color ??
+        (isDark
+            ? (brand?.neonYellow ?? colorScheme.primary)
+            : colorScheme.primary);
+
+    switch (variant) {
+      case ButtonVariant.outlined:
+        return _buildOutlinedButton(context, effectiveColor);
+      case ButtonVariant.filled:
+        return _buildFilledButton(context, effectiveColor);
+      case ButtonVariant.solid:
+        return _buildSolidButton(context, effectiveColor);
     }
   }
 
-  Widget _buildOutlinedButton(BuildContext context) {
+  Widget _buildOutlinedButton(BuildContext context, Color effectiveColor) {
+    final onSurface = Theme.of(context).colorScheme.onSurface;
     return GestureDetector(
       onTap: isLoading ? null : onTap,
       child: AnimatedContainer(
@@ -81,29 +97,37 @@ class CustomButton extends StatelessWidget {
         ),
         decoration: BoxDecoration(
           color: isActive
-              ? color.withValues(alpha: 0.15)
-              : Colors.white.withValues(alpha: 0.08),
+              ? effectiveColor.withValues(alpha: 0.15)
+              : onSurface.withValues(alpha: 0.08),
           borderRadius: BorderRadius.circular(AppRadius.md),
           border: Border.all(
-            color: isActive ? color : Colors.white.withValues(alpha: 0.2),
+            color: isActive
+                ? effectiveColor
+                : onSurface.withValues(alpha: 0.2),
             width: 1.5,
           ),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              icon,
-              size: 18,
-              color: isActive ? color : Colors.white.withValues(alpha: 0.6),
-            ),
-            const SizedBox(width: AppSpacing.xs),
+            if (icon != null) ...[
+              Icon(
+                icon,
+                size: 18,
+                color: isActive
+                    ? effectiveColor
+                    : onSurface.withValues(alpha: 0.6),
+              ),
+              const SizedBox(width: AppSpacing.xs),
+            ],
             Text(
-              label,
+              label.toUpperCase(),
               style: TextStyle(
                 fontSize: FontSizes.bodySmall,
                 fontWeight: isActive ? FontWeight.w600 : FontWeight.normal,
-                color: isActive ? color : Colors.white.withValues(alpha: 0.6),
+                color: isActive
+                    ? effectiveColor
+                    : onSurface.withValues(alpha: 0.6),
               ),
             ),
           ],
@@ -112,38 +136,112 @@ class CustomButton extends StatelessWidget {
     );
   }
 
-  Widget _buildFilledButton(BuildContext context) {
+  Widget _buildFilledButton(BuildContext context, Color effectiveColor) {
     return Material(
-      color: color.withValues(alpha: 0.15),
+      color: effectiveColor.withValues(alpha: 0.15),
       borderRadius: BorderRadius.circular(16),
       child: InkWell(
-        onTap: onTap,
+        onTap: isLoading ? null : onTap,
         borderRadius: BorderRadius.circular(16),
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
           child: Row(
             mainAxisSize: fullWidth ? MainAxisSize.max : MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(icon, color: color, size: 24),
-              const SizedBox(width: 12),
-              if (fullWidth)
-                Expanded(
-                  child: Text(
-                    label,
+              if (isLoading)
+                SizedBox(
+                  height: 20,
+                  width: 20,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: effectiveColor,
+                  ),
+                )
+              else ...[
+                if (icon != null) ...[
+                  Icon(icon, color: effectiveColor, size: 24),
+                  const SizedBox(width: 12),
+                ],
+                if (fullWidth)
+                  Expanded(
+                    child: Text(
+                      label.toUpperCase(),
+                      textAlign: TextAlign.center,
+                      style:
+                          Theme.of(context).textTheme.titleMedium?.copyWith(
+                        color: effectiveColor,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  )
+                else
+                  Text(
+                    label.toUpperCase(),
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      color: color,
+                      color: effectiveColor,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
-                )
-              else
-                Text(
-                  label,
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    color: color,
-                    fontWeight: FontWeight.w600,
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSolidButton(BuildContext context, Color effectiveColor) {
+    final textColor =
+        effectiveColor.computeLuminance() > 0.5 ? Colors.black : Colors.white;
+
+    return Material(
+      color: effectiveColor,
+      borderRadius: BorderRadius.circular(16),
+      child: InkWell(
+        onTap: isLoading ? null : onTap,
+        borderRadius: BorderRadius.circular(16),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+          child: Row(
+            mainAxisSize: fullWidth ? MainAxisSize.max : MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              if (isLoading)
+                SizedBox(
+                  height: 20,
+                  width: 20,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: textColor,
                   ),
-                ),
+                )
+              else ...[
+                if (icon != null) ...[
+                  Icon(icon, color: textColor, size: 24),
+                  const SizedBox(width: 12),
+                ],
+                if (fullWidth)
+                  Expanded(
+                    child: Text(
+                      label.toUpperCase(),
+                      textAlign: TextAlign.center,
+                      style:
+                          Theme.of(context).textTheme.titleMedium?.copyWith(
+                        color: textColor,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  )
+                else
+                  Text(
+                    label.toUpperCase(),
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      color: textColor,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+              ],
             ],
           ),
         ),

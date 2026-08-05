@@ -1,11 +1,12 @@
 import 'package:base42_events_mobile/nav.dart';
 import 'package:base42_events_mobile/consts/enum.dart';
+import 'package:base42_events_mobile/widgets/common/auth_prompt_dialog.dart';
 import 'package:base42_events_mobile/widgets/common/custom_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:base42_events_mobile/utils/date_formatters.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:base42_events_mobile/models/event.dart';
 import 'package:base42_events_mobile/services/event_service.dart';
@@ -104,8 +105,9 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
     if (!authProvider.isAuthenticated ||
         authProvider.token == null ||
         authProvider.currentUser == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Sign in to mark your attendance.')),
+      AuthPromptDialog.show(
+        context,
+        message: 'Sign in to mark your attendance',
       );
       return;
     }
@@ -179,10 +181,8 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
     final event = _event!;
-    final dateFormat = DateFormat('EEEE, MMMM dd, yyyy • hh:mm a');
     final colorScheme = Theme.of(context).colorScheme;
     final brand = Theme.of(context).extension<BrandTheme>();
-    final primaryAccent = colorScheme.primary;
     final descriptionPreview = buildEventDescriptionPreview(event.description);
     final descriptionHtml = buildEventDescriptionHtml(event.description);
     final currentStatus = context.watch<AttendanceProvider>().getStatus(
@@ -278,7 +278,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                       const SizedBox(height: AppSpacing.lg),
                       EventInfoRow(
                         icon: Icons.calendar_today_rounded,
-                        text: dateFormat.format(event.start),
+                        text: formatDateFull(event.start),
                         colorScheme: colorScheme,
                       ),
                       if (event.tags.isNotEmpty) ...[
@@ -441,21 +441,11 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                       ),
                       if (event.registerLink != null) ...[
                         const SizedBox(height: AppSpacing.xl),
-                        SizedBox(
-                          width: double.infinity,
-                          child: FilledButton.icon(
-                            onPressed: () => _launchUrl(event.registerLink!),
-                            icon: const Icon(Icons.open_in_new_rounded),
-                            label: const Text('Register for Event'),
-                            style: FilledButton.styleFrom(
-                              backgroundColor: primaryAccent,
-                              foregroundColor: colorScheme.onPrimary,
-                              padding: const EdgeInsets.symmetric(
-                                vertical: AppSpacing.md,
-                                horizontal: AppSpacing.lg,
-                              ),
-                            ),
-                          ),
+                        CustomButton.action(
+                          icon: Icons.open_in_new_rounded,
+                          label: 'Register for Event',
+                          variant: ButtonVariant.solid,
+                          onTap: () => _launchUrl(event.registerLink!),
                         ),
                       ],
                       const SizedBox(height: AppSpacing.xl),

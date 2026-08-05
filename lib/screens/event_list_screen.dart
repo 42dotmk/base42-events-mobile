@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:base42_events_mobile/models/event.dart';
 import 'package:base42_events_mobile/providers/event_provider.dart';
 import 'package:base42_events_mobile/theme.dart';
-import 'package:base42_events_mobile/widgets/event_card.dart';
 import 'package:base42_events_mobile/widgets/error_view.dart';
+import 'package:base42_events_mobile/widgets/event_list_content.dart';
 
 class EventListScreen extends StatefulWidget {
   const EventListScreen({super.key});
@@ -66,6 +65,7 @@ class _EventListScreenState extends State<EventListScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final brand = Theme.of(context).extension<BrandTheme>();
     final colorScheme = Theme.of(context).colorScheme;
     final eventProvider = context.watch<EventProvider>();
 
@@ -98,7 +98,7 @@ class _EventListScreenState extends State<EventListScreen> {
 
     return Scaffold(
       body: Container(
-        color: Theme.of(context).scaffoldBackgroundColor,
+        decoration: BoxDecoration(gradient: brand?.backdropGradient),
         child: SafeArea(
           child: Column(
             children: [
@@ -179,7 +179,7 @@ class _EventListScreenState extends State<EventListScreen> {
                       ),
                     ),
                   ],
-                ),
+                    ),
               ),
               SizedBox(
                 height: 40,
@@ -221,71 +221,56 @@ class _EventListScreenState extends State<EventListScreen> {
                 ),
               ),
               Expanded(
-                child: isLoading
-                    ? Center(
-                        child: CircularProgressIndicator(
-                          color: colorScheme.primary,
-                        ),
-                      )
-                    : errorMessage != null
-                    ? ErrorView(
-                        message: errorMessage,
-                        onRetry: () =>
-                            context.read<EventProvider>().loadEvents(),
-                      )
-                    : filtered.isEmpty
-                    ? Center(
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 24),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(
-                                Icons.calendar_month_rounded,
-                                size: 42,
-                                color: colorScheme.onSurface.withValues(
-                                  alpha: 0.45,
-                                ),
-                              ),
-                              const SizedBox(height: 10),
-                              Text(
-                                'No events found',
-                                style: context.textStyles.titleMedium
-                                    ?.withColor(
-                                      colorScheme.onSurface.withValues(
-                                        alpha: 0.72,
-                                      ),
-                                    ),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                'Try adjusting your filters',
-                                style: context.textStyles.bodySmall?.withColor(
-                                  colorScheme.onSurface.withValues(alpha: 0.52),
-                                ),
-                              ),
-                            ],
+child: isLoading
+                      ? Center(
+                          child: CircularProgressIndicator(
+                            color: colorScheme.primary,
                           ),
-                        ),
-                      )
-                    : RefreshIndicator(
-                        onRefresh: () =>
-                            context.read<EventProvider>().refreshEvents(),
-                        color: colorScheme.primary,
-                        child: ListView.separated(
-                          padding: const EdgeInsets.fromLTRB(20, 6, 20, 24),
-                          itemCount: filtered.length,
-                          separatorBuilder: (_, _) =>
-                              const SizedBox(height: 12),
-                          itemBuilder: (context, index) => EventCard(
-                            event: filtered[index],
-                            onTap: () => context.push(
-                              '/event/${filtered[index].id}',
-                              extra: filtered[index],
+                        )
+                      : errorMessage != null
+                      ? ErrorView(
+                          message: errorMessage,
+                          onRetry: () =>
+                              context.read<EventProvider>().loadEvents(),
+                        )
+                      : filtered.isEmpty
+                      ? Center(
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 24),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.calendar_month_rounded,
+                                  size: 42,
+                                  color: colorScheme.onSurface.withValues(
+                                    alpha: 0.45,
+                                  ),
+                                ),
+                                const SizedBox(height: 10),
+                                Text(
+                                  'No events found',
+                                  style: context.textStyles.titleMedium
+                                      ?.withColor(
+                                        colorScheme.onSurface.withValues(
+                                          alpha: 0.72,
+                                        ),
+                                      ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  'Try adjusting your filters',
+                                  style: context.textStyles.bodySmall?.withColor(
+                                    colorScheme.onSurface.withValues(alpha: 0.52),
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
+                        )
+                      : EventListContent(
+                          events: filtered,
                         ),
-                      ),
               ),
             ],
           ),

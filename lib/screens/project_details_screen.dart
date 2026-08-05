@@ -4,6 +4,8 @@ import 'package:base42_events_mobile/providers/auth_provider.dart';
 import 'package:base42_events_mobile/services/projects_service.dart';
 import 'package:base42_events_mobile/theme.dart';
 import 'package:base42_events_mobile/utils.dart';
+import 'package:base42_events_mobile/utils/date_formatters.dart';
+import 'package:base42_events_mobile/widgets/common/page_header.dart';
 import 'package:base42_events_mobile/widgets/error_view.dart';
 import 'package:base42_events_mobile/widgets/projects/project_activity_pulse.dart';
 import 'package:base42_events_mobile/widgets/projects/project_details_hero.dart';
@@ -76,31 +78,21 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
+    final brand = Theme.of(context).extension<BrandTheme>();
 
     return Scaffold(
-      body: SafeArea(
+      body: Container(
+        decoration: BoxDecoration(gradient: brand?.backdropGradient),
+        child: SafeArea(
         child: Column(
           children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
-              child: Row(
-                children: [
-                  IconButton(
-                    onPressed: () => context.pop(),
-                    icon: const Icon(Icons.arrow_back_rounded),
-                  ),
-                  Text(
-                    'Project Details',
-                    style: context.textStyles.titleLarge?.semiBold.withColor(
-                      colorScheme.onSurface,
-                    ),
-                  ),
-                ],
-              ),
+            PageHeader(
+              title: 'Project Details',
+              onBack: () => context.pop(),
             ),
             Expanded(child: _buildBody(context)),
           ],
+        ),
         ),
       ),
     );
@@ -132,7 +124,9 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen> {
       );
     }
 
-    final pushedAtText = projectLastSyncLabel(details.project.pushedAt);
+    final pushedAtText = details.project.pushedAt == null
+        ? 'Unknown'
+        : formatDateMedium(details.project.pushedAt!);
 
     return RefreshIndicator(
       onRefresh: _loadDetails,

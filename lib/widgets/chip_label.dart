@@ -20,7 +20,7 @@ class ChipLabel extends StatelessWidget {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(8),
         border: Border.all(color: color, width: 1),
-        color: backgroundColor ?? colorScheme.shadow.withValues(alpha: 0.45),
+        color: backgroundColor ?? colorScheme.shadow,
       ),
       child: Text(
         text,

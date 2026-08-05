@@ -3,14 +3,16 @@ import 'package:base42_events_mobile/providers/auth_provider.dart';
 import 'package:base42_events_mobile/services/user_service.dart';
 import 'package:base42_events_mobile/theme.dart';
 import 'package:base42_events_mobile/types/user.dart';
+import 'package:base42_events_mobile/widgets/common/custom_text_fields.dart';
+import 'package:base42_events_mobile/widgets/common/page_header.dart';
 import 'package:base42_events_mobile/widgets/discard_changes_dialog.dart';
 import 'package:base42_events_mobile/widgets/profile/source_modal.dart';
 import 'package:base42_events_mobile/widgets/profile_picture_picker.dart';
-import 'package:base42_events_mobile/widgets/common/custom_text_fields.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
+import 'package:base42_events_mobile/widgets/common/custom_button.dart';
 
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
@@ -214,6 +216,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     return await DiscardChangesDialog.show(context);
   }
 
+  Future<void> _handleBack() async {
+    final shouldPop = await _onWillPop();
+    if (shouldPop && mounted) {
+      Navigator.of(context).pop();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final brand = Theme.of(context).extension<BrandTheme>();
@@ -235,31 +244,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(8, 8, 16, 0),
-                  child: Row(
-                    children: [
-                      IconButton(
-                        icon: Icon(
-                          Icons.arrow_back_ios_new_rounded,
-                          color: colorScheme.onSurface,
-                        ),
-                        onPressed: () async {
-                          final shouldPop = await _onWillPop();
-                          if (shouldPop && context.mounted) {
-                            Navigator.of(context).pop();
-                          }
-                        },
-                      ),
-                      Text(
-                        'Edit Profile',
-                        style: context.textStyles.titleLarge?.semiBold
-                            .withColor(
-                              colorScheme.onSurface.withValues(alpha: 0.8),
-                            ),
-                      ),
-                    ],
-                  ),
+                PageHeader(
+                  title: 'Edit Profile',
+                  onBack: _handleBack,
                 ),
                 Expanded(
                   child: SingleChildScrollView(
@@ -318,46 +305,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                           SizedBox(
                             width: double.infinity,
                             height: 54,
-                            child: ElevatedButton(
-                              onPressed: _isLoading || !_hasChanges
+                            child: CustomButton.action(
+                              label: 'Save Changes',
+                              variant: ButtonVariant.solid,
+                              onTap: _isLoading || !_hasChanges
                                   ? null
                                   : _saveProfile,
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: colorScheme.primary,
-                                disabledBackgroundColor: colorScheme.primary
-                                    .withValues(alpha: 0.3),
-                                foregroundColor: colorScheme.onPrimary,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(16),
-                                ),
-                                elevation: 0,
-                              ),
-                              child: _isLoading
-                                  ? SizedBox(
-                                      width: 20,
-                                      height: 20,
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 2,
-                                        valueColor:
-                                            AlwaysStoppedAnimation<Color>(
-                                              colorScheme.onPrimary,
-                                            ),
-                                      ),
-                                    )
-                                  : Text(
-                                      'Save Changes',
-                                      style: context
-                                          .textStyles
-                                          .headlineSmall
-                                          ?.bold
-                                          .withSize(38 / 2)
-                                          .withColor(
-                                            !_hasChanges
-                                                ? colorScheme.onPrimary
-                                                      .withValues(alpha: 0.3)
-                                                : colorScheme.onPrimary,
-                                          ),
-                                    ),
+                              isLoading: _isLoading,
                             ),
                           ),
                         ],

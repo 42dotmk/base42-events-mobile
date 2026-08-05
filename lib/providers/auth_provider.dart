@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:base42_events_mobile/consts/api.dart';
 import 'package:base42_events_mobile/models/user.dart';
+import 'package:base42_events_mobile/models/membership.dart';
 import 'package:base42_events_mobile/providers/attendance_provider.dart';
 import 'package:base42_events_mobile/services/user_service.dart';
 import 'package:base42_events_mobile/services/secure_storage_service.dart';
 import 'package:base42_events_mobile/services/fcm_service.dart';
 import 'package:base42_events_mobile/nav.dart';
+import 'package:base42_events_mobile/utils.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_appauth/flutter_appauth.dart';
 import 'dart:developer' as developer;
@@ -13,12 +15,20 @@ import 'dart:developer' as developer;
 class AuthProvider extends ChangeNotifier {
   User? _currentUser;
   String? _token;
+  String? _keycloakRefreshToken;
   bool _isLoading = true;
+  bool _isRefreshing = false;
+  bool _isGuestMode = false;
 
   User? get currentUser => _currentUser;
   String? get token => _token;
   bool get isAuthenticated => _token != null;
   bool get isLoading => _isLoading;
+  bool get isGuestMode => _isGuestMode;
+  bool get canAccessApp => isAuthenticated || _isGuestMode;
+  bool get isVolunteer => _currentUser?.isVolunteer ?? false;
+  bool get isMember => _currentUser?.isMember ?? false;
+  Membership? get activeMembership => _currentUser?.activeMembership;
 
   final UserService _userService = UserService();
   final SecureStorageService _storageService = SecureStorageService();
@@ -50,12 +60,28 @@ class AuthProvider extends ChangeNotifier {
 
     try {
       _token = await _storageService.getToken(SecureStorageService.jwtTokenKey);
+      _keycloakRefreshToken = await _storageService.getToken(
+        SecureStorageService.keycloakRefreshTokenKey,
+      );
+
+      if (_isGuestMode) {
+        _isLoading = false;
+        notifyListeners();
+        return;
+      }
+
       final isExpired = await _storageService.isAuthTokenExpired();
 
       if (_token != null && isExpired) {
-        developer.log('Token expired', name: 'AuthProvider');
-        await logout();
-        return;
+        developer.log(
+          'Token expired on startup — attempting refresh',
+          name: 'AuthProvider',
+        );
+        final refreshed = await refreshStrapiToken();
+        if (!refreshed) {
+          await logout();
+          return;
+        }
       }
 
       if (_token != null && !isExpired) {
@@ -96,6 +122,16 @@ class AuthProvider extends ChangeNotifier {
       );
 
       final accessToken = authResponse.accessToken;
+      final refreshToken = authResponse.refreshToken;
+
+      if (refreshToken != null) {
+        _keycloakRefreshToken = refreshToken;
+        await _storageService.saveToken(
+          SecureStorageService.keycloakRefreshTokenKey,
+          refreshToken,
+        );
+      }
+
       await exchangeForStrapiToken(accessToken);
     } catch (e) {
       if (hasUserCancelled(e)) {
@@ -121,12 +157,21 @@ class AuthProvider extends ChangeNotifier {
       );
 
       final accessToken = authResponse.accessToken;
+      final refreshToken = authResponse.refreshToken;
 
       if (accessToken == null) {
         debugPrint(
           'accessToken is null after authorizeAndExchangeCode — aborting',
         );
         return;
+      }
+
+      if (refreshToken != null) {
+        _keycloakRefreshToken = refreshToken;
+        await _storageService.saveToken(
+          SecureStorageService.keycloakRefreshTokenKey,
+          refreshToken,
+        );
       }
 
       await exchangeForStrapiToken(accessToken);
@@ -160,19 +205,21 @@ class AuthProvider extends ChangeNotifier {
         _token!,
       );
 
-      final expiresIn = result.expiresIn ?? 900;
-
+      final exp = parseJwtExpiration(_token!);
+      final expiration = exp ??
+           DateTime.now().add(Duration(seconds: result.expiresIn ?? 900));
       await loadUserEvents();
-
-      final expiration = DateTime.now().add(Duration(seconds: expiresIn));
 
       await _storageService.saveToken(
         SecureStorageService.jwtExpirationKey,
         expiration.millisecondsSinceEpoch.toString(),
       );
 
-      await FCMService.instance.updateTokenOnBackend();
+      await FCMService.instance.updateTokenOnBackend().catchError((e) {
+        developer.log('FCM token update failed (ignored): $e', name: 'AuthProvider');
+      });
 
+      _isGuestMode = false;
       notifyListeners();
 
       await _handlePendingEventNavigation();
@@ -193,6 +240,57 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
+  Future<bool> refreshStrapiToken() async {
+    if (_isRefreshing || _keycloakRefreshToken == null) return false;
+
+    _isRefreshing = true;
+    try {
+      final tokenResponse = await _appAuth.token(
+        TokenRequest(
+          keycloakClientId,
+          keycloakRedirectUri,
+          issuer: keycloakIssuerUrl,
+          refreshToken: _keycloakRefreshToken,
+          scopes: ['openid', 'profile', 'email'],
+        ),
+      );
+
+      final newAccessToken = tokenResponse.accessToken;
+      final newRefreshToken = tokenResponse.refreshToken;
+
+      if (newAccessToken == null) return false;
+
+      if (newRefreshToken != null) {
+        _keycloakRefreshToken = newRefreshToken;
+        await _storageService.saveToken(
+          SecureStorageService.keycloakRefreshTokenKey,
+          newRefreshToken,
+        );
+      }
+
+      await exchangeForStrapiToken(newAccessToken);
+      return true;
+    } catch (e) {
+      developer.log('Token refresh failed: $e', name: 'AuthProvider');
+      return false;
+    } finally {
+      _isRefreshing = false;
+    }
+  }
+
+  void enableGuestMode() {
+    _token = null;
+    _currentUser = null;
+    _isGuestMode = true;
+    _isLoading = false;
+    notifyListeners();
+  }
+
+  void disableGuestMode() {
+    _isGuestMode = false;
+    notifyListeners();
+  }
+
   Future<void> logout() async {
     try {
       await _userService.logout(_token!);
@@ -203,8 +301,13 @@ class AuthProvider extends ChangeNotifier {
     } finally {
       await _storageService.deleteToken(SecureStorageService.jwtTokenKey);
       await _storageService.deleteToken(SecureStorageService.jwtExpirationKey);
+      await _storageService.deleteToken(
+        SecureStorageService.keycloakRefreshTokenKey,
+      );
       _currentUser = null;
       _token = null;
+      _keycloakRefreshToken = null;
+      _isGuestMode = false;
 
       _attendanceProvider?.clearAll();
       notifyListeners();
@@ -215,8 +318,15 @@ class AuthProvider extends ChangeNotifier {
     final isExpired = await _storageService.isAuthTokenExpired();
 
     if (isExpired) {
-      developer.log('Token expired', name: 'AuthProvider');
-      return null;
+      final refreshed = await refreshStrapiToken();
+      if (!refreshed) {
+        developer.log('Token expired, refresh failed', name: 'AuthProvider');
+        if (_token != null) {
+          await logout();
+        }
+        return null;
+      }
+      return _token;
     }
 
     return _token ??

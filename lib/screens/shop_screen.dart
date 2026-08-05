@@ -1,6 +1,7 @@
 import 'package:base42_events_mobile/nav.dart';
 import 'package:base42_events_mobile/models/shop_item.dart';
 import 'package:base42_events_mobile/theme.dart';
+import 'package:base42_events_mobile/widgets/common/page_header.dart';
 import 'package:base42_events_mobile/widgets/shop/shop_item_card.dart';
 import 'package:base42_events_mobile/widgets/shop/shop_category_header.dart';
 import 'package:flutter/material.dart';
@@ -158,8 +159,6 @@ class ShopScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final brand = Theme.of(context).extension<BrandTheme>();
-    final colorScheme = Theme.of(context).colorScheme;
-    final onSurface = colorScheme.onSurface;
 
     return Scaffold(
       body: Container(
@@ -168,35 +167,10 @@ class ShopScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(8, 8, 18, 0),
-                child: Row(
-                  children: [
-                    IconButton(
-                      icon: Icon(
-                        Icons.arrow_back_ios_new_rounded,
-                        color: onSurface,
-                      ),
-                      onPressed: () => _handleBack(context),
-                    ),
-                    Text(
-                      'SHOP',
-                      style: context.textStyles.headlineSmall?.bold.withColor(
-                        onSurface,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 6),
-              Padding(
-                padding: const EdgeInsets.only(left: 18),
-                child: Text(
-                  'Get your Base42 gear',
-                  style: context.textStyles.bodySmall?.withColor(
-                    onSurface.withValues(alpha: 0.55),
-                  ),
-                ),
+              PageHeader(
+                title: 'SHOP',
+                subtitle: 'Get your Base42 gear',
+                onBack: () => _handleBack(context),
               ),
               Expanded(
                 child: SingleChildScrollView(

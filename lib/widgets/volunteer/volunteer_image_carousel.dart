@@ -19,6 +19,19 @@ class VolunteerImageCarousel extends StatefulWidget {
 
 class _VolunteerImageCarouselState extends State<VolunteerImageCarousel> {
   int _currentPage = 0;
+  late final PageController _pageController;
+
+  @override
+  void initState() {
+    super.initState();
+    _pageController = PageController(viewportFraction: 0.92);
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -27,10 +40,10 @@ class _VolunteerImageCarouselState extends State<VolunteerImageCarousel> {
 
     return Column(
       children: [
-        SizedBox(
-          height: 200,
+        AspectRatio(
+          aspectRatio: 4 / 3,
           child: PageView.builder(
-            controller: PageController(viewportFraction: 0.92),
+            controller: _pageController,
             padEnds: false,
             itemCount: widget.images.length,
             onPageChanged: (index) {

@@ -1,4 +1,5 @@
 import 'package:base42_events_mobile/screens/member_screen.dart';
+import 'package:base42_events_mobile/screens/membership_billing_screen.dart';
 import 'package:base42_events_mobile/screens/volunteer_screen.dart';
 import 'package:base42_events_mobile/models/event.dart';
 import 'package:base42_events_mobile/providers/auth_provider.dart';
@@ -29,7 +30,7 @@ class AppRouterHelper {
   static void goToEventDetails(String eventId) {
     final context = _rootNavigatorKey.currentContext;
     if (context != null) {
-      context.go('/event/$eventId');
+      context.go(AppRoutes.eventDetailsPath(eventId));
     } else {
       debugPrint('Navigation failed: root context is null');
     }
@@ -52,17 +53,25 @@ class AppRouter {
     redirect: (context, state) {
       final isLoading = authProvider.isLoading;
       final isAuthenticated = authProvider.isAuthenticated;
+      final isGuestMode = authProvider.isGuestMode;
       final isOnAuthGate = state.matchedLocation == AppRoutes.auth;
+      final location = state.matchedLocation;
 
       if (isLoading) {
         return null;
       }
 
-      if (!isAuthenticated && !isOnAuthGate) {
+      final canAccess = isAuthenticated || isGuestMode;
+
+      if (!canAccess && !isOnAuthGate) {
         return AppRoutes.auth;
       }
 
       if (isAuthenticated && isOnAuthGate) {
+        return AppRoutes.home;
+      }
+
+      if (isGuestMode && !AppRoutes.isPublicRoute(location)) {
         return AppRoutes.home;
       }
 
@@ -122,10 +131,10 @@ class AppRouter {
                 const NoTransitionPage(child: ProjectsScreen()),
           ),
           GoRoute(
-            path: AppRoutes.shop,
-            name: 'shop',
+            path: AppRoutes.volunteer,
+            name: 'volunteer',
             pageBuilder: (context, state) =>
-                const NoTransitionPage(child: ShopScreen()),
+                const NoTransitionPage(child: VolunteerScreen()),
           ),
           GoRoute(
             path: AppRoutes.projectDetails,
@@ -175,16 +184,22 @@ class AppRouter {
         builder: (context, state) => const RulesScreen(),
       ),
       GoRoute(
-        path: AppRoutes.volunteer,
-        name: 'volunteer',
+        path: AppRoutes.shop,
+        name: 'shop',
         parentNavigatorKey: _rootNavigatorKey,
-        builder: (context, state) => const VolunteerScreen(),
+        builder: (context, state) => const ShopScreen(),
       ),
       GoRoute(
         path: AppRoutes.member,
         name: 'member',
         parentNavigatorKey: _rootNavigatorKey,
         builder: (context, state) => const MemberScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.membershipBilling,
+        name: 'membershipBilling',
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) => const MembershipBillingScreen(),
       ),
     ],
   );
@@ -206,7 +221,36 @@ class AppRoutes {
   static const String rules = '/about/rules';
   static const String volunteer = '/volunteer';
   static const String member = '/member';
+  static const String membershipBilling = '/membership-billing';
+
+  static const List<String> _publicExactRoutes = [
+    auth,
+    home,
+    events,
+    book,
+    volunteer,
+    about,
+    rules,
+    settings,
+  ];
+
+  static const List<String> _publicRoutePrefixes = [
+    '/event/',
+  ];
+
+  static bool isPublicRoute(String location) {
+    for (final route in _publicExactRoutes) {
+      if (location == route) return true;
+    }
+    for (final prefix in _publicRoutePrefixes) {
+      if (location.startsWith(prefix)) return true;
+    }
+    return false;
+  }
 
   static String projectDetailsPath(String owner, String repo) =>
       '/projects/$owner/$repo';
+
+  static String eventDetailsPath(Object id) =>
+      '/event/$id';
 }

@@ -3,6 +3,7 @@ import 'package:base42_events_mobile/models/event.dart';
 import 'package:base42_events_mobile/providers/attendance_provider.dart';
 import 'package:base42_events_mobile/providers/auth_provider.dart';
 import 'package:base42_events_mobile/theme.dart';
+import 'package:base42_events_mobile/widgets/common/auth_prompt_dialog.dart';
 import 'package:base42_events_mobile/widgets/profile/attendance_action_modal.dart';
 import 'package:base42_events_mobile/widgets/profile/attendance_filter_chip.dart';
 import 'package:base42_events_mobile/widgets/profile/event_attendance_tile.dart';
@@ -63,10 +64,9 @@ class _EventAttendanceSectionState extends State<EventAttendanceSection> {
 
     if (token == null) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Sign in to update your attendance status.'),
-          ),
+        AuthPromptDialog.show(
+          context,
+          message: 'Sign in to update your attendance status',
         );
       }
       return;
@@ -98,8 +98,9 @@ class _EventAttendanceSectionState extends State<EventAttendanceSection> {
 
     if (token == null) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Sign in to manage your attendance.')),
+        AuthPromptDialog.show(
+          context,
+          message: 'Sign in to manage your attendance',
         );
       }
       return;
@@ -156,44 +157,54 @@ class _EventAttendanceSectionState extends State<EventAttendanceSection> {
           ),
         ),
         const SizedBox(height: 10),
-        Row(
-          children: EventAttendanceStatus.values.map((status) {
-            final isFirst = status == EventAttendanceStatus.values.first;
-            return Expanded(
-              child: Row(
-                children: [
-                  if (!isFirst) const SizedBox(width: 8),
-                  Expanded(
-                    child: AttendanceFilterChip(
-                      label: eventAttendanceStatusLabel(status),
-                      selected: _filter == status,
-                      onTap: () => setState(() => _filter = status),
-                    ),
-                  ),
-                ],
-              ),
-            );
-          }).toList(),
+        Container(
+          padding: const EdgeInsets.all(3),
+          decoration: BoxDecoration(
+            color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+            borderRadius: BorderRadius.circular(14),
+          ),
+          child: Row(
+            children: EventAttendanceStatus.values.map((status) {
+              return Expanded(
+                child: AttendanceFilterChip(
+                  label: eventAttendanceStatusLabel(status),
+                  selected: _filter == status,
+                  onTap: () => setState(() => _filter = status),
+                ),
+              );
+            }).toList(),
+          ),
         ),
         const SizedBox(height: 12),
         if (visibleEvents.isEmpty)
           Container(
             width: double.infinity,
-            padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 16),
+            padding: const EdgeInsets.symmetric(vertical: 28, horizontal: 16),
             decoration: BoxDecoration(
-              color: colorScheme.surfaceContainerHighest.withValues(
-                alpha: 0.55,
-              ),
+              color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
               borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
-            ),
-            child: Text(
-              authProvider.isAuthenticated
-                  ? 'No events in this attendance category yet.'
-                  : 'Sign in to manage your event attendance.',
-              style: context.textStyles.titleMedium?.withColor(
-                colorScheme.onSurface.withValues(alpha: 0.62),
+              border: Border.all(
+                color: colorScheme.onSurface.withValues(alpha: 0.08),
               ),
+            ),
+            child: Column(
+              children: [
+                Icon(
+                  Icons.calendar_month_outlined,
+                  size: 32,
+                  color: colorScheme.onSurface.withValues(alpha: 0.3),
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  authProvider.isAuthenticated
+                      ? 'No events in this attendance category yet.'
+                      : 'Sign in to manage your event attendance.',
+                  textAlign: TextAlign.center,
+                  style: context.textStyles.titleMedium?.withColor(
+                    colorScheme.onSurface.withValues(alpha: 0.5),
+                  ),
+                ),
+              ],
             ),
           )
         else

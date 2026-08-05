@@ -16,30 +16,26 @@ class AttendanceFilterChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final brand = Theme.of(context).extension<BrandTheme>();
+    final yellow = brand?.neonYellow ?? colorScheme.secondary;
 
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-        decoration: BoxDecoration(
-          color: selected
-              ? (colorScheme.primary).withValues(alpha: 0.18)
-              : colorScheme.surfaceContainerHighest.withValues(alpha: 0.62),
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: selected
-                ? (colorScheme.primary).withValues(alpha: 0.6)
-                : colorScheme.outline.withValues(alpha: 0.2),
-          ),
-        ),
-        child: Center(
-          child: Text(
-            label,
-            style: context.textStyles.titleMedium?.semiBold.withColor(
-              selected
-                  ? colorScheme.primary
-                  : colorScheme.onSurface.withValues(alpha: 0.2),
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 200),
+      decoration: BoxDecoration(
+        color: selected ? yellow : Colors.transparent,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 10),
+          child: Center(
+            child: Text(
+              label,
+              style: context.textStyles.titleSmall?.semiBold.withColor(
+                selected ? Colors.black : colorScheme.onSurface.withValues(alpha: 0.4),
+              ),
             ),
           ),
         ),
