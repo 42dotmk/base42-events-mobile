@@ -86,6 +86,7 @@ class CustomButton extends StatelessWidget {
   }
 
   Widget _buildOutlinedButton(BuildContext context, Color effectiveColor) {
+    final onSurface = Theme.of(context).colorScheme.onSurface;
     return GestureDetector(
       onTap: isLoading ? null : onTap,
       child: AnimatedContainer(
@@ -97,12 +98,12 @@ class CustomButton extends StatelessWidget {
         decoration: BoxDecoration(
           color: isActive
               ? effectiveColor.withValues(alpha: 0.15)
-              : Colors.white.withValues(alpha: 0.08),
+              : onSurface.withValues(alpha: 0.08),
           borderRadius: BorderRadius.circular(AppRadius.md),
           border: Border.all(
             color: isActive
                 ? effectiveColor
-                : Colors.white.withValues(alpha: 0.2),
+                : onSurface.withValues(alpha: 0.2),
             width: 1.5,
           ),
         ),
@@ -115,7 +116,7 @@ class CustomButton extends StatelessWidget {
                 size: 18,
                 color: isActive
                     ? effectiveColor
-                    : Colors.white.withValues(alpha: 0.6),
+                    : onSurface.withValues(alpha: 0.6),
               ),
               const SizedBox(width: AppSpacing.xs),
             ],
@@ -126,7 +127,7 @@ class CustomButton extends StatelessWidget {
                 fontWeight: isActive ? FontWeight.w600 : FontWeight.normal,
                 color: isActive
                     ? effectiveColor
-                    : Colors.white.withValues(alpha: 0.6),
+                    : onSurface.withValues(alpha: 0.6),
               ),
             ),
           ],
