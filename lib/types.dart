@@ -5,6 +5,7 @@ class BookingRequestPayload {
   final String phone;
   final String companyName;
   final String eventType;
+  final String room;
   final String eventName;
   final String eventTheme;
   final String eventPurpose;
@@ -22,6 +23,7 @@ class BookingRequestPayload {
     required this.phone,
     required this.companyName,
     required this.eventType,
+    this.room = '',
     required this.eventName,
     required this.eventTheme,
     required this.eventPurpose,
@@ -44,6 +46,7 @@ class BookingRequestPayload {
     'event-start-time': eventStartTime,
     'event-theme': eventTheme,
     'event-type': eventType,
+    if (room.isNotEmpty) 'room': room,
     'expected-guests': int.tryParse(expectedGuests.trim()) ?? 0,
     'initiator-name': initiatorName,
     'organizer-entity': organizerEntity,
@@ -58,6 +61,7 @@ class MyBooking {
   final String organizerEntity;
   final String eventName;
   final String eventType;
+  final String room;
   final DateTime startDateTime;
   final DateTime endDateTime;
   final MyBookingStatus status;
@@ -66,6 +70,7 @@ class MyBooking {
     required this.organizerEntity,
     required this.eventName,
     required this.eventType,
+    this.room = '',
     required this.startDateTime,
     required this.endDateTime,
     this.status = MyBookingStatus.pending,
@@ -93,6 +98,7 @@ class MyBooking {
       organizerEntity: payload.organizerEntity,
       eventName: payload.eventName,
       eventType: payload.eventType,
+      room: payload.room,
       startDateTime: DateTime(
         date.year,
         date.month,

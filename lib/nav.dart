@@ -17,6 +17,7 @@ import 'package:base42_events_mobile/screens/rules_screen.dart';
 import 'package:base42_events_mobile/screens/settings_screen.dart';
 import 'package:base42_events_mobile/screens/shop_screen.dart';
 import 'package:base42_events_mobile/models/project_repo.dart';
+import 'package:base42_events_mobile/widgets/transitions.dart';
 import 'package:base42_events_mobile/widgets/bottom_navbar.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -93,19 +94,21 @@ class AppRouter {
             path: AppRoutes.home,
             name: 'home',
             pageBuilder: (context, state) =>
-                const NoTransitionPage(child: HomeScreen()),
+                FadeTransitionPage(key: state.pageKey, child: HomeScreen()),
           ),
           GoRoute(
             path: AppRoutes.events,
             name: 'events',
-            pageBuilder: (context, state) =>
-                const NoTransitionPage(child: EventListScreen()),
+            pageBuilder: (context, state) => FadeTransitionPage(
+              key: state.pageKey,
+              child: EventListScreen(),
+            ),
           ),
           GoRoute(
             path: AppRoutes.book,
             name: 'book',
             pageBuilder: (context, state) =>
-                const NoTransitionPage(child: BookScreen()),
+                FadeTransitionPage(key: state.pageKey, child: BookScreen()),
           ),
           GoRoute(
             path: AppRoutes.eventDetails,
@@ -113,7 +116,8 @@ class AppRouter {
             pageBuilder: (context, state) {
               final event = state.extra as Event?;
               final eventId = state.pathParameters['id'];
-              return NoTransitionPage(
+              return FadeTransitionPage(
+                key: state.pageKey,
                 child: EventDetailsScreen(event: event, eventId: eventId),
               );
             },
@@ -121,20 +125,26 @@ class AppRouter {
           GoRoute(
             path: AppRoutes.profile,
             name: 'profile',
-            pageBuilder: (context, state) =>
-                const NoTransitionPage(child: ProfileScreen()),
+            pageBuilder: (context, state) => FadeTransitionPage(
+              key: state.pageKey,
+              child: ProfileScreen(),
+            ),
           ),
           GoRoute(
             path: AppRoutes.projects,
             name: 'projects',
-            pageBuilder: (context, state) =>
-                const NoTransitionPage(child: ProjectsScreen()),
+            pageBuilder: (context, state) => FadeTransitionPage(
+              key: state.pageKey,
+              child: ProjectsScreen(),
+            ),
           ),
           GoRoute(
             path: AppRoutes.volunteer,
             name: 'volunteer',
-            pageBuilder: (context, state) =>
-                const NoTransitionPage(child: VolunteerScreen()),
+            pageBuilder: (context, state) => FadeTransitionPage(
+              key: state.pageKey,
+              child: VolunteerScreen(),
+            ),
           ),
           GoRoute(
             path: AppRoutes.projectDetails,
@@ -143,7 +153,8 @@ class AppRouter {
               final project = state.extra;
 
               if (project is! ProjectRepo) {
-                return const NoTransitionPage(
+                return FadeTransitionPage(
+                  key: state.pageKey,
                   child: Scaffold(
                     body: Center(
                       child: Text('Project details are unavailable.'),
@@ -152,7 +163,8 @@ class AppRouter {
                 );
               }
 
-              return NoTransitionPage(
+              return FadeTransitionPage(
+                key: state.pageKey,
                 child: ProjectDetailsScreen(project: project),
               );
             },
@@ -230,7 +242,6 @@ class AppRoutes {
     book,
     volunteer,
     about,
-    rules,
     settings,
   ];
 

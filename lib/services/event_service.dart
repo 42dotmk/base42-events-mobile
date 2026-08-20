@@ -1,10 +1,29 @@
 import 'dart:convert';
 import 'package:base42_events_mobile/consts/api.dart';
+import 'package:base42_events_mobile/services/cache_service.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/foundation.dart';
 import 'package:base42_events_mobile/models/event.dart';
 
 class EventService {
+  static const _cacheKey = 'events';
+
+  Future<List<Event>?> getCachedEvents() async {
+    final cached = await CacheService.instance.get<List<dynamic>>(_cacheKey);
+    if (cached == null) return null;
+
+    try {
+      final events = cached
+          .map((e) => Event.fromJson(e as Map<String, dynamic>))
+          .toList();
+      events.sort((a, b) => b.start.compareTo(a.start));
+      return events;
+    } catch (e) {
+      debugPrint('EventService: discarding invalid cached events: $e');
+      return null;
+    }
+  }
+
   Future<List<Event>> fetchEvents() async {
     try {
       final response = await http.get(Uri.parse(eventsApiUrl));
@@ -20,6 +39,8 @@ class EventService {
             .toList();
 
         events.sort((a, b) => b.start.compareTo(a.start));
+
+        await CacheService.instance.set(_cacheKey, data);
 
         return events;
       } else {

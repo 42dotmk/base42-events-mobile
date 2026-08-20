@@ -109,7 +109,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       width: 86,
                       height: 86,
                       decoration: BoxDecoration(
-                        color: (colorScheme.secondary).withValues(alpha: 0.18),
+                        color: (colorScheme.primary).withValues(alpha: 0.18),
                         borderRadius: BorderRadius.circular(20),
                         border: Border.all(
                           color: (colorScheme.primary).withValues(alpha: 0.45),
@@ -131,14 +131,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                           .textStyles
                                           .headlineMedium
                                           ?.bold
-                                          .withColor(colorScheme.secondary),
+                                          .withColor(colorScheme.primary),
                                     ),
                               ),
                             )
                           : Text(
                               initials,
                               style: context.textStyles.headlineMedium?.bold
-                                  .withColor(colorScheme.secondary),
+                                  .withColor(colorScheme.primary),
                             ),
                     ),
                     const SizedBox(width: 14),

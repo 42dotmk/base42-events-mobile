@@ -51,7 +51,7 @@ class AboutLocationMap extends StatelessWidget {
                     ),
                     child: Icon(
                       Icons.location_on_rounded,
-                      color: Colors.red,
+                      color: colorScheme.error,
                       size: 30,
                     ),
                   ),

@@ -10,7 +10,6 @@ import 'package:base42_events_mobile/widgets/error_view.dart';
 import 'package:base42_events_mobile/widgets/projects/project_activity_pulse.dart';
 import 'package:base42_events_mobile/widgets/projects/project_details_hero.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -88,7 +87,7 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen> {
           children: [
             PageHeader(
               title: 'Project Details',
-              onBack: () => context.pop(),
+              onBack: () => Navigator.of(context).maybePop(),
             ),
             Expanded(child: _buildBody(context)),
           ],

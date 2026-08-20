@@ -23,7 +23,7 @@ class SettingsScreen extends StatelessWidget {
             children: [
               PageHeader(
                 title: 'Settings',
-                onBack: () => Navigator.of(context).pop(),
+                onBack: () => Navigator.of(context).maybePop(),
               ),
               Expanded(
                 child: SingleChildScrollView(
@@ -145,41 +145,6 @@ class SettingsScreen extends StatelessWidget {
                                 ],
                               ),
                             ),
-                            Divider(
-                              height: 1,
-                              color: dividerColor,
-                              indent: 18,
-                              endIndent: 18,
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.fromLTRB(
-                                18,
-                                14,
-                                18,
-                                14,
-                              ),
-                              child: Row(
-                                children: [
-                                  _SettingIcon(
-                                    Icons.language_rounded,
-                                    colorScheme,
-                                  ),
-                                  const SizedBox(width: 14),
-                                  Expanded(
-                                    child: Text(
-                                      'Language',
-                                      style: context
-                                          .textStyles
-                                          .headlineSmall
-                                          ?.semiBold
-                                          .withSize(37 / 2)
-                                          .withColor(colorScheme.onSurface),
-                                    ),
-                                  ),
-                                  _LanguageSegmentedButton(settings: settings),
-                                ],
-                              ),
-                            ),
                           ],
                         ),
                       ),
@@ -261,50 +226,6 @@ class _ThemeSegmentedButton extends StatelessWidget {
           return colorScheme.onSurface.withValues(alpha: 0.55);
         }),
         iconColor: WidgetStateProperty.resolveWith((states) {
-          if (states.contains(WidgetState.selected)) return activeColor;
-          return colorScheme.onSurface.withValues(alpha: 0.55);
-        }),
-        side: WidgetStateProperty.all(
-          BorderSide(color: colorScheme.outline.withValues(alpha: 0.25)),
-        ),
-        visualDensity: VisualDensity.compact,
-      ),
-      showSelectedIcon: false,
-    );
-  }
-}
-
-class _LanguageSegmentedButton extends StatelessWidget {
-  final SettingsProvider settings;
-
-  const _LanguageSegmentedButton({required this.settings});
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final activeColor = colorScheme.primary;
-
-    return SegmentedButton<String>(
-      segments: [
-        ButtonSegment(
-          value: 'en',
-          label: Text('EN', style: context.textStyles.labelMedium?.semiBold),
-        ),
-        ButtonSegment(
-          value: 'mk',
-          label: Text('MK', style: context.textStyles.labelMedium?.semiBold),
-        ),
-      ],
-      selected: {settings.locale},
-      onSelectionChanged: (value) => settings.setLocale(value.first),
-      style: ButtonStyle(
-        backgroundColor: WidgetStateProperty.resolveWith((states) {
-          if (states.contains(WidgetState.selected)) {
-            return activeColor.withValues(alpha: 0.18);
-          }
-          return colorScheme.surfaceContainerHighest.withValues(alpha: 0.35);
-        }),
-        foregroundColor: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.selected)) return activeColor;
           return colorScheme.onSurface.withValues(alpha: 0.55);
         }),

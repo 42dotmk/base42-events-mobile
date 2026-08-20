@@ -67,6 +67,7 @@ class _HostEventSectionState extends State<HostEventSection> {
 
   _BookingTimeSlot? _selectedTimeSlot;
   bool _isSubmitting = false;
+  int _formResetToken = 0;
 
   @override
   void initState() {
@@ -147,6 +148,7 @@ class _HostEventSectionState extends State<HostEventSection> {
       phone: '',
       companyName: '',
       eventType: eventType,
+      room: _findSelectedSpace(eventType)?.roomKey ?? '',
       eventName: '',
       eventTheme: '',
       eventPurpose: '',
@@ -177,7 +179,10 @@ class _HostEventSectionState extends State<HostEventSection> {
         _emailController.clear();
         _expectedAttendeesController.clear();
         _eventDescriptionController.clear();
-        setState(() => _selectedTimeSlot = null);
+        setState(() {
+          _selectedTimeSlot = null;
+          _formResetToken++;
+        });
       } else {
         showBookingResultDialog(
           context: context,
@@ -268,6 +273,95 @@ class _HostEventSectionState extends State<HostEventSection> {
     ).showSnackBar(SnackBar(content: Text(message)));
   }
 
+  void _showSpacePicker(
+    BuildContext context,
+    BookingDraftProvider draft,
+    String currentEventType,
+  ) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    showModalBottomSheet(
+      context: context,
+      useRootNavigator: true,
+      backgroundColor: colorScheme.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (sheetContext) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(top: 12, bottom: 4),
+                child: Container(
+                  width: 36,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: colorScheme.onSurface.withValues(alpha: 0.2),
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(top: 8, bottom: 8),
+                child: Text(
+                  'Select a Space',
+                  style: context.textStyles.titleMedium?.semiBold,
+                ),
+              ),
+              Flexible(
+                child: ListView.builder(
+                  shrinkWrap: true,
+                  padding: const EdgeInsets.only(bottom: 20),
+                  itemCount: hostEventSpaceOptions.length,
+                  itemBuilder: (itemContext, index) {
+                    final space = hostEventSpaceOptions[index];
+                    final isSelected = space.value == currentEventType;
+
+                    return ListTile(
+                      leading: ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: Image.asset(
+                          space.imageAssetPath,
+                          width: 48,
+                          height: 48,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) => Container(
+                            width: 48,
+                            height: 48,
+                            color: colorScheme.surfaceContainerHighest,
+                            child: Icon(
+                              Icons.image_outlined,
+                              color: colorScheme.onSurface.withValues(
+                                alpha: 0.4,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      title: Text(space.label),
+                      trailing: isSelected
+                          ? Icon(
+                              Icons.check_circle_rounded,
+                              color: colorScheme.primary,
+                            )
+                          : null,
+                      onTap: () {
+                        draft.setEventType(space.value);
+                        Navigator.of(sheetContext).pop();
+                      },
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final draft = context.watch<BookingDraftProvider>();
@@ -282,24 +376,69 @@ class _HostEventSectionState extends State<HostEventSection> {
         children: [
           SelectedSpacePreviewCard(space: selectedSpace),
           const SizedBox(height: 12),
-          DropdownButtonFormField<String>(
+          FormField<String>(
+            key: ValueKey('space-$_formResetToken'),
             initialValue: eventType,
-            decoration: inputDecoration(context, 'Space *'),
-            dropdownColor: colorScheme.surfaceContainerHighest,
-            items: hostEventSpaceOptions
-                .map(
-                  (space) => DropdownMenuItem<String>(
-                    value: space.value,
-                    child: Text(space.label),
-                  ),
-                )
-                .toList(),
-            onChanged: draft.setEventType,
             validator: (value) {
               if (value == null || value.trim().isEmpty) {
                 return 'Required field';
               }
               return null;
+            },
+            builder: (field) {
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  GestureDetector(
+                    onTap: () => _showSpacePicker(context, draft, eventType),
+                    child: Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 18,
+                      ),
+                      decoration: BoxDecoration(
+                        color: colorScheme.surfaceContainerHighest
+                            .withValues(alpha: 0.5),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: colorScheme.outline.withValues(alpha: 0.3),
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              selectedSpace?.label ?? 'Select a space',
+                              style: context.textStyles.bodyLarge?.withColor(
+                                selectedSpace != null
+                                    ? colorScheme.onSurface
+                                    : colorScheme.onSurface
+                                        .withValues(alpha: 0.5),
+                              ),
+                            ),
+                          ),
+                          Icon(
+                            Icons.keyboard_arrow_down_rounded,
+                            color: colorScheme.onSurface.withValues(alpha: 0.5),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  if (field.hasError)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 6, left: 12),
+                      child: Text(
+                        field.errorText!,
+                        style: TextStyle(
+                          color: colorScheme.error,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ),
+                ],
+              );
             },
           ),
           const SizedBox(height: 14),
@@ -331,6 +470,7 @@ class _HostEventSectionState extends State<HostEventSection> {
             onTap: _pickDate,
           ),
           DropdownButtonFormField<String>(
+            key: ValueKey('time-slot-$_formResetToken'),
             initialValue: _selectedTimeSlot?.value,
             decoration: inputDecoration(context, 'Time *'),
             dropdownColor: colorScheme.surfaceContainerHighest,

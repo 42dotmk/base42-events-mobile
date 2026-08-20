@@ -1,11 +1,11 @@
 import 'package:base42_events_mobile/nav.dart';
 import 'package:base42_events_mobile/theme.dart';
 import 'package:base42_events_mobile/widgets/about/about_location_map.dart';
+import 'package:base42_events_mobile/widgets/common/custom_button.dart';
 import 'package:base42_events_mobile/widgets/common/page_header.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:base42_events_mobile/widgets/common/custom_button.dart';
 
 class AboutScreen extends StatelessWidget {
   const AboutScreen({super.key});
@@ -30,11 +30,7 @@ class AboutScreen extends StatelessWidget {
   }
 
   void _handleBack(BuildContext context) {
-    if (context.canPop()) {
-      context.pop();
-      return;
-    }
-    context.pop();
+    Navigator.of(context).maybePop();
   }
 
   @override
@@ -44,6 +40,8 @@ class AboutScreen extends StatelessWidget {
 
     return Scaffold(
       body: Container(
+        width: double.infinity,
+        height: double.infinity,
         decoration: BoxDecoration(gradient: brand?.backdropGradient),
         child: SafeArea(
           child: Column(
@@ -57,16 +55,8 @@ class AboutScreen extends StatelessWidget {
                 child: SingleChildScrollView(
                   padding: const EdgeInsets.fromLTRB(18, 18, 18, 30),
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      Text(
-                        'BASE42',
-                        style: context.textStyles.titleMedium?.semiBold
-                            .withColor(
-                              colorScheme.onSurface.withValues(alpha: 0.8),
-                            ),
-                      ),
-                      const SizedBox(height: 10),
                       _InfoListItem(
                         icon: Icons.location_on_outlined,
                         label: 'Location',
@@ -92,58 +82,61 @@ class AboutScreen extends StatelessWidget {
                             _openExternalLink(context, 'mailto:$_emailText'),
                       ),
                       const SizedBox(height: 24),
-                      Text(
-                        'SOCIALS',
-                        style: context.textStyles.titleMedium?.semiBold
-                            .withColor(
-                              colorScheme.onSurface.withValues(alpha: 0.8),
-                            ),
-                      ),
-                      const SizedBox(height: 10),
-                      Wrap(
-                        spacing: 10,
-                        runSpacing: 10,
-                        children: [
-                          _SocialSquareButton(
-                            icon: Icons.camera_alt_outlined,
-                            label: 'Instagram',
-                            onTap: () => _openExternalLink(
-                              context,
-                              'https://www.instagram.com/base42.mk/',
-                            ),
-                          ),
-                          _SocialSquareButton(
-                            icon: Icons.facebook_outlined,
-                            label: 'Facebook',
-                            onTap: () => _openExternalLink(
-                              context,
-                              'https://www.facebook.com/',
-                            ),
-                          ),
-                          _SocialSquareButton(
-                            icon: Icons.business_center_outlined,
-                            label: 'LinkedIn',
-                            onTap: () => _openExternalLink(
-                              context,
-                              'https://www.linkedin.com/',
-                            ),
-                          ),
-                          _SocialSquareButton(
-                            icon: Icons.forum_outlined,
-                            label: 'Discord',
-                            onTap: () => _openExternalLink(
-                              context,
-                              'https://discord.com/',
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 26),
                       CustomButton.action(
                         icon: Icons.rule_rounded,
                         label: 'Rules',
                         variant: ButtonVariant.solid,
                         onTap: () => context.push(AppRoutes.rules),
+                      ),
+                      const SizedBox(height: 24),
+                      Text(
+                        'SOCIALS',
+                        style: context.textStyles.titleMedium?.semiBold
+                            .withColor(
+                          colorScheme.onSurface.withValues(alpha: 0.8),
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      Center(
+                        child: Wrap(
+                          alignment: WrapAlignment.center,
+                          spacing: 10,
+                          runSpacing: 10,
+                          children: [
+                            _SocialSquareButton(
+                              icon: Icons.camera_alt_outlined,
+                              label: 'Instagram',
+                              onTap: () => _openExternalLink(
+                                context,
+                                'https://www.instagram.com/42dotmk/',
+                              ),
+                            ),
+                            _SocialSquareButton(
+                              icon: Icons.facebook_outlined,
+                              label: 'Facebook',
+                              onTap: () => _openExternalLink(
+                                context,
+                                'https://www.facebook.com/42dotmk/',
+                              ),
+                            ),
+                            _SocialSquareButton(
+                              icon: Icons.business_center_outlined,
+                              label: 'LinkedIn',
+                              onTap: () => _openExternalLink(
+                                context,
+                                'https://www.linkedin.com/company/42-mk/',
+                              ),
+                            ),
+                            _SocialSquareButton(
+                              icon: Icons.forum_outlined,
+                              label: 'Discord',
+                              onTap: () => _openExternalLink(
+                                context,
+                                'https://discord.com/invite/424xxTZVYX',
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ],
                   ),

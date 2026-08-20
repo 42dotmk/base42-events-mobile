@@ -17,7 +17,6 @@ import 'services/fcm_service.dart';
 void main() async {
   final binding = WidgetsFlutterBinding.ensureInitialized();
   FlutterNativeSplash.preserve(widgetsBinding: binding);
-  await FCMService.instance.init();
   FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
   runApp(
     MultiProvider(
@@ -43,6 +42,9 @@ void main() async {
       child: const MyApp(),
     ),
   );
+  binding.addPostFrameCallback((_) {
+    FCMService.instance.init();
+  });
 }
 
 class MyApp extends StatefulWidget {
@@ -76,15 +78,22 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     final themeMode = context.watch<SettingsProvider>().themeMode;
+    final authProvider = context.watch<AuthProvider>();
 
-    if (_onboardingDone == null) {
+    if (_onboardingDone == null || authProvider.isLoading) {
       return MaterialApp(
         debugShowCheckedModeBanner: false,
         theme: lightTheme,
         darkTheme: darkTheme,
         themeMode: themeMode,
-        home: Scaffold(
-          body: CircularProgressIndicator(),
+        home: Builder(
+          builder: (context) => Scaffold(
+            body: Center(
+              child: CircularProgressIndicator(
+                color: Theme.of(context).colorScheme.primary,
+              ),
+            ),
+          ),
         ),
       );
     }

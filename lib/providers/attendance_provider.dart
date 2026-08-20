@@ -9,9 +9,25 @@ class AttendanceProvider extends ChangeNotifier {
   final EventProvider? _eventProvider;
   final UserService _userService = UserService();
   final Map<int, UserEventWithDetails> _userEvents = {};
+  List<UserEventResponse> _userEventResponses = const [];
+  bool _hasUnresolvedEvents = false;
 
   AttendanceProvider({EventProvider? eventProvider})
-    : _eventProvider = eventProvider;
+    : _eventProvider = eventProvider {
+      _eventProvider?.addListener(_onEventProviderChanged);
+    }
+
+  void _onEventProviderChanged() {
+    if (_hasUnresolvedEvents) {
+      _resolveUserEvents();
+    }
+  }
+
+  @override
+  void dispose() {
+    _eventProvider?.removeListener(_onEventProviderChanged);
+    super.dispose();
+  }
 
   String? getStatus(int eventId) => _userEvents[eventId]?.status;
 
@@ -74,33 +90,43 @@ class AttendanceProvider extends ChangeNotifier {
 
   void clearAll() {
     _userEvents.clear();
+    _userEventResponses = const [];
+    _hasUnresolvedEvents = false;
     notifyListeners();
   }
 
   Future<void> loadUserEvents(String token, int userId) async {
     try {
-      List<UserEventResponse> userEvents = await _userService
-          .getUserEventsWithDetails(token, userId);
-      final events = _eventProvider?.events ?? const [];
-
-      _userEvents.clear();
-      for (var userEvent in userEvents) {
-        Event? event;
-        try {
-          event = events.firstWhere((e) => e.id == userEvent.eventId);
-        } catch (_) {
-          continue;
-        }
-
-        _userEvents[userEvent.eventId] = UserEventWithDetails(
-          event: event,
-          status: userEvent.status,
-        );
-      }
-
-      notifyListeners();
+      _userEventResponses = await _userService.getUserEventsWithDetails(
+        token,
+        userId,
+      );
+      _resolveUserEvents();
     } catch (e) {
       debugPrint('Error loading user events: $e');
     }
+  }
+
+  void _resolveUserEvents() {
+    final events = _eventProvider?.events ?? const [];
+
+    _userEvents.clear();
+    _hasUnresolvedEvents = false;
+    for (var userEvent in _userEventResponses) {
+      Event? event;
+      try {
+        event = events.firstWhere((e) => e.id == userEvent.eventId);
+      } catch (_) {
+        _hasUnresolvedEvents = true;
+        continue;
+      }
+
+      _userEvents[userEvent.eventId] = UserEventWithDetails(
+        event: event,
+        status: userEvent.status,
+      );
+    }
+
+    notifyListeners();
   }
 }

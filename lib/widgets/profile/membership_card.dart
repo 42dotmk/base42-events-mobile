@@ -84,7 +84,7 @@ class MembershipCard extends StatelessWidget {
                     child: Text(
                       badgeLabel!,
                       style: context.textStyles.labelSmall?.bold.withColor(
-                        colorScheme.onPrimary,
+                        primaryColor.readableForeground(),
                       ),
                     ),
                   ),

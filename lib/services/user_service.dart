@@ -279,16 +279,14 @@ class UserService {
             token,
             profileImage.value!,
           );
-        } catch (e) {
-          // Intentionally ignored — outer try-catch handles profile update failure
-        }
+        } catch (_) {}
       }
 
       final url = Uri.parse(updateUserApiUrl);
       final body = <String, dynamic>{
         'userId': userId,
         ...changedFields.toJson(),
-        if (profileImage?.isPresent == true) 'profilePicture': uploadedImageId,
+        'profilePicture': ?uploadedImageId,
       };
 
       final response = await putWithAuth(url.toString(), token, body);

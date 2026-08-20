@@ -17,7 +17,7 @@ class AuthProvider extends ChangeNotifier {
   String? _token;
   String? _keycloakRefreshToken;
   bool _isLoading = true;
-  bool _isRefreshing = false;
+  Future<bool>? _refreshFuture;
   bool _isGuestMode = false;
 
   User? get currentUser => _currentUser;
@@ -240,10 +240,14 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  Future<bool> refreshStrapiToken() async {
-    if (_isRefreshing || _keycloakRefreshToken == null) return false;
+  Future<bool> refreshStrapiToken() {
+    if (_keycloakRefreshToken == null) return Future.value(false);
+    return _refreshFuture ??= _performTokenRefresh().whenComplete(() {
+      _refreshFuture = null;
+    });
+  }
 
-    _isRefreshing = true;
+  Future<bool> _performTokenRefresh() async {
     try {
       final tokenResponse = await _appAuth.token(
         TokenRequest(
@@ -273,8 +277,6 @@ class AuthProvider extends ChangeNotifier {
     } catch (e) {
       developer.log('Token refresh failed: $e', name: 'AuthProvider');
       return false;
-    } finally {
-      _isRefreshing = false;
     }
   }
 

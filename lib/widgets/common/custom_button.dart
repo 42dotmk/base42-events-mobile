@@ -1,7 +1,7 @@
 import 'package:base42_events_mobile/theme.dart';
 import 'package:flutter/material.dart';
 
-enum ButtonVariant { outlined, filled, solid }
+enum ButtonVariant { outlined, filled, solid, attendance }
 
 class CustomButton extends StatelessWidget {
   final IconData? icon;
@@ -32,15 +32,17 @@ class CustomButton extends StatelessWidget {
     required VoidCallback onTap,
     bool isActive = false,
     bool isLoading = false,
+    bool fullWidth = false,
   }) {
     return CustomButton(
       icon: icon,
       label: label,
       color: color,
       onTap: onTap,
-      variant: ButtonVariant.outlined,
+      variant: ButtonVariant.attendance,
       isActive: isActive,
       isLoading: isLoading,
+      fullWidth: fullWidth,
     );
   }
 
@@ -82,33 +84,36 @@ class CustomButton extends StatelessWidget {
         return _buildFilledButton(context, effectiveColor);
       case ButtonVariant.solid:
         return _buildSolidButton(context, effectiveColor);
+      case ButtonVariant.attendance:
+        return isActive
+            ? _buildSolidButton(context, effectiveColor)
+            : _buildOutlinedButton(context, effectiveColor);
     }
   }
 
   Widget _buildOutlinedButton(BuildContext context, Color effectiveColor) {
-    final onSurface = Theme.of(context).colorScheme.onSurface;
+    final colorScheme = Theme.of(context).colorScheme;
+    final onSurface = colorScheme.onSurface;
     return GestureDetector(
       onTap: isLoading ? null : onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.md,
-          vertical: AppSpacing.sm,
-        ),
+        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
         decoration: BoxDecoration(
           color: isActive
               ? effectiveColor.withValues(alpha: 0.15)
-              : onSurface.withValues(alpha: 0.08),
+              : colorScheme.surfaceContainerHighest.withValues(alpha: 0.4),
           borderRadius: BorderRadius.circular(AppRadius.md),
           border: Border.all(
-            color: isActive
-                ? effectiveColor
-                : onSurface.withValues(alpha: 0.2),
+            color: isActive ? effectiveColor : colorScheme.outline,
             width: 1.5,
           ),
         ),
         child: Row(
-          mainAxisSize: MainAxisSize.min,
+          mainAxisSize: fullWidth ? MainAxisSize.max : MainAxisSize.min,
+          mainAxisAlignment: fullWidth
+              ? MainAxisAlignment.center
+              : MainAxisAlignment.start,
           children: [
             if (icon != null) ...[
               Icon(
@@ -116,7 +121,7 @@ class CustomButton extends StatelessWidget {
                 size: 18,
                 color: isActive
                     ? effectiveColor
-                    : onSurface.withValues(alpha: 0.6),
+                    : onSurface.withValues(alpha: 0.7),
               ),
               const SizedBox(width: AppSpacing.xs),
             ],
@@ -127,7 +132,7 @@ class CustomButton extends StatelessWidget {
                 fontWeight: isActive ? FontWeight.w600 : FontWeight.normal,
                 color: isActive
                     ? effectiveColor
-                    : onSurface.withValues(alpha: 0.6),
+                    : onSurface.withValues(alpha: 0.7),
               ),
             ),
           ],
@@ -192,8 +197,7 @@ class CustomButton extends StatelessWidget {
   }
 
   Widget _buildSolidButton(BuildContext context, Color effectiveColor) {
-    final textColor =
-        effectiveColor.computeLuminance() > 0.5 ? Colors.black : Colors.white;
+    final textColor = effectiveColor.readableForeground();
 
     return Material(
       color: effectiveColor,

@@ -45,10 +45,7 @@ class AttendanceActionModal extends StatelessWidget {
             CustomButton.action(
               label: changeEventAttendanceStatus(currentStatus),
               icon: Icons.swap_horiz_rounded,
-              color: Color.alphaBlend(
-                Colors.black.withValues(alpha: 0.2),
-                colorScheme.secondary,
-              ),
+              color: colorScheme.primary,
               variant: ButtonVariant.filled,
               onTap: () {
                 Navigator.of(context).pop();

@@ -1,30 +1,73 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
+import 'package:base42_events_mobile/theme.dart';
+import 'package:base42_events_mobile/types.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:base42_events_mobile/main.dart';
-
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  group('AccentForeground', () {
+    test('black text on yellow accents', () {
+      const yellow = Color(0xFFFAE127);
+      expect(yellow.readableForeground(), Colors.black);
+    });
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+    test('white text on teal accents', () {
+      const teal = Color(0xFF009EA1);
+      expect(teal.readableForeground(), Colors.white);
+    });
+  });
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+  group('BookingRequestPayload', () {
+    const payload = BookingRequestPayload(
+      organizerEntity: 'Base42',
+      initiatorName: '',
+      email: 'test@42.mk',
+      phone: '',
+      companyName: '',
+      eventType: 'Studio',
+      room: 'studio',
+      eventName: '',
+      eventTheme: '',
+      eventPurpose: '',
+      eventAgenda: 'Recording session',
+      eventDate: '2026-08-20',
+      eventStartTime: '09:00',
+      eventEndTime: '13:00',
+      physicalPresence: '',
+      expectedGuests: '5',
+    );
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    test('toStrapiData includes room', () {
+      expect(payload.toStrapiData()['room'], 'studio');
+    });
+
+    test('toStrapiData omits empty room', () {
+      final data = BookingRequestPayload(
+        organizerEntity: 'Base42',
+        initiatorName: '',
+        email: 'test@42.mk',
+        phone: '',
+        companyName: '',
+        eventType: 'Studio',
+        eventName: '',
+        eventTheme: '',
+        eventPurpose: '',
+        eventAgenda: '',
+        eventDate: '2026-08-20',
+        eventStartTime: '09:00',
+        eventEndTime: '13:00',
+        physicalPresence: '',
+        expectedGuests: '5',
+      ).toStrapiData();
+
+      expect(data.containsKey('room'), isFalse);
+    });
+
+    test('MyBooking carries room from payload', () {
+      final booking = MyBooking.fromBookingRequest(payload);
+      expect(booking.room, 'studio');
+      expect(booking.eventType, 'Studio');
+      expect(booking.startDateTime, DateTime(2026, 8, 20, 9, 0));
+      expect(booking.endDateTime, DateTime(2026, 8, 20, 13, 0));
+    });
   });
 }
