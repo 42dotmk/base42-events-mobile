@@ -48,6 +48,7 @@
     firebase_messaging: ^16.1.2
     flutter_local_notifications: ^21.0.0
     flutter_secure_storage: ^10.0.0
+    shared_preferences: ^2.3.0
     flutter_appauth: ^8.0.1
     image_picker: ^1.0.7
     http_parser: ^4.0.2
@@ -86,6 +87,7 @@
       - assets/icons/
       - assets/images/
       - assets/onboarding/
+      - assets/rules/
 
   flutter_launcher_icons:
     android: true

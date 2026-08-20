@@ -67,7 +67,6 @@ class ProfilePicturePicker extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final brand = Theme.of(context).extension<BrandTheme>();
     final colorScheme = Theme.of(context).colorScheme;
 
     String? imageUrl;
@@ -86,15 +85,15 @@ class ProfilePicturePicker extends StatelessWidget {
               width: 120,
               height: 120,
               decoration: BoxDecoration(
-                color: (colorScheme.secondary).withValues(alpha: 0.18),
-                borderRadius: BorderRadius.circular(60),
+                color: (colorScheme.primary).withValues(alpha: 0.18),
+                borderRadius: BorderRadius.circular(20),
                 border: Border.all(
                   color: (colorScheme.primary).withValues(alpha: 0.45),
                   width: 2,
                 ),
               ),
               child: ClipRRect(
-                borderRadius: BorderRadius.circular(58),
+                borderRadius: BorderRadius.circular(18),
                 child: selectedImage != null
                     ? Image.file(File(selectedImage!.path), fit: BoxFit.cover)
                     : imageUrl != null
@@ -102,9 +101,9 @@ class ProfilePicturePicker extends StatelessWidget {
                         imageUrl,
                         fit: BoxFit.cover,
                         errorBuilder: (context, error, stackTrace) =>
-                            _buildInitialsAvatar(context, brand, colorScheme),
+                            _buildInitialsAvatar(context, colorScheme),
                       )
-                    : _buildInitialsAvatar(context, brand, colorScheme),
+                    : _buildInitialsAvatar(context, colorScheme),
               ),
             ),
           ),
@@ -143,9 +142,9 @@ class ProfilePicturePicker extends StatelessWidget {
                   borderRadius: BorderRadius.circular(18),
                   border: Border.all(color: colorScheme.surface, width: 3),
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.camera_alt_rounded,
-                  color: Colors.white,
+                  color: colorScheme.primary.readableForeground(),
                   size: 18,
                 ),
               ),
@@ -158,7 +157,6 @@ class ProfilePicturePicker extends StatelessWidget {
 
   Widget _buildInitialsAvatar(
     BuildContext context,
-    BrandTheme? brand,
     ColorScheme colorScheme,
   ) {
     return Center(
@@ -166,7 +164,7 @@ class ProfilePicturePicker extends StatelessWidget {
         initials,
         style: context.textStyles.headlineMedium?.bold
             .withSize(48)
-            .withColor(colorScheme.secondary),
+            .withColor(colorScheme.primary),
       ),
     );
   }

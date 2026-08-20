@@ -247,54 +247,11 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                             .withColor(colorScheme.onSurface),
                       ),
                       const SizedBox(height: AppSpacing.md),
-                      Row(
-                        children: [
-                          CustomButton.attendance(
-                            icon: Icons.star_rounded,
-                            label: 'Interested',
-                            isActive:
-                                currentStatus ==
-                                EventAttendanceStatus.interested.name,
-                            color: brand?.neonYellow ?? colorScheme.secondary,
-                            isLoading: _isUpdatingAttendance,
-                            onTap: () => _setAttendance(
-                              EventAttendanceStatus.interested,
-                            ),
-                          ),
-                          const SizedBox(width: AppSpacing.sm),
-                          CustomButton.attendance(
-                            icon: Icons.check_circle_rounded,
-                            label: 'Going',
-                            isActive:
-                                currentStatus ==
-                                EventAttendanceStatus.going.name,
-                            color: brand?.neonCyan ?? colorScheme.primary,
-                            isLoading: _isUpdatingAttendance,
-                            onTap: () =>
-                                _setAttendance(EventAttendanceStatus.going),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: AppSpacing.lg),
                       EventInfoRow(
                         icon: Icons.calendar_today_rounded,
                         text: formatDateFull(event.start),
                         colorScheme: colorScheme,
                       ),
-                      if (event.tags.isNotEmpty) ...[
-                        const SizedBox(height: AppSpacing.lg),
-                        Wrap(
-                          spacing: AppSpacing.sm,
-                          runSpacing: AppSpacing.sm,
-                          children: event.tags
-                              .map(
-                                (tag) => _EventFilterStyleTagChip(
-                                  label: tag.tagName,
-                                ),
-                              )
-                              .toList(),
-                        ),
-                      ],
 
                       const SizedBox(height: AppSpacing.lg),
                       Container(
@@ -439,6 +396,56 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                           ),
                         ),
                       ),
+                      if (event.tags.isNotEmpty) ...[
+                        const SizedBox(height: AppSpacing.lg),
+                        Wrap(
+                          spacing: AppSpacing.sm,
+                          runSpacing: AppSpacing.sm,
+                          children: event.tags
+                              .map(
+                                (tag) => _EventFilterStyleTagChip(
+                                  label: tag.tagName,
+                                ),
+                              )
+                              .toList(),
+                        ),
+                      ],
+                      const SizedBox(height: AppSpacing.xl),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: CustomButton.attendance(
+                              icon: Icons.star_rounded,
+                              label: 'Interested',
+                              isActive:
+                                  currentStatus ==
+                                  EventAttendanceStatus.interested.name,
+                              color: colorScheme.primary,
+                              isLoading: _isUpdatingAttendance,
+                              fullWidth: true,
+                              onTap: () => _setAttendance(
+                                EventAttendanceStatus.interested,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: AppSpacing.sm),
+                          Expanded(
+                            child: CustomButton.attendance(
+                              icon: Icons.check_circle_rounded,
+                              label: 'Going',
+                              isActive:
+                                  currentStatus ==
+                                  EventAttendanceStatus.going.name,
+                              color: colorScheme.primary,
+                              isLoading: _isUpdatingAttendance,
+                              fullWidth: true,
+                              onTap: () => _setAttendance(
+                                EventAttendanceStatus.going,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                       if (event.registerLink != null) ...[
                         const SizedBox(height: AppSpacing.xl),
                         CustomButton.action(
@@ -473,13 +480,14 @@ class _EventFilterStyleTagChip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
       decoration: BoxDecoration(
-        color: accent.withValues(alpha: 0.18),
+        color: accent,
         borderRadius: BorderRadius.circular(999),
-        border: Border.all(color: accent.withValues(alpha: 0.6)),
       ),
       child: Text(
         label,
-        style: context.textStyles.labelMedium?.medium.withColor(accent),
+        style: context.textStyles.labelMedium?.medium.withColor(
+          accent.readableForeground(),
+        ),
       ),
     );
   }

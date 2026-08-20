@@ -20,15 +20,17 @@ class ProfileInitialsAvatar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final brand = Theme.of(context).extension<BrandTheme>();
     final resolvedAccentColor = accentColor ?? colorScheme.primary;
 
     return Container(
       width: 56,
       height: 56,
       decoration: BoxDecoration(
-        color: resolvedAccentColor.withValues(alpha: 0.26),
-        shape: BoxShape.circle,
+        color: resolvedAccentColor.withValues(alpha: 0.18),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: resolvedAccentColor.withValues(alpha: 0.45),
+        ),
       ),
       alignment: Alignment.center,
       child: profilePicture != null
@@ -36,13 +38,13 @@ class ProfileInitialsAvatar extends StatelessWidget {
               borderRadius: BorderRadius.circular(18),
               child: Image.network(
                 profilePicture?.getMediumUrl(baseUrl) ?? '',
-                width: 86,
-                height: 86,
+                width: 56,
+                height: 56,
                 fit: BoxFit.cover,
                 errorBuilder: (context, error, stackTrace) => Text(
                   initials,
                   style: context.textStyles.headlineMedium?.bold.withColor(
-                    brand?.neonYellow ?? colorScheme.secondary,
+                    resolvedAccentColor,
                   ),
                 ),
               ),
@@ -50,7 +52,7 @@ class ProfileInitialsAvatar extends StatelessWidget {
           : Text(
               initials,
               style: context.textStyles.headlineMedium?.bold.withColor(
-                brand?.neonYellow ?? colorScheme.secondary,
+                resolvedAccentColor,
               ),
             ),
     );

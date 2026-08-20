@@ -30,6 +30,9 @@ class FCMService {
   void Function(String eventId)? onEventSelected;
   void Function()? onNewEventNotification;
 
+  bool _notificationsEnabled = true;
+  Future<void>? _initFuture;
+
   void setOnEventSelected(void Function(String eventId) callback) {
     onEventSelected = callback;
   }
@@ -38,13 +41,17 @@ class FCMService {
     onNewEventNotification = callback;
   }
 
-  Future<void> init() async {
+  Future<void> init() => _initFuture ??= _initialize();
+
+  Future<void> _initialize() async {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
 
     _firebaseMessaging = FirebaseMessaging.instance;
     _localNotifications = FlutterLocalNotificationsPlugin();
+
+    await _loadNotificationSetting();
 
     const androidInit = AndroidInitializationSettings('@mipmap/ic_launcher');
 
@@ -97,9 +104,9 @@ class FCMService {
     }
 
     await _firebaseMessaging.setForegroundNotificationPresentationOptions(
-      alert: true,
-      badge: true,
-      sound: true,
+      alert: _notificationsEnabled,
+      badge: _notificationsEnabled,
+      sound: _notificationsEnabled,
     );
 
     try {
@@ -145,6 +152,8 @@ class FCMService {
   }
 
   Future<void> _handleForegroundMessage(RemoteMessage message) async {
+    if (!_notificationsEnabled) return;
+
     final notification = message.notification;
     if (notification != null) {
       await _localNotifications.show(
@@ -174,6 +183,8 @@ class FCMService {
   }
 
   Future<void> _updateFcmTokenOnBackend(String fcmToken) async {
+    if (!_notificationsEnabled) return;
+
     try {
       final jwtToken = await _storageService.getToken(
         SecureStorageService.jwtTokenKey,
@@ -189,6 +200,58 @@ class FCMService {
       }
     } catch (e) {
       debugPrint("Error updating FCM token on backend: $e");
+    }
+  }
+
+  Future<void> _clearFcmTokenOnBackend() async {
+    try {
+      final jwtToken = await _storageService.getToken(
+        SecureStorageService.jwtTokenKey,
+      );
+
+      if (jwtToken != null && jwtToken.isNotEmpty) {
+        final isExpired = await _storageService.isAuthTokenExpired();
+        if (!isExpired) {
+          await _userService.updateFcmToken(jwtToken, '');
+        }
+      }
+    } catch (e) {
+      debugPrint("Error clearing FCM token on backend: $e");
+    }
+  }
+
+  Future<void> _loadNotificationSetting() async {
+    final stored = await _storageService.readNotificationsEnabled();
+    _notificationsEnabled = stored;
+  }
+
+  Future<void> setNotificationsEnabled(
+    bool enabled, {
+    bool syncToDevice = true,
+  }) async {
+    _notificationsEnabled = enabled;
+
+    if (!syncToDevice) return;
+    await init();
+
+    await _firebaseMessaging.setForegroundNotificationPresentationOptions(
+      alert: enabled,
+      badge: enabled,
+      sound: enabled,
+    );
+
+    if (enabled) {
+      try {
+        final token = await _firebaseMessaging.getToken();
+        if (token != null) {
+          await _updateFcmTokenOnBackend(token);
+        }
+      } catch (e) {
+        debugPrint("Unable to re-register FCM token: $e");
+      }
+    } else {
+      await _clearFcmTokenOnBackend();
+      await _firebaseMessaging.deleteToken();
     }
   }
 
@@ -293,10 +356,12 @@ class FCMService {
   }
 
   Future<String?> getToken() async {
+    await init();
     return await _firebaseMessaging.getToken();
   }
 
   Future<void> updateTokenOnBackend() async {
+    await init();
     final token = await getToken();
     if (token != null) {
       await _updateFcmTokenOnBackend(token);

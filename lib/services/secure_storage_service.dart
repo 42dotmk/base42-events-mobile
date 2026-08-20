@@ -10,6 +10,7 @@ class SecureStorageService {
   static const String keycloakRefreshTokenKey = 'keycloak_refresh_token';
   static const String onboardingCompleteKey = 'onboarding_complete';
   static const String pendingEventIdKey = 'pending_event_id';
+  static const String notificationsEnabledKey = 'settings_notifications';
 
   factory SecureStorageService() => _instance;
   SecureStorageService._internal();
@@ -67,5 +68,10 @@ class SecureStorageService {
 
   Future<void> clearPendingEventId() async {
     await _storage.delete(key: pendingEventIdKey);
+  }
+
+  Future<bool> readNotificationsEnabled() async {
+    final value = await _storage.read(key: notificationsEnabledKey);
+    return value != 'false';
   }
 }

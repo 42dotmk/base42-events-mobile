@@ -85,6 +85,7 @@ class _LoggedOutScreenState extends State<LoggedOutScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final brand = Theme.of(context).extension<BrandTheme>();
     return Scaffold(
       body: Stack(
         fit: StackFit.expand,
@@ -141,6 +142,7 @@ class _LoggedOutScreenState extends State<LoggedOutScreen> {
                     const SizedBox(height: 32),
                     CustomButton.action(
                       label: 'LOGIN',
+                      color: brand?.neonYellow,
                       variant: ButtonVariant.solid,
                       onTap: _isLoading ? null : _loginWithKeycloak,
                       isLoading: _isLoading,
@@ -152,9 +154,7 @@ class _LoggedOutScreenState extends State<LoggedOutScreen> {
                         onPressed: _isLoading ? null : _registerWithKeycloak,
                         style: OutlinedButton.styleFrom(
                           foregroundColor: Colors.white,
-                          side: BorderSide(
-                            color: Colors.white.withValues(alpha: 0.4),
-                          ),
+                          side: const BorderSide(color: Colors.white),
                           padding: const EdgeInsets.symmetric(vertical: 16),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(16),
@@ -162,7 +162,8 @@ class _LoggedOutScreenState extends State<LoggedOutScreen> {
                         ),
                         child: Text(
                           'REGISTER',
-                          style: context.textStyles.titleMedium?.semiBold,
+                          style: context.textStyles.titleMedium?.semiBold
+                              .withColor(Colors.white),
                         ),
                       ),
                     ),

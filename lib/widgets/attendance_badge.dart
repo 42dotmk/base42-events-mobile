@@ -9,14 +9,9 @@ class AttendanceBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final brand = Theme.of(context).extension<BrandTheme>();
     final colorScheme = Theme.of(context).colorScheme;
-
-    final bgColor = switch (status) {
-      EventAttendanceStatus.interested =>
-        brand?.neonYellow ?? colorScheme.secondary,
-      EventAttendanceStatus.going => brand?.neonCyan ?? colorScheme.primary,
-    };
+    final bgColor = colorScheme.primary;
+    final textColor = bgColor.readableForeground();
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -27,14 +22,14 @@ class AttendanceBadge extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(status.icon, size: 12, color: Colors.black),
+          Icon(status.icon, size: 12, color: textColor),
           const SizedBox(width: 3),
           Text(
             status.label,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 10,
               fontWeight: FontWeight.w700,
-              color: Colors.black,
+              color: textColor,
             ),
           ),
         ],

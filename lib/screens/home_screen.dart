@@ -31,6 +31,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
     return Scaffold(
       body: Container(
+        width: double.infinity,
+        height: double.infinity,
         decoration: BoxDecoration(gradient: brand?.backdropGradient),
         child: SafeArea(
           child: isLoading

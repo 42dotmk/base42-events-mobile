@@ -18,7 +18,6 @@ class EventAttendanceSection extends StatefulWidget {
 }
 
 class _EventAttendanceSectionState extends State<EventAttendanceSection> {
-  final ScrollController _eventsAttendanceScrollController = ScrollController();
   EventAttendanceStatus _filter = EventAttendanceStatus.interested;
 
   EventAttendanceStatus _nextStatus(EventAttendanceStatus status) {
@@ -73,10 +72,21 @@ class _EventAttendanceSectionState extends State<EventAttendanceSection> {
     }
 
     final next = _nextStatus(currentStatus);
+    final userId = authProvider.currentUser?.id;
+    if (userId == null) {
+      if (mounted) {
+        AuthPromptDialog.show(
+          context,
+          message: 'Sign in to update your attendance status',
+        );
+      }
+      return;
+    }
+
     try {
       await context.read<AttendanceProvider>().updateEventAttendanceStatus(
         token: token,
-        userId: authProvider.currentUser!.id,
+        userId: userId,
         event: event,
         status: next,
       );
@@ -106,10 +116,21 @@ class _EventAttendanceSectionState extends State<EventAttendanceSection> {
       return;
     }
 
+    final userId = authProvider.currentUser?.id;
+    if (userId == null) {
+      if (mounted) {
+        AuthPromptDialog.show(
+          context,
+          message: 'Sign in to manage your attendance',
+        );
+      }
+      return;
+    }
+
     try {
       await context.read<AttendanceProvider>().cancelAttendance(
         token: token,
-        userId: authProvider.currentUser!.id,
+        userId: userId,
         eventId: event.id,
       );
       if (context.mounted) {
@@ -127,12 +148,6 @@ class _EventAttendanceSectionState extends State<EventAttendanceSection> {
         );
       }
     }
-  }
-
-  @override
-  void dispose() {
-    _eventsAttendanceScrollController.dispose();
-    super.dispose();
   }
 
   @override
@@ -208,35 +223,25 @@ class _EventAttendanceSectionState extends State<EventAttendanceSection> {
             ),
           )
         else
-          SizedBox(
-            height: 250,
-            child: Scrollbar(
-              controller: _eventsAttendanceScrollController,
-              thumbVisibility: true,
-              child: SingleChildScrollView(
-                controller: _eventsAttendanceScrollController,
-                child: Column(
-                  children: visibleEvents.map((entry) {
-                    final event = entry.key;
-                    final rawStatus = entry.value.toLowerCase();
-                    final status = EventAttendanceStatus.values.firstWhere(
-                      (value) => value.name == rawStatus,
-                      orElse: () => EventAttendanceStatus.interested,
-                    );
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 10),
-                      child: EventAttendanceTile(
-                        event: event,
-                        statusColor: _statusColor(status, brand),
-                        actionLabel: changeEventAttendanceStatus(status),
-                        onActionTap: () =>
-                            _showAttendanceModal(context, event, status),
-                      ),
-                    );
-                  }).toList(),
+          Column(
+            children: visibleEvents.map((entry) {
+              final event = entry.key;
+              final rawStatus = entry.value.toLowerCase();
+              final status = EventAttendanceStatus.values.firstWhere(
+                (value) => value.name == rawStatus,
+                orElse: () => EventAttendanceStatus.interested,
+              );
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 10),
+                child: EventAttendanceTile(
+                  event: event,
+                  statusColor: _statusColor(status, brand),
+                  actionLabel: changeEventAttendanceStatus(status),
+                  onActionTap: () =>
+                      _showAttendanceModal(context, event, status),
                 ),
-              ),
-            ),
+              );
+            }).toList(),
           ),
       ],
     );

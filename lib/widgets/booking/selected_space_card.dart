@@ -6,12 +6,14 @@ class HostEventSpaceOption {
   final String label;
   final String imageAssetPath;
   final String description;
+  final String roomKey;
 
   const HostEventSpaceOption({
     required this.value,
     required this.label,
     required this.imageAssetPath,
     required this.description,
+    required this.roomKey,
   });
 }
 
@@ -19,26 +21,37 @@ const List<HostEventSpaceOption> hostEventSpaceOptions = [
   HostEventSpaceOption(
     value: 'Events Hall',
     label: 'Events Hall - 80 people',
-    imageAssetPath: 'assets/images/whole-space.jpeg',
+    imageAssetPath: 'assets/images/stage-base42.jpg',
     description: 'Ideal for talks, presentations, and larger meetups.',
+    roomKey: 'events-hall',
   ),
   HostEventSpaceOption(
     value: 'Workshop Area',
     label: 'Workshop Area - 40 people',
     imageAssetPath: 'assets/images/workshop-space.jpg',
     description: 'Great for hands-on sessions and collaborative workshops.',
+    roomKey: 'workshop-area',
   ),
   HostEventSpaceOption(
     value: 'Electronics Area',
     label: 'Electronics Area - 10 people',
     imageAssetPath: 'assets/images/electronics.jpg',
     description: 'Best for hardware hacking, testing, and prototyping.',
+    roomKey: 'electronics-area',
+  ),
+  HostEventSpaceOption(
+    value: 'Studio',
+    label: 'Studio - 10 people',
+    imageAssetPath: 'assets/images/studio-base42.jpg',
+    description: 'Compact room for recordings, calls, and focused work.',
+    roomKey: 'studio',
   ),
   HostEventSpaceOption(
     value: 'Full Space',
     label: 'Full space - 120 people',
     imageAssetPath: 'assets/images/whole-space.jpeg',
     description: 'Complete venue booking for conferences and big events.',
+    roomKey: 'full-space',
   ),
 ];
 

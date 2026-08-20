@@ -22,22 +22,40 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
   List<ProjectRepo> _projects = [];
   bool _isLoading = true;
   String? _errorMessage;
+  bool _authListenerAttached = false;
 
   @override
   void initState() {
     super.initState();
     final authProvider = context.read<AuthProvider>();
     _projectsService = ProjectsService(authProvider);
-    _loadProjects();
+    if (authProvider.isLoading) {
+      _authListenerAttached = true;
+      authProvider.addListener(_onAuthStateChanged);
+    } else {
+      _loadProjects();
+    }
+  }
+
+  @override
+  void dispose() {
+    if (_authListenerAttached) {
+      context.read<AuthProvider>().removeListener(_onAuthStateChanged);
+    }
+    super.dispose();
+  }
+
+  void _onAuthStateChanged() {
+    final authProvider = context.read<AuthProvider>();
+    if (!authProvider.isLoading) {
+      authProvider.removeListener(_onAuthStateChanged);
+      _authListenerAttached = false;
+      _loadProjects();
+    }
   }
 
   Future<void> _loadProjects() async {
     final authProvider = context.read<AuthProvider>();
-
-    while (authProvider.isLoading) {
-      await Future.delayed(const Duration(milliseconds: 100));
-      if (!mounted) return;
-    }
 
     if (!authProvider.isAuthenticated) {
       if (!mounted) return;
@@ -48,10 +66,21 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
       return;
     }
 
-    setState(() {
-      _isLoading = true;
-      _errorMessage = null;
-    });
+    final cached = await _projectsService.getCachedProjects();
+    if (!mounted) return;
+
+    if (cached != null && cached.isNotEmpty) {
+      setState(() {
+        _projects = cached;
+        _isLoading = false;
+        _errorMessage = null;
+      });
+    } else {
+      setState(() {
+        _isLoading = true;
+        _errorMessage = null;
+      });
+    }
 
     try {
       final projects = await _projectsService.fetchProjects();
@@ -59,12 +88,15 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
       setState(() {
         _projects = projects;
         _isLoading = false;
+        _errorMessage = null;
       });
     } catch (error) {
       if (!mounted) return;
       setState(() {
-        _errorMessage = error.toString();
         _isLoading = false;
+        if (_projects.isEmpty) {
+          _errorMessage = error.toString();
+        }
       });
     }
   }

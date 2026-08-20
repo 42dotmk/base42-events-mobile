@@ -240,6 +240,11 @@ extension TextStyleExtensions on TextStyle {
   TextStyle withSize(double size) => copyWith(fontSize: size);
 }
 
+extension AccentForeground on Color {
+  Color readableForeground() =>
+      computeLuminance() > 0.5 ? Colors.black : Colors.white;
+}
+
 // =============================================================================
 // COLORS
 // =============================================================================

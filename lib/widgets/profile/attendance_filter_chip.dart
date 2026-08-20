@@ -16,13 +16,12 @@ class AttendanceFilterChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final brand = Theme.of(context).extension<BrandTheme>();
-    final yellow = brand?.neonYellow ?? colorScheme.secondary;
+    final accent = colorScheme.primary;
 
     return AnimatedContainer(
       duration: const Duration(milliseconds: 200),
       decoration: BoxDecoration(
-        color: selected ? yellow : Colors.transparent,
+        color: selected ? accent : Colors.transparent,
         borderRadius: BorderRadius.circular(12),
       ),
       child: InkWell(
@@ -34,7 +33,9 @@ class AttendanceFilterChip extends StatelessWidget {
             child: Text(
               label,
               style: context.textStyles.titleSmall?.semiBold.withColor(
-                selected ? Colors.black : colorScheme.onSurface.withValues(alpha: 0.4),
+                selected
+                    ? accent.readableForeground()
+                    : colorScheme.onSurface.withValues(alpha: 0.4),
               ),
             ),
           ),

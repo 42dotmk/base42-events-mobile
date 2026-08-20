@@ -20,8 +20,6 @@ class BookingFilterSwitch extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final brand = Theme.of(context).extension<BrandTheme>();
-    final yellow = brand?.neonYellow ?? colorScheme.secondary;
 
     return Container(
       padding: const EdgeInsets.all(3),
@@ -34,14 +32,14 @@ class BookingFilterSwitch extends StatelessWidget {
           Expanded(child: _Segment(
             label: upcomingLabel,
             selected: showUpcoming,
-            yellow: yellow,
+            accent: colorScheme.primary,
             onSurface: colorScheme.onSurface,
             onTap: onUpcomingTap,
           )),
           Expanded(child: _Segment(
             label: pastLabel,
             selected: !showUpcoming,
-            yellow: yellow,
+            accent: colorScheme.primary,
             onSurface: colorScheme.onSurface,
             onTap: onPastTap,
           )),
@@ -54,14 +52,14 @@ class BookingFilterSwitch extends StatelessWidget {
 class _Segment extends StatelessWidget {
   final String label;
   final bool selected;
-  final Color yellow;
+  final Color accent;
   final Color onSurface;
   final VoidCallback onTap;
 
   const _Segment({
     required this.label,
     required this.selected,
-    required this.yellow,
+    required this.accent,
     required this.onSurface,
     required this.onTap,
   });
@@ -71,7 +69,7 @@ class _Segment extends StatelessWidget {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 200),
       decoration: BoxDecoration(
-        color: selected ? yellow : Colors.transparent,
+        color: selected ? accent : Colors.transparent,
         borderRadius: BorderRadius.circular(12),
       ),
       child: InkWell(
@@ -83,7 +81,9 @@ class _Segment extends StatelessWidget {
             child: Text(
               label,
               style: context.textStyles.titleSmall?.semiBold.withColor(
-                selected ? Colors.black : onSurface.withValues(alpha: 0.4),
+                selected
+                    ? accent.readableForeground()
+                    : onSurface.withValues(alpha: 0.4),
               ),
             ),
           ),

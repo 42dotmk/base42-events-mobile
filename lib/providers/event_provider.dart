@@ -34,24 +34,37 @@ class EventProvider extends ChangeNotifier {
   }
 
   Future<void> loadEvents() async {
-    _isLoading = true;
-    _errorMessage = null;
-    notifyListeners();
+    final cached = await _eventService.getCachedEvents();
 
-    try {
-      _events = await _eventService.fetchEvents();
+    if (cached != null && cached.isNotEmpty) {
+      _events = cached;
       _isLoading = false;
       notifyListeners();
-    } catch (e) {
-      _errorMessage = e.toString();
-      debugPrint('EventProvider: Failed to load events: $e');
-      _isLoading = false;
+    } else {
+      _isLoading = true;
+      _errorMessage = null;
       notifyListeners();
-      rethrow;
     }
+
+    await _refreshFromNetwork();
   }
 
   Future<void> refreshEvents() async {
-    await loadEvents();
+    await _refreshFromNetwork();
+  }
+
+  Future<void> _refreshFromNetwork() async {
+    try {
+      _events = await _eventService.fetchEvents();
+      _errorMessage = null;
+    } catch (e) {
+      debugPrint('EventProvider: Failed to load events: $e');
+      if (_events.isEmpty) {
+        _errorMessage = e.toString();
+      }
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
   }
 }
