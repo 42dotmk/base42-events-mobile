@@ -1,4 +1,4 @@
-const String baseUrl = 'http://10.0.2.2:1337';
+const String baseUrl = 'https://cms.42.mk';
 const String eventsBaseUrl = '$baseUrl/api/events';
 const String eventsApiUrl = '$eventsBaseUrl?sort=start:desc&populate=*';
 const String usersApiUrl = '$baseUrl/api/users';
